@@ -225,9 +225,7 @@ export default function Dashboard() {
             </>
           )}
 
-          {/* ==================================================
-              VISTA 2: MIS MOTOS (Cliente)
-             ================================================== */}
+          {/* Vista de las motos registradas por el cliente */}
           {activeTab === 'motos' && (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
               
@@ -239,7 +237,7 @@ export default function Dashboard() {
                  <span style={{ fontWeight: '600' }}>Registrar Nueva Moto</span>
               </div>
 
-              {/* Moto Simulada 1 */}
+              {/* Moto Simulada para el ejemplo */}
               <div className="data-card moto-card">
                  <span className="moto-badge">PRINCIPAL</span>
                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '15px' }}>
@@ -256,7 +254,7 @@ export default function Dashboard() {
                  <button style={{ width: '100%', marginTop: '15px', padding: '8px', border: '1px solid var(--gray)', background: 'white', borderRadius: '6px', cursor:'pointer' }}>Ver Historial</button>
               </div>
 
-              {/* Moto Simulada 2 */}
+              {/* Moto Simulada para el ejemplo 2 */}
               <div className="data-card moto-card">
                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '15px' }}>
                     <div>
@@ -274,9 +272,7 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* ==================================================
-              VISTA 3: PROMOCIONES (Cliente)
-             ================================================== */}
+          {/* Promociones (Cliente) */}
           {activeTab === 'promos' && (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
                {[1, 2, 3].map(i => (
@@ -298,9 +294,7 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* ==================================================
-              VISTA 4: FORMACIÓN / CURSOS (Cliente)
-             ================================================== */}
+          {/* Formacion y cursos (Cliente) */}
           {activeTab === 'cursos' && (
             <div>
                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
@@ -328,9 +322,7 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* ==================================================
-              VISTA 5: COMUNIDAD (Cliente)
-             ================================================== */}
+          {/* Vista de las Comunidades (Cliente) */}
           {activeTab === 'comunidad' && (
              <div className="data-card" style={{ padding: '0' }}>
                 <div style={{ padding: '20px', borderBottom: '1px solid #eee' }}>
@@ -353,9 +345,7 @@ export default function Dashboard() {
              </div>
           )}
 
-          {/* ==================================================
-              VISTA 6: INVENTARIO (Local)
-             ================================================== */}
+          {/* Vista del Inventario (Local) */}
           {(activeTab === 'productos') && (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '25px', padding: '10px' }}>
               <div className="data-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '2px dashed var(--primary-red)', background: 'rgba(230, 57, 70, 0.05)', cursor: 'pointer', minHeight: '250px' }}>
@@ -375,9 +365,7 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* ==================================================
-              VISTA 7: MAPA GLOBAL (Admin)
-             ================================================== */}
+          {/* Vista del Mapa global (Admin) */}
           {activeTab === 'mapa' && (
             <div style={{ height: '100%', borderRadius: '20px', overflow: 'hidden', border: '4px solid white', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
               <MapContainer center={[10.4806, -66.9036]} zoom={13} style={{ height: '100%', width: '100%' }}>
@@ -389,9 +377,7 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* ==================================================
-              VISTA 8: USUARIOS (Admin)
-             ================================================== */}
+          {/* Vista de los usuarios(Admin) */}
           {activeTab === 'usuarios' && (
             <div className="data-card">
               <h2>Control de Usuarios</h2>

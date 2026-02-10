@@ -5,18 +5,24 @@ import { supabase } from '../supabaseClient'
 export default function Registro() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
-  
-  // Estado para todos los campos requeridos por la nueva BD
+  const [rol, setRol] = useState('cliente') // 'cliente' o 'local'
+
+  // Un solo estado para todos los campos
   const [formData, setFormData] = useState({
+    nombre: '',
     email: '',
+    telefono: '',
     password: '',
-    cedula: '', // CLAVE PRIMARIA de la tabla personas
-    nombres: '',
-    apellidos: '',
-    edad: '',
-    tipo_sangre: 'O+',
-    genero_id: '1', // 1: Hombre (según tu SQL)
-    rol: 'cliente'  // o 'local'
+    confirmPassword: '',
+    // Datos Comercio
+    nombreComercio: '',
+    rfc: '',
+    direccion: '',
+    tipoComercio: '',
+    // Datos Salud (Cliente)
+    tipoSangre: '',
+    alergias: '',
+    numeroSeguro: ''
   })
 
   const handleChange = (e) => {
@@ -25,44 +31,35 @@ export default function Registro() {
 
   const handleRegistro = async (e) => {
     e.preventDefault()
-    setLoading(true)
+    if (formData.password !== formData.confirmPassword) {
+      alert("Las contraseñas no coinciden")
+      return
+    }
 
+    setLoading(true)
     try {
-      // 1. Crear Usuario en Auth (Correo y Pass)
+      // 1. Crear Usuario en Auth de Supabase
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
+        options: {
+          data: {
+            full_name: formData.nombre,
+            rol_inicial: rol // Guardamos qué rol eligió en la metadata
+          }
+        }
       })
+
       if (authError) throw authError
-      if (!authData.user) throw new Error("No se pudo crear el usuario")
 
-      const userId = authData.user.id
-
-      // 2. Insertar en tabla PERSONAS (Con Cédula y user_id)
-      const { error: personaError } = await supabase.from('personas').insert([{
-        cedula: formData.cedula,
-        id_auth: userId, // EL PUENTE
-        nombres: formData.nombres,
-        apellidos: formData.apellidos,
-        edad: parseInt(formData.edad),
-        tipo_sangre: formData.tipo_sangre,
-        genero_id: parseInt(formData.genero_id)
-      }])
-      if (personaError) throw personaError
-
-      // 3. Insertar en tabla ROLES
-      const { error: rolError } = await supabase.from('roles').insert([{
-        persona_cedula: formData.cedula,
-        nombre_rol: formData.rol
-      }])
-      if (rolError) throw rolError
-
-      alert('¡Cuenta creada con éxito!')
-      navigate('/') // Mandar al Login o Dashboard
+      // 2. Aquí iría la lógica de inserción en Base de Datos (Tablas Personas/Roles)
+      // Como pediste un prototipo visual funcional por ahora, simulamos éxito.
+      
+      alert('¡Registro exitoso! Por favor verifica tu correo.')
+      navigate('/') // Redirigir al Login
 
     } catch (error) {
-      console.error(error)
-      alert('Error al registrar: ' + (error.message || error.details))
+      alert('Error en el registro: ' + error.message)
     } finally {
       setLoading(false)
     }
@@ -70,48 +67,152 @@ export default function Registro() {
 
   return (
     <div className="main-container">
-      <div className="glass-card" style={{maxWidth: '500px'}}> 
-        <h2 className="login-title">CREAR CUENTA</h2>
+      <div className="glass-card" style={{maxWidth: '800px'}}>
         
-        <form onSubmit={handleRegistro} className="form" style={{display:'flex', flexDirection:'column', gap:'10px'}}>
-          
-          {/* Datos de Cuenta */}
-          <input className="input-group" name="email" type="email" placeholder="Correo" onChange={handleChange} required style={{width:'100%', padding:'10px'}}/>
-          <input className="input-group" name="password" type="password" placeholder="Contraseña" onChange={handleChange} required style={{width:'100%', padding:'10px'}}/>
+        {/* Header */}
+        <div className="company-logo">
+          <img src="/assets/images/logo.png" alt="Logo MotoPro 360" className="main-logo" />
+        </div>
+        <h1 className="login-title">CREAR CUENTA NUEVA</h1>
 
-          {/* Datos Personales (Tabla Personas) */}
-          <input className="input-group" name="cedula" type="text" placeholder="Cédula (ID)" onChange={handleChange} required style={{width:'100%', padding:'10px'}}/>
-          
-          <div style={{display:'flex', gap:'10px'}}>
-            <input name="nombres" type="text" placeholder="Nombres" onChange={handleChange} required style={{flex:1, padding:'10px'}}/>
-            <input name="apellidos" type="text" placeholder="Apellidos" onChange={handleChange} required style={{flex:1, padding:'10px'}}/>
-          </div>
+        {/* --- SELECTOR DE ROL --- */}
+        <div className="role-selector-container">
+            <div 
+                className={`role-card ${rol === 'cliente' ? 'active' : ''}`}
+                onClick={() => setRol('cliente')}
+            >
+                <div className="check-icon"><i className="fas fa-check-circle"></i></div>
+                <i className="fas fa-user role-icon-big"></i>
+                <h3>USUARIO</h3>
+                <p>Busco repuestos y servicios</p>
+            </div>
 
-          <div style={{display:'flex', gap:'10px'}}>
-             <input name="edad" type="number" placeholder="Edad" onChange={handleChange} required style={{flex:1, padding:'10px'}}/>
-             {/* Select de Género (Asumiendo IDs 1,2,3 del SQL) */}
-             <select name="genero_id" onChange={handleChange} style={{flex:1, padding:'10px'}}>
-               <option value="1">Hombre</option>
-               <option value="2">Mujer</option>
-               <option value="3">Otro</option>
-             </select>
-          </div>
+            <div 
+                className={`role-card ${rol === 'local' ? 'active' : ''}`}
+                onClick={() => setRol('local')}
+            >
+                <div className="check-icon"><i className="fas fa-check-circle"></i></div>
+                <i className="fas fa-store role-icon-big"></i>
+                <h3>COMERCIO</h3>
+                <p>Ofrezco productos y taller</p>
+            </div>
+        </div>
 
-          {/* Select de Rol */}
-          <label style={{color:'white', marginTop:'5px'}}>¿Qué eres?</label>
-          <select name="rol" onChange={handleChange} style={{padding:'10px', width:'100%'}}>
-            <option value="cliente">Cliente (Busco servicios)</option>
-            <option value="local">Local (Ofrezco servicios)</option>
-          </select>
+        {/* --- FORMULARIO --- */}
+        <form onSubmit={handleRegistro} className="form" style={{marginTop: '30px'}}>
+            
+            {/* SECCIÓN 1: DATOS BÁSICOS (Común) */}
+            <div className="form-section">
+                <h3 className="section-header"><i className="fas fa-id-card"></i> Datos de Cuenta</h3>
+                
+                <div className="input-group">
+                    <i className="fas fa-user icon-field"></i>
+                    <input type="text" name="nombre" placeholder="Nombre Completo" onChange={handleChange} required />
+                </div>
 
-          <button type="submit" className="btn-main-login" disabled={loading} style={{marginTop:'20px'}}>
-            {loading ? 'REGISTRANDO...' : 'FINALIZAR REGISTRO'}
-          </button>
+                <div className="responsive-row">
+                    <div className="input-group">
+                        <i className="fas fa-envelope icon-field"></i>
+                        <input type="email" name="email" placeholder="Correo Electrónico" onChange={handleChange} required />
+                    </div>
+                    <div className="input-group">
+                        <i className="fas fa-phone icon-field"></i>
+                        <input type="tel" name="telefono" placeholder="Teléfono" onChange={handleChange} required />
+                    </div>
+                </div>
+
+                <div className="responsive-row">
+                    <div className="input-group">
+                        <i className="fas fa-lock icon-field"></i>
+                        <input type="password" name="password" placeholder="Contraseña" onChange={handleChange} required />
+                    </div>
+                    <div className="input-group">
+                        <i className="fas fa-lock icon-field"></i>
+                        <input type="password" name="confirmPassword" placeholder="Confirmar Contraseña" onChange={handleChange} required />
+                    </div>
+                </div>
+            </div>
+
+            {/* SECCIÓN 2: CONDICIONAL (Según Rol) */}
+            
+            {/* A. CAMPOS DE CLIENTE (Salud/Seguro) */}
+            {rol === 'cliente' && (
+                <div className="form-section fade-in">
+                    <h3 className="section-header" style={{color: 'var(--primary-red)'}}>
+                        <i className="fas fa-heartbeat"></i> Información Vital (Opcional)
+                    </h3>
+                    <p style={{fontSize:'0.8rem', color:'#666', marginBottom:'15px'}}>Estos datos ayudan en caso de emergencia vial (Solo Premium).</p>
+
+                    <div className="responsive-row">
+                        <div className="input-group">
+                            <i className="fas fa-tint icon-field"></i>
+                            <select name="tipoSangre" onChange={handleChange} style={{background:'none', border:'none', width:'100%', outline:'none', color:'#555'}}>
+                                <option value="">Tipo de Sangre</option>
+                                <option value="O+">O Positivo (O+)</option>
+                                <option value="O-">O Negativo (O-)</option>
+                                <option value="A+">A Positivo (A+)</option>
+                                <option value="A-">A Negativo (A-)</option>
+                                <option value="B+">B Positivo (B+)</option>
+                                <option value="AB+">AB Positivo (AB+)</option>
+                            </select>
+                        </div>
+                        <div className="input-group">
+                            <i className="fas fa-file-medical icon-field"></i>
+                            <input type="text" name="numeroSeguro" placeholder="Nro. Póliza / Seguro" onChange={handleChange} />
+                        </div>
+                    </div>
+                    <div className="input-group">
+                        <i className="fas fa-allergies icon-field"></i>
+                        <input type="text" name="alergias" placeholder="Alergias o Condiciones Médicas" onChange={handleChange} />
+                    </div>
+                </div>
+            )}
+
+            {/* B. CAMPOS DE COMERCIO */}
+            {rol === 'local' && (
+                <div className="form-section fade-in">
+                    <h3 className="section-header" style={{color: 'var(--primary-red)'}}>
+                        <i className="fas fa-store-alt"></i> Datos del Negocio
+                    </h3>
+                    
+                    <div className="input-group">
+                        <i className="fas fa-building icon-field"></i>
+                        <input type="text" name="nombreComercio" placeholder="Nombre del Comercio / Taller" onChange={handleChange} />
+                    </div>
+
+                    <div className="responsive-row">
+                        <div className="input-group">
+                            <i className="fas fa-map-marker-alt icon-field"></i>
+                            <input type="text" name="direccion" placeholder="Dirección Fiscal" onChange={handleChange} />
+                        </div>
+                        <div className="input-group">
+                            <i className="fas fa-file-invoice icon-field"></i>
+                            <input type="text" name="rfc" placeholder="RIF / Cédula Jurídica" onChange={handleChange} />
+                        </div>
+                    </div>
+                    
+                    <div className="input-group">
+                        <i className="fas fa-tags icon-field"></i>
+                        <select name="tipoComercio" onChange={handleChange} style={{background:'none', border:'none', width:'100%', outline:'none', color:'#555'}}>
+                            <option value="">Tipo de Servicio</option>
+                            <option value="taller">Taller Mecánico</option>
+                            <option value="repuestos">Venta de Repuestos</option>
+                            <option value="concesionario">Concesionario</option>
+                            <option value="grua">Servicio de Grúa</option>
+                        </select>
+                    </div>
+                </div>
+            )}
+
+            <button type="submit" className="btn-main-login" style={{marginTop: '20px'}} disabled={loading}>
+                {loading ? 'REGISTRANDO...' : 'CREAR CUENTA'}
+            </button>
         </form>
-        
-        <Link to="/" className="btn-register" style={{marginTop:'15px', display:'block', textAlign:'center'}}>
-           ¿Ya tienes cuenta? Inicia Sesión
-        </Link>
+
+        <div className="login-link">
+            <p>¿Ya tienes una cuenta? <Link to="/" className="link-login">Inicia Sesión</Link></p>
+        </div>
+
       </div>
     </div>
   )

@@ -9,29 +9,37 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
 
+  // --- LÓGICA LOGIN CORREO ---
   const handleLogin = async (e) => {
     e.preventDefault()
     setLoading(true)
-
     try {
-      // 1. Autenticación Real con Supabase
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
-
       if (error) throw error
-
-      // 2. Si pasa, redirigir al dashboard
-      // (Supabase maneja la sesión automáticamente)
       navigate('/dashboard')
-
     } catch (error) {
       alert('Error de acceso: ' + error.message)
-      // Aquí podrías agregar la lógica del "Shake" si tienes tiempo, 
-      // pero primero asegura la funcionalidad.
     } finally {
       setLoading(false)
+    }
+  }
+
+  // --- LÓGICA LOGIN GOOGLE (NUEVO) ---
+  const handleGoogleLogin = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          // Esto asegura que al volver de Google, vayan al dashboard
+          redirectTo: window.location.origin + '/dashboard' 
+        }
+      })
+      if (error) throw error
+    } catch (error) {
+      alert('Error con Google: ' + error.message)
     }
   }
 
@@ -41,7 +49,6 @@ export default function Login() {
         
         {/* Logotipo */}
         <div className="company-logo">
-           {/* Asegúrate de que la imagen esté en public/assets/images/ */}
           <img src="/assets/images/logo.png" alt="Logo MotoPro 360" className="main-logo" />
         </div>
 
@@ -54,11 +61,10 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Formulario */}
+        {/* Formulario Correo */}
         <form onSubmit={handleLogin} className="form">
           <div className="input-group">
             <i className="fas fa-envelope icon-field"></i>
-            {/* OJO: Cambié type="text" a type="email" y placeholder a CORREO */}
             <input 
               type="email" 
               placeholder="CORREO ELECTRÓNICO" 
@@ -93,14 +99,43 @@ export default function Login() {
           </button>
         </form>
         
-        <p>¿No tienes cuenta aún?</p>
-        {/* Usamos Link de React Router en lugar de <a> */}
-        <Link to="/registro" className="btn-register">¡ REGÍSTRATE AQUÍ !</Link>
-
-        {/* Botones Extra (Funcionalidad pendiente o futura) */}
-        <div className="divider">
-            <span>O</span>
+        {/* Divisor Visual */}
+        <div className="divider" style={{ margin: '20px 0', display: 'flex', alignItems: 'center', color: 'rgba(255,255,255,0.5)' }}>
+            <span style={{flex:1, height: '1px', background: 'rgba(255,255,255,0.2)'}}></span>
+            <span style={{padding: '0 10px', fontSize: '0.8rem'}}>O CONTINÚA CON</span>
+            <span style={{flex:1, height: '1px', background: 'rgba(255,255,255,0.2)'}}></span>
         </div>
+
+        {/* --- BOTÓN GOOGLE (NUEVO) --- */}
+        <button 
+            type="button" 
+            onClick={handleGoogleLogin} 
+            className="btn-google"
+            style={{
+                width: '100%',
+                padding: '12px',
+                background: 'white',
+                color: '#333',
+                border: 'none',
+                borderRadius: '50px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '10px',
+                marginBottom: '20px',
+                transition: 'transform 0.2s'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+        >
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="G" style={{width:'20px'}}/>
+            ACCEDER CON GOOGLE
+        </button>
+
+        <p>¿No tienes cuenta aún?</p>
+        <Link to="/registro" className="btn-register">¡ REGÍSTRATE AQUÍ !</Link>
 
         <footer className="footer-tag">
             @MOTOPRO360 - TODOS LOS DERECHOS RESERVADOS
