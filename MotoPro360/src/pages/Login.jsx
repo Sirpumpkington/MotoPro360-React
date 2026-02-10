@@ -102,10 +102,6 @@ export default function Login() {
             <span>O</span>
         </div>
 
-        <button type="button" className="btn-guest" onClick={() => alert("Función en desarrollo")}>
-            <i className="fas fa-user-secret"></i> ENTRAR COMO INVITADO
-        </button>
-
         <footer className="footer-tag">
             @MOTOPRO360 - TODOS LOS DERECHOS RESERVADOS
         </footer>

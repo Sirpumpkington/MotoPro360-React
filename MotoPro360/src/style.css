@@ -33,6 +33,7 @@ body {
     overflow-x: hidden;
 }
 
+
 /* Fondo decorativo */
 body::before {
     content: '';
@@ -54,6 +55,7 @@ body::before {
     z-index: 1;
 }
 
+
 .glass-card {
     background: rgba(248, 249, 250, 0.97);
     backdrop-filter: blur(15px);
@@ -66,6 +68,7 @@ body::before {
     border: 1px solid rgba(255, 255, 255, 0.5);
     overflow: hidden;
     transition: var(--transition);
+    color: var(--dark-gray);
 }
 
 .glass-card:hover {
@@ -913,4 +916,163 @@ textarea:focus {
     .sidebar-header { display: none; }
     .nav-link span { display: none; } /* Solo iconos en móvil */
     .nav-link { justify-content: center; margin: 0; }
+}
+
+/* =========================================
+   ESTILOS RESPONSIVE (MENÚ MÓVIL)
+   ========================================= */
+
+/* Botón Hamburguesa (Solo visible en móvil) */
+.mobile-menu-toggle {
+    display: none;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    background: var(--primary-red);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    z-index: 2000; /* Por encima de todo */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    cursor: pointer;
+}
+
+/* Fondo oscuro cuando el menú abre */
+.menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.6);
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.menu-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Media Query para Celulares */
+@media (max-width: 768px) {
+    .mobile-menu-toggle {
+        display: block; /* Aparece el botón */
+    }
+
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        z-index: 1001;
+        transform: translateX(-100%); /* Escondido a la izquierda */
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        width: 280px; /* Un poco más ancho para dedos */
+    }
+
+    .sidebar.open {
+        transform: translateX(0); /* Entra en escena */
+    }
+
+    /* Ajustamos el contenido para que no lo tape el botón */
+    .top-bar {
+        padding-left: 70px; 
+    }
+
+    /* =========================================
+   ESTILOS NUEVOS (FASE 2 - CLIENTE)
+   ========================================= */
+
+/* Tarjeta de Moto (Garaje) */
+.moto-card {
+    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+    border-left: 5px solid var(--primary-red);
+    position: relative;
+    overflow: hidden;
+}
+
+.moto-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--black);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: bold;
+}
+
+/* Tarjeta de Cupón/Promo */
+.coupon-card {
+    background: white;
+    border: 2px dashed var(--primary-red);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.coupon-circle {
+    width: 20px;
+    height: 20px;
+    background: var(--light-gray);
+    border-radius: 50%;
+    position: absolute;
+    left: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.coupon-circle.right {
+    left: auto;
+    right: -12px;
+}
+
+/* Tarjeta de Curso */
+.course-card {
+    border: none;
+    padding: 0;
+    overflow: hidden;
+}
+
+.course-thumb {
+    height: 140px;
+    background: var(--black);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 3rem;
+    position: relative;
+}
+
+.play-icon {
+    opacity: 0.8;
+    transition: 0.3s;
+}
+
+.course-card:hover .play-icon {
+    transform: scale(1.2);
+    color: var(--primary-red);
+}
+
+/* Tarjeta Comunidad */
+.community-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border-bottom: 3px solid transparent;
+    transition: 0.3s;
+}
+
+.community-card:hover {
+    border-bottom: 3px solid var(--primary-red);
+    transform: translateY(-2px);
+}
 }
