@@ -3,9 +3,7 @@ import { supabase } from '../supabaseClient'
 import { useNavigate } from 'react-router-dom'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
-// Asegúrate de tener configurados los iconos de Leaflet si no se ven,
-// si usas Vite a veces hay que importar las imágenes manualmente, 
-// pero por ahora dejémoslo simple.
+
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -142,9 +140,7 @@ export default function Dashboard() {
 
         <div className="content-wrapper">
           
-          {/* ==================================================
-              VISTA 1: INICIO (Lógica Especial Cliente vs Otros)
-             ================================================== */}
+          {/* Vista 1, Inicio */}
           {activeTab === 'inicio' && (
             <>
               {perfil?.nombre_rol === 'cliente' ? (
@@ -172,7 +168,7 @@ export default function Dashboard() {
                         </div>
                      </div>
                   ) : (
-                    /* ESTADO 2: Cliente YA buscó (Mapa + Lista) */
+                    /*  Cliente YA buscó (Mapa + Lista) */
                     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '20px' }}>
                       
                       {/* Barra de búsqueda superior (compacta) */}

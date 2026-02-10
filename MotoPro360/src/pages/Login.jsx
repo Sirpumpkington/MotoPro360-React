@@ -27,7 +27,7 @@ export default function Login() {
     }
   }
 
-  // --- LÓGICA LOGIN GOOGLE (NUEVO) ---
+  // Logica del login con Google
   const handleGoogleLogin = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
@@ -106,7 +106,7 @@ export default function Login() {
             <span style={{flex:1, height: '1px', background: 'rgba(255,255,255,0.2)'}}></span>
         </div>
 
-        {/* --- BOTÓN GOOGLE (NUEVO) --- */}
+        {/* Boton de registro de  */}
         <button 
             type="button" 
             onClick={handleGoogleLogin} 
