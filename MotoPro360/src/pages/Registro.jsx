@@ -141,7 +141,7 @@ export default function Registro() {
                     <h3 className="section-header" style={{color: 'var(--primary-red)'}}>
                         <i className="fas fa-heartbeat"></i> Información Vital (Opcional)
                     </h3>
-                    <p style={{fontSize:'0.8rem', color:'#666', marginBottom:'15px'}}>Estos datos ayudan en caso de emergencia vial (Solo Premium).</p>
+                    <p style={{fontSize:'0.8rem', color:'#666', marginBottom:'15px'}}>Estos datos ayudan en caso de emergencia vial.</p>
 
                     <div className="responsive-row">
                         <div className="input-group">
