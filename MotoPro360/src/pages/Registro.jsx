@@ -52,8 +52,6 @@ export default function Registro() {
 
       if (authError) throw authError
 
-      // 2. Aquí iría la lógica de inserción en Base de Datos (Tablas Personas/Roles)
-      // Como pediste un prototipo visual funcional por ahora, simulamos éxito.
       
       alert('¡Registro exitoso! Por favor verifica tu correo.')
       navigate('/') // Redirigir al Login

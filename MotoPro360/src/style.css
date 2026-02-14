@@ -317,36 +317,7 @@ input:focus {
 .btn-google i {
     font-size: 18px;
 }
-
-/* Botón Teléfono */
-.btn-phone {
-    background: var(--white);
-    border: 2px solid var(--phone-green);
-    padding: 14px;
-    border-radius: 12px;
-    font-weight: 600;
-    font-size: 14px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    transition: var(--transition);
-    width: 100%;
-    color: var(--phone-green);
-    box-shadow: 0 4px 12px rgba(52, 168, 83, 0.15);
-}
-
-.btn-phone:hover {
-    background: var(--phone-green);
-    color: var(--white);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(52, 168, 83, 0.25);
-}
-
-.btn-phone i {
-    font-size: 16px;
-}
+ 
 
 /* === FIN DE NUEVOS BOTONES === */
 
@@ -447,12 +418,12 @@ input:focus {
         font-size: 50px;
     }
     
-    .btn-google, .btn-phone {
+    .btn-google {
         padding: 12px;
         font-size: 13px;
     }
     
-    .btn-google i, .btn-phone i {
+    .btn-google i {
         font-size: 16px;
     }
 }
@@ -467,88 +438,18 @@ input:focus {
         max-height: 60px;
     }
     
-    .btn-main-login, .btn-guest, .btn-google, .btn-phone {
+    .btn-main-login, .btn-guest, .btn-google {
         padding: 12px;
         font-size: 13px;
     }
     
-    .btn-google, .btn-phone {
+    .btn-google {
         gap: 8px;
     }
 }
 /* ===== ESTILOS PARA LA PÁGINA DE REGISTRO ===== */
 
-/* Selector de Rol */
-.role-selector {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-bottom: 30px;
-}
-
-.role-option {
-    background: var(--white);
-    border: 2px solid var(--gray);
-    border-radius: 15px;
-    padding: 20px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    cursor: pointer;
-    transition: var(--transition);
-    position: relative;
-}
-
-.role-option:hover {
-    border-color: var(--primary-red);
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(230, 57, 70, 0.1);
-}
-
-.role-option.active {
-    border-color: var(--primary-red);
-    background: linear-gradient(135deg, rgba(230, 57, 70, 0.05), rgba(193, 18, 31, 0.05));
-}
-
-.role-option.active .role-check {
-    display: block;
-}
-
-.role-icon {
-    width: 50px;
-    height: 50px;
-    background: linear-gradient(135deg, var(--primary-red), var(--dark-red));
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 22px;
-}
-
-.role-info {
-    flex: 1;
-}
-
-.role-info h3 {
-    color: var(--black);
-    font-size: 16px;
-    font-weight: 700;
-    margin-bottom: 5px;
-}
-
-.role-info p {
-    color: var(--dark-gray);
-    font-size: 12px;
-    font-weight: 400;
-    line-height: 1.4;
-}
-
-.role-check {
-    color: var(--primary-red);
-    font-size: 22px;
-    display: none;
-}
+/* (Selector de rol movido al bloque de estilos no usados al final) */
 
 /* Secciones del formulario */
 .form-section {
@@ -556,31 +457,7 @@ input:focus {
     padding-bottom: 20px;
     border-bottom: 1px solid var(--gray);
 }
-
-.section-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--black);
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.section-title i {
-    color: var(--primary-red);
-}
-
-/* Campos de entrada en fila */
-.input-row {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 15px;
-}
-
-.input-group.half {
-    flex: 1;
-}
+/* (Section title / input-row moved to unused block at end) */
 
 /* Select personalizado */
 select {
@@ -647,16 +524,6 @@ textarea:focus {
     cursor: pointer;
 }
 
-.link-terminos {
-    color: var(--primary-red);
-    text-decoration: none;
-    font-weight: 600;
-    transition: var(--transition);
-}
-
-.link-terminos:hover {
-    text-decoration: underline;
-}
 
 /* Enlace para iniciar sesión */
 .login-link {
@@ -682,63 +549,14 @@ textarea:focus {
     text-decoration: underline;
 }
 
-/* Indicador de campo obligatorio */
-.input-group.required label::after {
-    content: " *";
-    color: var(--primary-red);
-}
-
-/* Estilos para campos deshabilitados temporalmente */
-.input-group.disabled {
-    opacity: 0.6;
-    pointer-events: none;
-}
 
 /* Responsive para registro */
 @media (max-width: 480px) {
-    .role-option {
-        padding: 15px;
-    }
-    
-    .role-icon {
-        width: 40px;
-        height: 40px;
-        font-size: 18px;
-    }
-    
-    .role-info h3 {
-        font-size: 14px;
-    }
-    
-    .role-info p {
-        font-size: 11px;
-    }
-    
-    .input-row {
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .input-group.half {
-        width: 100%;
-    }
-    
-    select, textarea {
-        padding: 14px 20px 14px 50px;
-        font-size: 13px;
-    }
+    /* responsive adjustments for registro (moved to unused block at end) */
 }
 
 @media (max-width: 360px) {
-    .role-option {
-        flex-direction: column;
-        text-align: center;
-        gap: 10px;
-    }
-    
-    .role-info {
-        text-align: center;
-    }
+    /* responsive adjustments for registro (moved to unused block at end) */
 }
 
 
@@ -1075,4 +893,16 @@ textarea:focus {
     border-bottom: 3px solid var(--primary-red);
     transform: translateY(-2px);
 }
+.community-avatar {
+    width: 50px;
+    height: 50px;
+    background: var(--dark-gray);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
 }
