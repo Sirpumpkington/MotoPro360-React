@@ -72,7 +72,6 @@ body::before {
 }
 
 .glass-card:hover {
-    transform: translateY(-5px);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
 }
 
@@ -800,6 +799,58 @@ textarea:focus {
     /* Ajustamos el contenido para que no lo tape el botón */
     .top-bar {
         padding-left: 70px; 
+    }
+
+    /* ===== Ajustes para mostrar texto y alinear iconos cuando el sidebar está en modo off-canvas ===== */
+    /* Forzamos que el sidebar en móvil sea columna y muestre texto cuando esté abierto */
+    .sidebar {
+        display: flex;
+        flex-direction: column;
+        padding: 20px;
+        width: 280px;
+    }
+
+    /* Cuando el menú está cerrado (transform:-100%), queremos que el contenido principal no se vea afectado;
+       cuando está abierto, las opciones deben mostrar icono + texto alineados correctamente. */
+    .sidebar .nav-link {
+        justify-content: flex-start;
+        gap: 12px;
+        margin: 8px 0;
+        padding: 12px 14px;
+    }
+
+    /* Aseguramos que el span con texto sea visible dentro del sidebar (especialmente cuando .open) */
+    .sidebar .nav-link span {
+        display: inline;
+    }
+
+    /* Iconos con tamaño fijo para evitar desbordes */
+    .sidebar .nav-link i {
+        min-width: 24px;
+        text-align: center;
+        font-size: 1.05rem;
+    }
+
+    /* Si el diseño previo ocultaba spans en otros breakpoints, garantizamos que dentro del off-canvas
+       abierto se muestren correctamente */
+    .sidebar.open .nav-link span {
+        display: inline;
+    }
+
+    /* Si la barra de navegación se mostró como fila en alguna regla anterior (overflow-x), la sobreescribimos */
+    .dashboard-overlay {
+        flex-direction: column;
+    }
+
+    /* Responsive split: cuando hay lista + mapa/resultados, apilamos en móvil */
+    .responsive-split {
+        flex-direction: column;
+        gap: 16px;
+        display: flex;
+    }
+
+    .responsive-split > div {
+        min-height: 240px;
     }
 
     /* =========================================

@@ -14,7 +14,7 @@ export default function AdminView({ activeTab, usuarios }) {
 
   if (activeTab === 'mapa') {
     return (
-      <div style={{ height: '100%', borderRadius: '20px', overflow: 'hidden', border: '4px solid white', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
+      <div style={{ minHeight: '400px', borderRadius: '20px', overflow: 'hidden', border: '4px solid white', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
         <MapContainer center={[10.4806, -66.9036]} zoom={13} style={{ height: '100%', width: '100%' }}>
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           <Marker position={[10.4806, -66.9036]}>
