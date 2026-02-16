@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 // --- IMPORTS DE TUS VISTAS SEPARADAS ---
 import ClientView from "../views/ClientViews.jsx";
 import LocalView from "../views/LocalViews.jsx";
-import AdminView from "../views/AdminViews.jsx"; // Asumo que ya creaste este con la parte de Mapa y Tabla Usuarios
+import AdminView from "../views/AdminViews.jsx";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -240,11 +240,15 @@ export default function Dashboard() {
           />
 
           {/* 2. Vista del Local */}
-          <LocalView activeTab={activeTab} />
+          <LocalView activeTab={activeTab} perfil={perfil} />
 
           {/* 3. Vista del Admin */}
           {/* Pasamos 'usuarios' porque el Dashboard es quien los descargó de la base de datos */}
-          <AdminView activeTab={activeTab} usuarios={usuarios} />
+          <AdminView
+            activeTab={activeTab}
+            usuarios={usuarios}
+            perfil={perfil}
+          />
         </div>
       </main>
     </div>

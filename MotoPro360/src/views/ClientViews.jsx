@@ -9,6 +9,28 @@ export default function ClientView({
   busquedaRealizada,
   setBusquedaRealizada,
 }) {
+  // --- ESTADOS PARA LA BÚSQUEDA ---
+  const [busqueda, setBusqueda] = useState("");
+  const [productoSeleccionado, setProductoSeleccionado] = useState(null);
+  const [productosFiltrados, setProductosFiltrados] = useState([]);
+
+  // --- FUNCIÓN PARA BUSCAR (Pegar cerca de tus otras funciones) ---
+  const ejecutarBusqueda = () => {
+    if (!busqueda.trim()) return;
+
+    // Filtramos por varios campos posibles (nombre_producto, nombre, compatibilidad_manual)
+    const base = productos || [];
+    const q = busqueda.toLowerCase();
+    const resultados = base.filter((prod) => {
+      const nombre = (prod.nombre_producto || prod.nombre || "").toLowerCase();
+      const compat = (prod.compatibilidad_manual || "").toLowerCase();
+      return nombre.includes(q) || compat.includes(q);
+    });
+
+    setProductosFiltrados(resultados || []);
+    setBusquedaRealizada(true);
+    setProductoSeleccionado(null); // Reiniciar mapa al buscar de nuevo
+  };
   const [motos, setMotos] = useState([]);
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -22,6 +44,18 @@ export default function ClientView({
     placa: "",
   });
 
+  // Deferred import of client-specific CSS to enable HMR and avoid loading it until needed
+  useEffect(() => {
+    let mounted = true;
+    // dynamic import of CSS (Vite will handle HMR for files in src)
+    import("../assets/css/client.css").then(() => {
+      if (!mounted) return;
+    });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   // 1. Efecto para cargar datos dinámicos desde Supabase
   useEffect(() => {
     if (!perfil) return;
@@ -29,6 +63,32 @@ export default function ClientView({
     const fetchData = async () => {
       setLoading(true);
 
+      if (activeTab === "inicio") {
+        // Busca tu useEffect y reemplaza el bloque .select por este:
+        const { data, error } = await supabase
+          .from("productos")
+          .select(
+            `
+            *,
+            categorias (nombre_categoria),
+            locales (
+            nombre_local,
+            telefono,
+            ubicacion_id,
+            ubicaciones (
+                latitud,
+                longitud,
+                direccion_fisica
+            )
+            )
+        `,
+          )
+          .eq("status", true);
+
+        if (error) console.error("Error detallado de Supabase:", error);
+
+        if (!error) setProductos(data || []);
+      }
       // Cargar Motos del Cliente
       if (activeTab === "motos") {
         const fetchMarcas = async () => {
@@ -51,12 +111,6 @@ export default function ClientView({
       }
 
       // Cargar Productos (Para la vista de inicio/búsqueda)
-      if (activeTab === "inicio") {
-        const { data, error } = await supabase
-          .from("productos")
-          .select("*, locales(nombre_local, latitud, longitud)");
-        if (!error) setProductos(data || []);
-      }
 
       setLoading(false);
     };
@@ -100,6 +154,22 @@ export default function ClientView({
 
   // TAB: INICIO (Buscador + Mapa)
   if (activeTab === "inicio") {
+    // Preparar coordenadas del local seleccionado (si existen)
+    // Dentro de if (activeTab === "inicio")
+    let coords = null;
+    if (productoSeleccionado?.locales?.ubicaciones) {
+      const u = productoSeleccionado.locales.ubicaciones;
+
+      // Verificamos que los datos no sean nulos
+      if (u.latitud && u.longitud) {
+        coords = {
+          lat: Number(u.latitud),
+          lng: Number(u.longitud),
+          direccion_fisica: u.direccion_fisica,
+        };
+      }
+    }
+
     return (
       <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
         {!busquedaRealizada ? (
@@ -132,12 +202,15 @@ export default function ClientView({
                 <input
                   type="text"
                   placeholder="Ej: Pastillas de freno, Aceite..."
+                  value={busqueda}
+                  onChange={(e) => setBusqueda(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && ejecutarBusqueda()}
                 />
               </div>
               <button
                 className="btn-main-login"
                 style={{ width: "100%", marginTop: "20px" }}
-                onClick={() => setBusquedaRealizada(true)}
+                onClick={ejecutarBusqueda} // <--- CAMBIO AQUÍ
               >
                 BUSCAR DISPONIBILIDAD
               </button>
@@ -145,39 +218,41 @@ export default function ClientView({
           </div>
         ) : (
           /* Resultados de Búsqueda */
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              height: "100%",
-              gap: "20px",
-            }}
-          >
+          <>
             <div
               style={{
                 background: "white",
-                padding: "15px",
+                padding: "12px",
                 borderRadius: "12px",
                 display: "flex",
                 gap: "10px",
                 boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
+                marginBottom: "10px",
+                alignItems: "center",
               }}
             >
               <button
                 onClick={() => setBusquedaRealizada(false)}
                 className="search-back-btn"
                 aria-label="Volver búsqueda"
-                style={{ cursor: "pointer" }}
               >
                 <i className="fas fa-arrow-left" aria-hidden="true"></i>
               </button>
               <input
                 type="text"
-                defaultValue="Resultados de búsqueda"
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && ejecutarBusqueda()}
                 className="search-results-input"
                 autoFocus
-                style={{ width: "100%" }}
               />
+              <button
+                onClick={ejecutarBusqueda}
+                className="btn-main-login"
+                style={{ marginLeft: "auto" }}
+              >
+                Buscar
+              </button>
             </div>
 
             <div
@@ -189,7 +264,7 @@ export default function ClientView({
               }}
               className="responsive-split"
             >
-              {/* Lista de Productos Reales */}
+              {/* Lista de Productos Filtrados */}
               <div
                 style={{
                   overflowY: "auto",
@@ -199,44 +274,55 @@ export default function ClientView({
                 }}
               >
                 <h3 style={{ color: "darkgrey" }}>
-                  {productos.length} resultados encontrados
+                  {productosFiltrados.length} resultados encontrados
                 </h3>
-                {productos.map((prod) => (
+
+                {productosFiltrados.map((prod) => (
                   <div
-                    key={prod.id}
+                    key={prod.id_producto}
                     className="data-card"
+                    onClick={() => setProductoSeleccionado(prod)} // <--- Seleccionar producto
                     style={{
                       padding: "15px",
                       display: "flex",
                       gap: "15px",
                       marginBottom: "15px",
+                      cursor: "pointer",
+                      border:
+                        productoSeleccionado?.id_producto === prod.id_producto
+                          ? "2px solid var(--primary-red)"
+                          : "1px solid #eee",
                     }}
                   >
                     <div
                       style={{
-                        width: "80px",
-                        height: "80px",
-                        background: "#040404",
+                        width: "60px",
+                        height: "60px",
+                        background: "#f0f0f0",
                         borderRadius: "8px",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
                       }}
                     >
-                      <i
-                        className="fas fa-box"
-                        style={{ color: "#000000" }}
-                      ></i>
+                      <i className="fas fa-box" style={{ color: "#ccc" }}></i>
                     </div>
                     <div>
-                      <h4 style={{ margin: 0 }}>{prod.nombre}</h4>
-                      <p style={{ fontSize: "0.8rem", color: "#666" }}>
+                      <h4 style={{ margin: 0 }}>{prod.nombre_producto}</h4>
+                      <p
+                        style={{
+                          fontSize: "0.8rem",
+                          color: "#666",
+                          margin: "2px 0",
+                        }}
+                      >
                         {prod.locales?.nombre_local}
                       </p>
                       <p
                         style={{
                           color: "var(--primary-red)",
                           fontWeight: "bold",
+                          margin: 0,
                         }}
                       >
                         ${prod.precio}
@@ -246,45 +332,123 @@ export default function ClientView({
                 ))}
               </div>
 
-              {/* Mapa con Ubicaciones Reales */}
+              {/* Contenedor del Mapa (Solo info si no hay selección) */}
               <div
                 style={{
                   flex: 1.5,
                   borderRadius: "15px",
                   overflow: "hidden",
-                  minHeight: "300px",
+                  background: "#f9f9f9",
+                  border: "1px solid #ddd",
+                  display: "flex",
+                  flexDirection: "column",
                 }}
               >
-                <MapContainer
-                  center={[10.4806, -66.9036]}
-                  zoom={13}
-                  style={{ height: "100%", width: "100%" }}
-                >
-                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                  {productos.map(
-                    (prod) =>
-                      prod.locales?.latitud && (
-                        <Marker
-                          key={prod.id}
-                          position={[
-                            prod.locales.latitud,
-                            prod.locales.longitud,
-                          ]}
-                        >
-                          <Popup>
-                            {prod.locales.nombre_local} <br /> {prod.nombre}
-                          </Popup>
-                        </Marker>
-                      ),
-                  )}
-                </MapContainer>
+                {!productoSeleccionado ? (
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      height: "100%",
+                      color: "#999",
+                    }}
+                  >
+                    <i
+                      className="fas fa-map-marked-alt"
+                      style={{ fontSize: "3rem", marginBottom: "10px" }}
+                    ></i>
+                    <p>Toca un producto para ver su ubicación</p>
+                  </div>
+                ) : coords ? (
+                  <div
+                    style={{
+                      height: "100%",
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                  >
+                    <MapContainer
+                      center={[coords.lat, coords.lng]}
+                      zoom={15}
+                      style={{ height: "50%", width: "100%" }}
+                      key={productoSeleccionado?.id_producto}
+                    >
+                      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                      <Marker position={[coords.lat, coords.lng]}>
+                        <Popup>
+                          {productoSeleccionado?.locales?.nombre_local}
+                        </Popup>
+                      </Marker>
+                    </MapContainer>
+
+                    <div
+                      style={{ padding: "20px", background: "white", flex: 1 }}
+                    >
+                      <h3 style={{ margin: 0, color: "var(--primary-red)" }}>
+                        {productoSeleccionado?.locales?.nombre_local}
+                      </h3>
+                      <p style={{ margin: "10px 0", fontSize: "0.9rem" }}>
+                        <i className="fas fa-map-marker-alt"></i>{" "}
+                        {coords.direccion_fisica}
+                      </p>
+                      <p style={{ margin: "5px 0", fontWeight: "bold" }}>
+                        <i className="fas fa-phone"></i>{" "}
+                        {productoSeleccionado?.locales?.telefono}
+                      </p>
+
+                      <button
+                        className="btn-main-login"
+                        style={{
+                          background: "#4285F4",
+                          marginTop: "15px",
+                          width: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "10px",
+                        }}
+                        // Busca el botón "CÓMO LLEGAR" y cambia el onClick por este:
+                        onClick={() =>
+                          window.open(
+                            `https://www.google.com/maps/dir/?api=1&destination=${coords.lat},${coords.lng}`,
+                            "_blank",
+                          )
+                        }
+                      >
+                        <i className="fab fa-google"></i> CÓMO LLEGAR
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      padding: "40px",
+                      textAlign: "center",
+                      color: "#666",
+                    }}
+                  >
+                    <i
+                      className="fas fa-exclamation-triangle"
+                      style={{ fontSize: "2rem", color: "orange" }}
+                    ></i>
+                    <p>Este local no tiene coordenadas registradas.</p>
+                    {console.log(
+                      "Revisa este objeto en consola:",
+                      productoSeleccionado,
+                    )}
+                  </div>
+                )}
               </div>
             </div>
-          </div>
+          </>
         )}
       </div>
     );
   }
+
+  //Hasta aqui es la parte del buscador y el mapa de resultados, ahora sigue la parte de registro y visualización de motos para el cliente.
 
   // Función para guardar nueva moto en Supabase
   const guardarMoto = async () => {

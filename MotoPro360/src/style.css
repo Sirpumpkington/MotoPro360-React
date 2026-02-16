@@ -204,35 +204,6 @@ input:focus {
   box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.1);
 }
 
-/* Estilos específicos para la vista de resultados de búsqueda */
-.search-back-btn {
-  border: none;
-  background: none;
-  color: var(--black);
-  padding: 6px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-.search-back-btn i {
-  color: var(--black);
-  font-size: 18px;
-}
-.search-results-input {
-  border: none;
-  outline: none;
-  width: 100%;
-  font-size: 14px;
-  color: var(--dark-gray);
-  background: transparent;
-}
-.search-results-input:focus {
-  outline: 2px solid var(--primary-red);
-  box-shadow: 0 0 0 4px rgba(230, 57, 70, 0.08);
-  border-radius: 8px;
-}
-
 /* Botón mostrar contraseña */
 .toggle-pass {
   position: absolute;
@@ -749,51 +720,7 @@ textarea:focus {
   margin-bottom: 15px;
 }
 
-/* Tabla Minimalista para Admin */
-.table-container {
-  overflow-x: auto;
-}
-
-.custom-table {
-  width: 100%;
-  border-collapse: collapse;
-  color: var(--white);
-  font-size: 0.9rem;
-}
-
-/* Tabla Admin */
-.custom-table th {
-  background-color: var(--gray);
-  color: var(--black);
-  font-weight: 700;
-  padding: 15px;
-}
-
-.custom-table td {
-  border-bottom: 1px solid var(--gray);
-  padding: 15px;
-  color: var(--dark-gray);
-}
-
-.badge {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.badge-cliente {
-  background: rgba(52, 168, 83, 0.2);
-  color: var(--phone-green);
-}
-.badge-local {
-  background: rgba(66, 133, 244, 0.2);
-  color: var(--google-blue);
-}
-.badge-admin {
-  background: rgba(230, 57, 70, 0.2);
-  color: var(--primary-red);
-}
+/* Tabla Minimalista para Admin moved to src/assets/css/admin.css */
 
 /* Responsive Dashboard */
 @media (max-width: 768px) {
@@ -926,117 +853,5 @@ textarea:focus {
     flex-direction: column;
   }
 
-  /* Responsive split: cuando hay lista + mapa/resultados, apilamos en móvil */
-  .responsive-split {
-    flex-direction: column;
-    gap: 16px;
-    display: flex;
-  }
-
-  .responsive-split > div {
-    min-height: 240px;
-  }
-
-  /* =========================================
-   ESTILOS NUEVOS (FASE 2 - CLIENTE)
-   ========================================= */
-
-  /* Tarjeta de Moto (Garaje) */
-  .moto-card {
-    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
-    border-left: 5px solid var(--primary-red);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .moto-badge {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: var(--black);
-    color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.7rem;
-    font-weight: bold;
-  }
-
-  /* Tarjeta de Cupón/Promo */
-  .coupon-card {
-    background: white;
-    border: 2px dashed var(--primary-red);
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-
-  .coupon-circle {
-    width: 20px;
-    height: 20px;
-    background: var(--light-gray);
-    border-radius: 50%;
-    position: absolute;
-    left: -12px;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-
-  .coupon-circle.right {
-    left: auto;
-    right: -12px;
-  }
-
-  /* Tarjeta de Curso */
-  .course-card {
-    border: none;
-    padding: 0;
-    overflow: hidden;
-  }
-
-  .course-thumb {
-    height: 140px;
-    background: var(--black);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 3rem;
-    position: relative;
-  }
-
-  .play-icon {
-    opacity: 0.8;
-    transition: 0.3s;
-  }
-
-  .course-card:hover .play-icon {
-    transform: scale(1.2);
-    color: var(--primary-red);
-  }
-
-  /* Tarjeta Comunidad */
-  .community-card {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    border-bottom: 3px solid transparent;
-    transition: 0.3s;
-  }
-
-  .community-card:hover {
-    border-bottom: 3px solid var(--primary-red);
-    transform: translateY(-2px);
-  }
-  .community-avatar {
-    width: 50px;
-    height: 50px;
-    background: var(--dark-gray);
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-  }
+  /* Client-specific rules moved to public/assets/css/client.css */
 }
