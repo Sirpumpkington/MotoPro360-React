@@ -153,15 +153,37 @@ export default function Dashboard() {
 
           {/* === MENÚ LOCAL === */}
           {perfil?.nombre_rol === "local" && (
-            <div
-              className={`nav-link ${activeTab === "productos" ? "active" : ""}`}
-              onClick={() => {
-                setActiveTab("productos");
-                setMenuAbierto(false);
-              }}
-            >
-              <i className="fas fa-boxes"></i> <span>Inventario</span>
-            </div>
+            <>
+              <div
+                className={`nav-link ${activeTab === "mi-local" ? "active" : ""}`}
+                onClick={() => {
+                  setActiveTab("mi-local");
+                  setMenuAbierto(false);
+                }}
+              >
+                <i className="fas fa-store"></i> <span>Mi Local</span>
+              </div>
+
+              <div
+                className={`nav-link ${activeTab === "productos" ? "active" : ""}`}
+                onClick={() => {
+                  setActiveTab("productos");
+                  setMenuAbierto(false);
+                }}
+              >
+                <i className="fas fa-boxes"></i> <span>Inventario</span>
+              </div>
+
+              <div
+                className={`nav-link ${activeTab === "ofertas" ? "active" : ""}`}
+                onClick={() => {
+                  setActiveTab("ofertas");
+                  setMenuAbierto(false);
+                }}
+              >
+                <i className="fas fa-tags"></i> <span>Ofertas</span>
+              </div>
+            </>
           )}
 
           {/* === MENÚ ADMIN === */}
