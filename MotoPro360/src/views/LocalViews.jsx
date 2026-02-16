@@ -4,7 +4,7 @@ export default function LocalView({ activeTab, perfil }) {
   // Mostrar solo a locales
   if (perfil?.nombre_rol !== "local") return null;
 
-  // Deferred load local styles
+  // Aqui se importa el CSS de manera dinámica para evitar cargarlo en otras vistas
   useEffect(() => {
     let mounted = true;
     import("../assets/css/local.css").then(() => {
@@ -15,6 +15,7 @@ export default function LocalView({ activeTab, perfil }) {
     };
   }, []);
 
+  // Contenido de cada pestaña
   if (activeTab === "inicio") {
     return (
       <div className="welcome-card-local">

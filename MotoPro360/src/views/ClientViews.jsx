@@ -69,19 +69,19 @@ export default function ClientView({
           .from("productos")
           .select(
             `
-            *,
-            categorias (nombre_categoria),
-            locales (
-            nombre_local,
-            telefono,
-            ubicacion_id,
-            ubicaciones (
-                latitud,
-                longitud,
-                direccion_fisica
-            )
-            )
-        `,
+                *,
+                categorias (nombre_categoria),
+                locales (
+                nombre_local,
+                telefono,
+                ubicacion_id,
+                ubicaciones (
+                    latitud,
+                    longitud,
+                    direccion_fisica
+                )
+                )
+            `,
           )
           .eq("status", true);
 
