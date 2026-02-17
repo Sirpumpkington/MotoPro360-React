@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import ClientView from "../views/ClientViews.jsx";
 import LocalView from "../views/LocalViews.jsx";
 import AdminView from "../views/AdminViews.jsx";
+import UserProfileModal from "../components/UserProfileModal";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ export default function Dashboard() {
   // Estados de control de interfaz
   const [activeTab, setActiveTab] = useState("inicio");
   const [menuAbierto, setMenuAbierto] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   // Estado para la búsqueda del cliente (se pasa como prop al ClientView)
   const [busquedaRealizada, setBusquedaRealizada] = useState(false);
@@ -96,7 +98,6 @@ export default function Dashboard() {
       {/* --- SIDEBAR LATERAL (MENÚ) --- */}
       <aside className={`sidebar ${menuAbierto ? "open" : ""}`}>
         <div className="sidebar-header">MOTOPRO 360</div>
-
         <nav style={{ flex: 1 }}>
           {/* OPCIÓN COMÚN: INICIO */}
           <div
@@ -246,7 +247,18 @@ export default function Dashboard() {
             >
               {perfil?.nombres}
             </span>
-            <div className="avatar-circle">{perfil?.nombres?.charAt(0)}</div>
+            <button
+              className="avatar-circle"
+              onClick={() => setIsProfileOpen(true)}
+              aria-label="Abrir perfil"
+              style={{
+                cursor: "pointer",
+                border: "none",
+                padding: 0,
+              }}
+            >
+              {perfil?.nombres?.charAt(0)}
+            </button>
           </div>
         </header>
 
@@ -272,6 +284,10 @@ export default function Dashboard() {
             perfil={perfil}
           />
         </div>
+        <UserProfileModal
+          isOpen={isProfileOpen}
+          onClose={() => setIsProfileOpen(false)}
+        />
       </main>
     </div>
   );

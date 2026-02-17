@@ -309,14 +309,16 @@ export default function LocalView({ activeTab, perfil }) {
             }}
           >
             <h2 style={{ margin: 0 }}>🏪 Configuración del Local</h2>
-            {!editandoPerfil && (
-              <button
-                className="btn-secondary"
-                onClick={() => setEditandoPerfil(true)}
-              >
-                <i className="fas fa-pen"></i> Editar
-              </button>
-            )}
+            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+              {!editandoPerfil && (
+                <button
+                  className="btn-secondary"
+                  onClick={() => setEditandoPerfil(true)}
+                >
+                  <i className="fas fa-pen"></i> Editar
+                </button>
+              )}
+            </div>
           </div>
 
           {!editandoPerfil ? (
