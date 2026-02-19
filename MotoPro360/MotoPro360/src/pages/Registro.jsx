@@ -38,34 +38,24 @@ export default function Registro() {
 
     setLoading(true)
     try {
-      // Guardar TODOS los campos en user_metadata
-      const metadata = {
-        full_name: formData.nombre,
-        telefono: formData.telefono,
-        rol: rol, // Guardamos el rol elegido (cliente o local)
-        // Datos de salud (cliente)
-        tipoSangre: formData.tipoSangre || '',
-        alergias: formData.alergias || '',
-        numeroSeguro: formData.numeroSeguro || '',
-        // Datos de comercio
-        nombreComercio: formData.nombreComercio || '',
-        rfc: formData.rfc || '',
-        direccion: formData.direccion || '',
-        tipoComercio: formData.tipoComercio || '',
-      }
-
+      // 1. Crear Usuario en Auth de Supabase
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
-          data: metadata // Aquí se incluye todo
+          data: {
+            full_name: formData.nombre,
+            rol_inicial: rol // Guardamos qué rol eligió en la metadata
+          }
         }
       })
 
       if (authError) throw authError
 
+      
       alert('¡Registro exitoso! Por favor verifica tu correo.')
       navigate('/') // Redirigir al Login
+
     } catch (error) {
       alert('Error en el registro: ' + error.message)
     } finally {
@@ -142,39 +132,6 @@ export default function Registro() {
             </div>
 
             {/* SECCIÓN 2: CONDICIONAL (Según Rol) */}
-            
-            {/* A. CAMPOS DE CLIENTE (Salud/Seguro) */}
-            {rol === 'cliente' && (
-                <div className="form-section fade-in">
-                    <h3 className="section-header" style={{color: 'var(--primary-red)'}}>
-                        <i className="fas fa-heartbeat"></i> Información Vital (Opcional)
-                    </h3>
-                    <p style={{fontSize:'0.8rem', color:'#666', marginBottom:'15px'}}>Estos datos ayudan en caso de emergencia vial.</p>
-
-                    <div className="responsive-row">
-                        <div className="input-group">
-                            <i className="fas fa-tint icon-field"></i>
-                            <select name="tipoSangre" onChange={handleChange} style={{background:'none', border:'none', width:'100%', outline:'none', color:'#555'}}>
-                                <option value="">Tipo de Sangre</option>
-                                <option value="O+">O Positivo (O+)</option>
-                                <option value="O-">O Negativo (O-)</option>
-                                <option value="A+">A Positivo (A+)</option>
-                                <option value="A-">A Negativo (A-)</option>
-                                <option value="B+">B Positivo (B+)</option>
-                                <option value="AB+">AB Positivo (AB+)</option>
-                            </select>
-                        </div>
-                        <div className="input-group">
-                            <i className="fas fa-file-medical icon-field"></i>
-                            <input type="text" name="numeroSeguro" placeholder="Nro. Póliza / Seguro" onChange={handleChange} />
-                        </div>
-                    </div>
-                    <div className="input-group">
-                        <i className="fas fa-allergies icon-field"></i>
-                        <input type="text" name="alergias" placeholder="Alergias o Condiciones Médicas" onChange={handleChange} />
-                    </div>
-                </div>
-            )}
 
             {/* B. CAMPOS DE COMERCIO */}
             {rol === 'local' && (

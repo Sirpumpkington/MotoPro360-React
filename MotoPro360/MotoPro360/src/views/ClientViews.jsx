@@ -8,6 +8,7 @@ export default function ClientView({
   perfil,
   busquedaRealizada,
   setBusquedaRealizada,
+  onAvatarUpdate, // <-- NUEVA PROP para actualizar la foto en el header
 }) {
   // --- ESTADOS PARA LA BÚSQUEDA ---
   const [busqueda, setBusqueda] = useState("");
@@ -151,6 +152,11 @@ export default function ClientView({
   if (perfil?.nombre_rol !== "cliente") return null;
 
   // --- RENDERIZADO POR TABS ---
+
+  // ========== NUEVA VISTA: MIS DATOS (PERFIL) ==========
+  if (activeTab === "perfil") {
+    return <ClientePerfil onAvatarUpdate={onAvatarUpdate} />;
+  }
 
   // TAB: INICIO (Buscador + Mapa)
   if (activeTab === "inicio") {
@@ -708,6 +714,26 @@ export default function ClientView({
     );
   }
 
+  // TAB: PROMOCIONES (Placeholder)
+  if (activeTab === "promos") {
+    return (
+      <div className="placeholder-view">
+        <h2>Promociones</h2>
+        <p>Módulo en construcción</p>
+      </div>
+    );
+  }
+
+  // TAB: FORMACIÓN (Placeholder)
+  if (activeTab === "cursos") {
+    return (
+      <div className="placeholder-view">
+        <h2>Formación</h2>
+        <p>Módulo en construcción</p>
+      </div>
+    );
+  }
+
   // TAB: COMUNIDAD (Ejemplo estático mejorado)
   if (activeTab === "comunidad") {
     return (
@@ -759,4 +785,237 @@ export default function ClientView({
   }
 
   return null;
+}
+
+// ================= COMPONENTE DE PERFIL DEL CLIENTE =================
+function ClientePerfil({ onAvatarUpdate }) {
+  const [formData, setFormData] = useState({
+    nombre: '',
+    email: '',
+    telefono: '',
+    tipoSangre: '',
+    alergias: '',
+    numeroSeguro: '',
+    fechaNacimiento: '',
+    genero: '',
+    direccion: '',
+  });
+  const [avatarUrl, setAvatarUrl] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [message, setMessage] = useState({ type: '', text: '' });
+
+  useEffect(() => {
+    cargarDatos();
+  }, []);
+
+  const cargarDatos = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const metadata = user.user_metadata || {};
+      setFormData({
+        nombre: metadata.full_name || '',
+        email: user.email || '',
+        telefono: metadata.telefono || '',
+        tipoSangre: metadata.tipoSangre || '',
+        alergias: metadata.alergias || '',
+        numeroSeguro: metadata.numeroSeguro || '',
+        fechaNacimiento: metadata.fechaNacimiento || '',
+        genero: metadata.genero || '',
+        direccion: metadata.direccion || '',
+      });
+      setAvatarUrl(metadata.avatar_url || null);
+    }
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleAvatarUpload = async (event) => {
+    try {
+      setUploading(true);
+      setMessage({ type: '', text: '' });
+
+      if (!event.target.files || event.target.files.length === 0) {
+        throw new Error('Debes seleccionar una imagen.');
+      }
+
+      const file = event.target.files[0];
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${crypto.randomUUID()}.${fileExt}`;
+      const filePath = fileName;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: publicUrlData } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      const avatarUrl = publicUrlData.publicUrl;
+
+      const { data: { user } } = await supabase.auth.getUser();
+      const { error: updateError } = await supabase.auth.updateUser({
+        data: { ...user.user_metadata, avatar_url: avatarUrl },
+      });
+
+      if (updateError) throw updateError;
+
+      setAvatarUrl(avatarUrl);
+      onAvatarUpdate?.(avatarUrl);
+      setMessage({ type: 'success', text: 'Foto actualizada correctamente.' });
+    } catch (err) {
+      setMessage({ type: 'error', text: 'Error al subir la imagen: ' + err.message });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage({ type: '', text: '' });
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const updatedMetadata = {
+        ...user.user_metadata,
+        full_name: formData.nombre,
+        telefono: formData.telefono,
+        tipoSangre: formData.tipoSangre,
+        alergias: formData.alergias,
+        numeroSeguro: formData.numeroSeguro,
+        fechaNacimiento: formData.fechaNacimiento,
+        genero: formData.genero,
+        direccion: formData.direccion,
+      };
+
+      const updates = { data: updatedMetadata };
+      if (formData.email !== user.email) {
+        updates.email = formData.email;
+      }
+
+      const { error } = await supabase.auth.updateUser(updates);
+      if (error) throw error;
+
+      setMessage({ type: 'success', text: 'Datos actualizados correctamente' });
+      cargarDatos();
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Error: ' + error.message });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="cliente-perfil">
+      <h2 className="section-title">Mis Datos</h2>
+
+      <div className="avatar-upload-section">
+        <div className="avatar-preview">
+          {avatarUrl ? (
+            <img src={avatarUrl} alt="Avatar" className="avatar-image" />
+          ) : (
+            <div className="avatar-placeholder">
+              {formData.nombre?.charAt(0) || 'U'}
+            </div>
+          )}
+        </div>
+        <div className="avatar-upload">
+          <label htmlFor="avatar-input" className="btn-upload">
+            {uploading ? 'Subiendo...' : 'Cambiar foto'}
+          </label>
+          <input
+            id="avatar-input"
+            type="file"
+            accept="image/*"
+            onChange={handleAvatarUpload}
+            disabled={uploading}
+            style={{ display: 'none' }}
+          />
+          <small className="field-note">JPG, PNG. Máx 2MB</small>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="perfil-form">
+        <div className="form-group">
+          <label>Nombre completo</label>
+          <input type="text" name="nombre" value={formData.nombre} onChange={handleChange} disabled={loading} required />
+        </div>
+
+        <div className="form-group">
+          <label>Correo electrónico</label>
+          <input type="email" name="email" value={formData.email} onChange={handleChange} disabled={loading} required />
+          <small className="field-note">Si cambias el correo, recibirás un enlace de verificación.</small>
+        </div>
+
+        <div className="form-group">
+          <label>Teléfono</label>
+          <input type="tel" name="telefono" value={formData.telefono} onChange={handleChange} disabled={loading} required />
+        </div>
+
+        <div className="form-group">
+          <label>Fecha de nacimiento</label>
+          <input type="date" name="fechaNacimiento" value={formData.fechaNacimiento} onChange={handleChange} disabled={loading} />
+        </div>
+
+        <div className="form-group">
+          <label>Género</label>
+          <select name="genero" value={formData.genero} onChange={handleChange} disabled={loading}>
+            <option value="">Seleccionar</option>
+            <option value="masculino">Masculino</option>
+            <option value="femenino">Femenino</option>
+            <option value="otro">Otro</option>
+            <option value="prefiero-no-decir">Prefiero no decir</option>
+          </select>
+        </div>
+
+        <div className="form-group">
+          <label>Dirección</label>
+          <input type="text" name="direccion" value={formData.direccion} onChange={handleChange} disabled={loading} placeholder="Calle, número, colonia, ciudad" />
+        </div>
+
+        <h3 className="subsection-title">Información médica (opcional)</h3>
+        <p className="subsection-note">Estos datos pueden ser útiles en caso de emergencia.</p>
+
+        <div className="form-group">
+          <label>Tipo de sangre</label>
+          <select name="tipoSangre" value={formData.tipoSangre} onChange={handleChange} disabled={loading}>
+            <option value="">Seleccionar</option>
+            <option value="O+">O+</option>
+            <option value="O-">O-</option>
+            <option value="A+">A+</option>
+            <option value="A-">A-</option>
+            <option value="B+">B+</option>
+            <option value="AB+">AB+</option>
+          </select>
+        </div>
+
+        <div className="form-group">
+          <label>Alergias o condiciones médicas</label>
+          <input type="text" name="alergias" value={formData.alergias} onChange={handleChange} disabled={loading} placeholder="Ej: Asma, alergia a penicilina" />
+        </div>
+
+        <div className="form-group">
+          <label>Número de seguro / póliza</label>
+          <input type="text" name="numeroSeguro" value={formData.numeroSeguro} onChange={handleChange} disabled={loading} />
+        </div>
+
+        {message.text && <div className={`message ${message.type}`}>{message.text}</div>}
+
+        <div className="form-actions">
+          <button type="submit" disabled={loading} className="btn-primary">
+            {loading ? 'Guardando...' : 'Guardar Cambios'}
+          </button>
+          <button type="button" onClick={cargarDatos} disabled={loading} className="btn-secondary">
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  );
 }

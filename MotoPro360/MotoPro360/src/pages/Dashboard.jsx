@@ -1,28 +1,27 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient.js";
 import { useNavigate } from "react-router-dom";
-import UserProfileModal from "../components/UserProfileModal"; // <-- NUEVO
 
 // --- IMPORTS DE TUS VISTAS SEPARADAS ---
 import ClientView from "../views/ClientViews.jsx";
 import LocalView from "../views/LocalViews.jsx";
 import AdminView from "../views/AdminViews.jsx";
+import UserProfileModal from "../components/UserProfileModal";
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const [perfil, setPerfil] = useState(null);
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [avatarUrl, setAvatarUrl] = useState(null);
 
   // Estados de control de interfaz
   const [activeTab, setActiveTab] = useState("inicio");
   const [menuAbierto, setMenuAbierto] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   // Estado para la búsqueda del cliente (se pasa como prop al ClientView)
   const [busquedaRealizada, setBusquedaRealizada] = useState(false);
-
-  // Estado para el modal de perfil
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false); // <-- NUEVO
 
   useEffect(() => {
     const cargarDatos = async () => {
@@ -32,6 +31,11 @@ export default function Dashboard() {
       if (!user) {
         navigate("/");
         return;
+      }
+
+      // Obtener la URL del avatar desde user_metadata
+      if (user.user_metadata?.avatar_url) {
+        setAvatarUrl(user.user_metadata.avatar_url);
       }
 
       // Cargar Perfil y Rol
@@ -48,7 +52,7 @@ export default function Dashboard() {
 
       setPerfil({ ...persona, ...rol });
 
-      // Si es Admin, cargar lista de usuarios (Se la pasaremos al AdminView)
+      // Si es Admin, cargar lista de usuarios
       if (rol?.nombre_rol === "admin") {
         const { data: lista } = await supabase
           .from("personas")
@@ -98,7 +102,6 @@ export default function Dashboard() {
       {/* --- SIDEBAR LATERAL (MENÚ) --- */}
       <aside className={`sidebar ${menuAbierto ? "open" : ""}`}>
         <div className="sidebar-header">MOTOPRO 360</div>
-
         <nav style={{ flex: 1 }}>
           {/* OPCIÓN COMÚN: INICIO */}
           <div
@@ -114,6 +117,15 @@ export default function Dashboard() {
           {/* === MENÚ CLIENTE === */}
           {perfil?.nombre_rol === "cliente" && (
             <>
+              <div
+                className={`nav-link ${activeTab === "perfil" ? "active" : ""}`}
+                onClick={() => {
+                  setActiveTab("perfil");
+                  setMenuAbierto(false);
+                }}
+              >
+                <i className="fas fa-user-edit"></i> <span>Mis Datos</span>
+              </div>
               <div
                 className={`nav-link ${activeTab === "motos" ? "active" : ""}`}
                 onClick={() => {
@@ -155,15 +167,37 @@ export default function Dashboard() {
 
           {/* === MENÚ LOCAL === */}
           {perfil?.nombre_rol === "local" && (
-            <div
-              className={`nav-link ${activeTab === "productos" ? "active" : ""}`}
-              onClick={() => {
-                setActiveTab("productos");
-                setMenuAbierto(false);
-              }}
-            >
-              <i className="fas fa-boxes"></i> <span>Inventario</span>
-            </div>
+            <>
+              <div
+                className={`nav-link ${activeTab === "mi-local" ? "active" : ""}`}
+                onClick={() => {
+                  setActiveTab("mi-local");
+                  setMenuAbierto(false);
+                }}
+              >
+                <i className="fas fa-store"></i> <span>Mi Local</span>
+              </div>
+
+              <div
+                className={`nav-link ${activeTab === "productos" ? "active" : ""}`}
+                onClick={() => {
+                  setActiveTab("productos");
+                  setMenuAbierto(false);
+                }}
+              >
+                <i className="fas fa-boxes"></i> <span>Inventario</span>
+              </div>
+
+              <div
+                className={`nav-link ${activeTab === "ofertas" ? "active" : ""}`}
+                onClick={() => {
+                  setActiveTab("ofertas");
+                  setMenuAbierto(false);
+                }}
+              >
+                <i className="fas fa-tags"></i> <span>Ofertas</span>
+              </div>
+            </>
           )}
 
           {/* === MENÚ ADMIN === */}
@@ -225,14 +259,36 @@ export default function Dashboard() {
             >
               {perfil?.nombres}
             </span>
-            {/* Botón para abrir el modal (sobre el avatar) */}
-            <div 
-              className="avatar-circle" 
-              onClick={() => setIsProfileModalOpen(true)}
-              style={{ cursor: "pointer" }}
+            <button
+              className="avatar-circle"
+              onClick={() => setIsProfileOpen(true)}
+              aria-label="Abrir perfil"
+              style={{
+                cursor: "pointer",
+                border: "none",
+                padding: 0,
+                width: "40px",
+                height: "40px",
+                borderRadius: "50%",
+                overflow: "hidden",
+                background: "var(--primary-red)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
             >
-              {perfil?.nombres?.charAt(0)}
-            </div>
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt="Avatar"
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              ) : (
+                <span style={{ color: "white", fontSize: "1.2rem" }}>
+                  {perfil?.nombres?.charAt(0)}
+                </span>
+              )}
+            </button>
           </div>
         </header>
 
@@ -242,6 +298,7 @@ export default function Dashboard() {
             perfil={perfil}
             busquedaRealizada={busquedaRealizada}
             setBusquedaRealizada={setBusquedaRealizada}
+            onAvatarUpdate={(url) => setAvatarUrl(url)} // <-- NUEVO
           />
           <LocalView activeTab={activeTab} perfil={perfil} />
           <AdminView
@@ -250,13 +307,12 @@ export default function Dashboard() {
             perfil={perfil}
           />
         </div>
+        <UserProfileModal
+          isOpen={isProfileOpen}
+          onClose={() => setIsProfileOpen(false)}
+          onAvatarUpdate={(url) => setAvatarUrl(url)} // también para el modal
+        />
       </main>
-
-      {/* Modal de perfil */}
-      <UserProfileModal
-        isOpen={isProfileModalOpen}
-        onClose={() => setIsProfileModalOpen(false)}
-      />
     </div>
   );
 }
