@@ -73,15 +73,35 @@ export default function LocalView({ activeTab, perfil }) {
   useEffect(() => {
     if (!perfil) return;
 
+    const fetchCategorias = async () => {
+      const { data } = await supabase.from("categorias").select("*");
+      if (data) setCategorias(data);
+    };
+    fetchCategorias();
+
+    // 1. CARGA DEL LOCAL
     const fetchLocalData = async () => {
       setLoading(true);
+      console.log("Cédula del perfil actual:", perfil?.cedula); // DEPURACIÓN
 
-      // Buscar Perfil del Local
-      const { data: localData } = await supabase
+      const { data: localData, error: localError } = await supabase
         .from("locales")
-        .select("*, ubicaciones(*)")
-        .eq("persona_id", perfil.cedula)
+        .select(
+          `
+      *,
+      ubicaciones!inner ( 
+        id_ubicacion,
+        direccion_fisica,
+        latitud,
+        longitud,
+        ciudad
+      )
+    `,
+        )
+        .eq("persona_id", perfil?.cedula)
         .maybeSingle();
+
+      if (localError) console.error("Error Supabase:", localError.message);
 
       if (localData) {
         setLocalPerfil(localData);
@@ -90,18 +110,28 @@ export default function LocalView({ activeTab, perfil }) {
           telefono: localData.telefono,
           direccion_fisica: localData.ubicaciones?.direccion_fisica || "",
         });
+        // IMPORTANTE: Aquí llamamos a los productos usando id_local
         fetchProductos(localData.id_local);
       } else {
-        // Si es nuevo usuario local, lo mandamos a editar perfil
+        // Si entra aquí es porque la cédula en 'personas' no existe en 'locales'
+        console.warn("No se encontró local para la cédula:", perfil?.cedula);
         setEditandoPerfil(true);
       }
-
-      // Cargar Categorias
-      const { data: cats } = await supabase.from("categorias").select("*");
-      if (cats) setCategorias(cats);
-
       setLoading(false);
     };
+
+    // 2. CARGA DE PRODUCTOS
+    const fetchProductos = async (idLocal) => {
+      const { data, error } = await supabase
+        .from("productos")
+        .select("*")
+        .eq("local_id", idLocal); // Según tu captura, la columna es local_id
+
+      if (error) console.error("Error productos:", error.message);
+      if (data) setProductos(data);
+    };
+
+    //Aqui finaliza La consulta del local, ahora falta traer las categorias para el formulario de productos
 
     fetchLocalData();
   }, [perfil]);
@@ -127,38 +157,34 @@ export default function LocalView({ activeTab, perfil }) {
     try {
       setLoading(true);
 
-      // 1. Manejo de Ubicación (AQUÍ DEBERÍAS USAR EL MAPA REAL LUEGO)
-      // Por ahora, si ya existe ubicación, la actualizamos. Si no, creamos una nueva.
       let ubicacionId = localPerfil?.ubicacion_id;
 
+      // Si el local no tiene ubicación, creamos una primero
       if (!ubicacionId) {
-        // Solo insertamos si no existe
-        const { data: ubi } = await supabase
+        const { data: ubi, error: ubiError } = await supabase
           .from("ubicaciones")
           .insert([
             {
               direccion_fisica: datosLocal.direccion_fisica,
-              latitud: 0, // OJO: Pendiente integrar mapa real
-              longitud: 0,
+              latitud: 10.4917, // Coordenadas por defecto (Caracas)
+              longitud: -66.8785,
+              ciudad: "Caracas",
             },
           ])
           .select()
           .single();
+        if (ubiError) throw ubiError;
         ubicacionId = ubi.id_ubicacion;
-      } else {
-        // Actualizamos la dirección texto
-        await supabase
-          .from("ubicaciones")
-          .update({ direccion_fisica: datosLocal.direccion_fisica })
-          .eq("id_ubicacion", ubicacionId);
       }
 
-      // 2. Upsert del Local
+      // EL CAMBIO AQUÍ: Incluimos el id_local si ya existe y el RIF
       const payload = {
+        ...(localPerfil?.id_local && { id_local: localPerfil.id_local }), // Mantiene el ID si ya existe
         persona_id: perfil.cedula,
         nombre_local: datosLocal.nombre_local,
         telefono: datosLocal.telefono,
         ubicacion_id: ubicacionId,
+        rif: localPerfil?.rif || "J-00000000-0", // El RIF es obligatorio en tu tabla
       };
 
       const { data: localGuardado, error } = await supabase
@@ -171,9 +197,9 @@ export default function LocalView({ activeTab, perfil }) {
 
       setLocalPerfil(localGuardado);
       setEditandoPerfil(false);
-      alert("Perfil actualizado correctamente");
+      alert("Perfil actualizado");
     } catch (error) {
-      console.error(error);
+      console.error("Error completo:", error);
       alert("Error: " + error.message);
     } finally {
       setLoading(false);
