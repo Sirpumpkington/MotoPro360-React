@@ -11,6 +11,8 @@ export default function LocalView({ activeTab, perfil }) {
   // --- ESTADOS PARA FORMULARIOS ---
   const [editandoPerfil, setEditandoPerfil] = useState(false);
   const [creandoProducto, setCreandoProducto] = useState(false);
+  const [busqueda, setBusqueda] = useState("");
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("todas");
 
   //Aqui van los estilos para el local, como el estado de las ofertas, notificaciones, etc.
   useEffect(() => {
@@ -246,6 +248,66 @@ export default function LocalView({ activeTab, perfil }) {
     }
   };
 
+  const eliminarProducto = async (id) => {
+    const confirmar = window.confirm(
+      "¿Estás seguro de que deseas eliminar este producto?",
+    );
+    if (!confirmar) return;
+
+    try {
+      setLoading(true);
+      const { error } = await supabase
+        .from("productos")
+        .delete()
+        .eq("id_producto", id); // Usamos el ID exacto de tu tabla
+
+      if (error) throw error;
+
+      // Actualizamos la lista local para que desaparezca visualmente
+      setProductos(productos.filter((p) => p.id_producto !== id));
+      alert("Producto eliminado con éxito");
+    } catch (error) {
+      console.error("Error al eliminar:", error.message);
+      alert("No se pudo eliminar el producto");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const editarStock = async (id, stockActual) => {
+    const nuevoStock = window.prompt(
+      "Actualizar cantidad en inventario:",
+      stockActual,
+    );
+
+    // Validamos que sea un número y que no haya cancelado
+    if (nuevoStock === null || isNaN(nuevoStock)) return;
+
+    try {
+      setLoading(true);
+      const { error } = await supabase
+        .from("productos")
+        .update({ stock_actual: parseInt(nuevoStock) })
+        .eq("id_producto", id);
+
+      if (error) throw error;
+
+      // Actualizamos el estado local para que se vea el cambio de inmediato
+      setProductos(
+        productos.map((p) =>
+          p.id_producto === id
+            ? { ...p, stock_actual: parseInt(nuevoStock) }
+            : p,
+        ),
+      );
+    } catch (error) {
+      console.error("Error al actualizar stock:", error.message);
+      alert("No se pudo actualizar el stock");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const toggleOferta = (idProducto) => {
     // Simulación: Agregamos o quitamos el ID del array de ofertas
     if (ofertasSimuladas.includes(idProducto)) {
@@ -462,11 +524,82 @@ export default function LocalView({ activeTab, perfil }) {
 
   // 3. PESTAÑA PRODUCTOS (Inventario)
   if (activeTab === "productos") {
+    const productosFiltrados = productos.filter((prod) => {
+      const coincideNombre = prod.nombre_producto
+        .toLowerCase()
+        .includes(busqueda.toLowerCase());
+      const coincideCategoria =
+        categoriaSeleccionada === "todas" ||
+        prod.categoria_id === parseInt(categoriaSeleccionada);
+      return coincideNombre && coincideCategoria;
+    });
     return (
       <div style={{ padding: "20px" }}>
+        {/* BARRA DE BÚSQUEDA */}
+        {/* PANEL DE FILTROS */}
+        {!creandoProducto && (
+          <div
+            style={{
+              display: "flex",
+              gap: "10px",
+              marginBottom: "20px",
+              flexWrap: "wrap",
+            }}
+          >
+            {/* Buscador de texto */}
+            <div style={{ position: "relative", flex: 2, minWidth: "200px" }}>
+              <i
+                className="fas fa-search"
+                style={{
+                  position: "absolute",
+                  left: "15px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  color: "#999",
+                }}
+              ></i>
+              <input
+                type="text"
+                placeholder="Buscar repuesto..."
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "12px 12px 12px 40px",
+                  borderRadius: "12px",
+                  border: "1px solid #eee",
+                  boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+                }}
+              />
+            </div>
+
+            {/* Selector de Categorías */}
+            <select
+              value={categoriaSeleccionada}
+              onChange={(e) => setCategoriaSeleccionada(e.target.value)}
+              style={{
+                flex: 1,
+                minWidth: "150px",
+                padding: "12px",
+                borderRadius: "12px",
+                border: "1px solid #eee",
+                background: "white",
+                cursor: "pointer",
+                boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+              }}
+            >
+              <option value="todas">📁 Todas las categorías</option>
+              {categorias.map((cat) => (
+                <option key={cat.id_categoria} value={cat.id_categoria}>
+                  {cat.nombre_categoria}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         {creandoProducto ? (
           <div className="glass-card">
-            <h3>📦 Nuevo Producto</h3>
+            <h3>Nuevo Producto</h3>
             <label>Nombre</label>
             <input
               type="text"
@@ -587,15 +720,79 @@ export default function LocalView({ activeTab, perfil }) {
               </p>
             </div>
 
-            {productos.map((prod) => (
+            {productosFiltrados.map((prod) => (
               <div
                 key={prod.id_producto}
                 className="data-card"
-                style={{ padding: "10px", position: "relative" }}
+                style={{
+                  padding: "15px",
+                  position: "relative",
+                  border: "1px solid #eee",
+                }}
               >
+                {/* GRUPO DE ACCIONES (Superior Derecha) */}
                 <div
                   style={{
-                    height: "100px",
+                    position: "absolute",
+                    top: "8px",
+                    right: "8px",
+                    display: "flex",
+                    gap: "5px",
+                  }}
+                >
+                  {/* Botón Editar Stock */}
+                  <button
+                    onClick={() =>
+                      editarStock(prod.id_producto, prod.stock_actual)
+                    }
+                    style={{
+                      background: "#f0f0f0",
+                      color: "#555",
+                      border: "none",
+                      borderRadius: "50%",
+                      width: "28px",
+                      height: "28px",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                    title="Editar Stock"
+                  >
+                    <i
+                      className="fas fa-edit"
+                      style={{ fontSize: "0.8rem" }}
+                    ></i>
+                  </button>
+
+                  {/* Botón Eliminar */}
+                  <button
+                    onClick={() => eliminarProducto(prod.id_producto)}
+                    style={{
+                      background: "rgba(255,0,0,0.1)",
+                      color: "red",
+                      border: "none",
+                      borderRadius: "50%",
+                      width: "28px",
+                      height: "28px",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                    title="Eliminar"
+                  >
+                    <i
+                      className="fas fa-trash-alt"
+                      style={{ fontSize: "0.8rem" }}
+                    ></i>
+                  </button>
+                </div>
+
+                {/* CONTENIDO DE LA TARJETA */}
+                <div
+                  style={{
+                    height: "80px",
                     background: "#f9f9f9",
                     borderRadius: "8px",
                     display: "flex",
@@ -609,17 +806,66 @@ export default function LocalView({ activeTab, perfil }) {
                     style={{ color: "#ccc", fontSize: "2rem" }}
                   ></i>
                 </div>
-                <h4 style={{ fontSize: "0.9rem", margin: "0 0 5px 0" }}>
+
+                <h4
+                  style={{
+                    fontSize: "0.9rem",
+                    margin: "0 0 5px 0",
+                    paddingRight: "50px",
+                  }}
+                >
                   {prod.nombre_producto}
                 </h4>
-                <p style={{ fontWeight: "bold", color: "var(--primary-red)" }}>
+
+                <p
+                  style={{
+                    fontWeight: "bold",
+                    color: "var(--primary-red)",
+                    margin: "0",
+                  }}
+                >
                   ${prod.precio}
                 </p>
-                <span style={{ fontSize: "0.75rem", color: "#666" }}>
-                  Stock: {prod.stock_actual}
-                </span>
+
+                {/* Stock interactivo */}
+                <div
+                  onClick={() =>
+                    editarStock(prod.id_producto, prod.stock_actual)
+                  }
+                  style={{
+                    marginTop: "8px",
+                    fontSize: "0.75rem",
+                    color: "#666",
+                    cursor: "pointer",
+                    display: "inline-block",
+                    padding: "2px 5px",
+                    borderRadius: "4px",
+                    background: "#fdfdfd",
+                    border: "1px dashed #ccc",
+                  }}
+                >
+                  <i
+                    className="fas fa-boxes"
+                    style={{ marginRight: "4px" }}
+                  ></i>
+                  Stock: <strong>{prod.stock_actual}</strong>
+                </div>
+                {/* (Se muestra el mensaje de "no resultados" fuera del mapeo) */}
               </div>
             ))}
+            {/* Mensaje si no hay resultados */}
+            {productosFiltrados.length === 0 && !creandoProducto && (
+              <div style={{ gridColumn: "1/-1", textAlign: "center" }}>
+                <p
+                  style={{
+                    color: "#999",
+                    marginTop: "20px",
+                  }}
+                >
+                  No se encontraron productos que coincidan con "{busqueda}"
+                </p>
+              </div>
+            )}
           </div>
         )}
       </div>
