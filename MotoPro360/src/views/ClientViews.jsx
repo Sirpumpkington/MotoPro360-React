@@ -1029,19 +1029,26 @@ function ClientePerfil({ onAvatarUpdate }) {
       data: { user },
     } = await supabase.auth.getUser();
     if (user) {
-      const metadata = user.user_metadata || {};
-      setFormData({
-        nombre: metadata.full_name || "",
-        email: user.email || "",
-        telefono: metadata.telefono || "",
-        tipoSangre: metadata.tipoSangre || "",
-        alergias: metadata.alergias || "",
-        numeroSeguro: metadata.numeroSeguro || "",
-        fechaNacimiento: metadata.fechaNacimiento || "",
-        genero: metadata.genero || "",
-        direccion: metadata.direccion || "",
-      });
-      setAvatarUrl(metadata.avatar_url || null);
+      // 1. Buscamos en la tabla 'personas' usando el id_auth
+      const { data: persona, error } = await supabase
+        .from("personas")
+        .select("*")
+        .eq("id_auth", user.id)
+        .single();
+
+      if (persona) {
+        setFormData({
+          nombre: persona.nombres || "",
+          apellido: persona.apellidos || "", // Agregamos apellido que faltaba
+          email: user.email || "",
+          telefono: persona.telefono || "",
+          tipoSangre: persona.tipo_sangre || "",
+          alergias: persona.alergias || "",
+          edad: persona.edad || "", // Usamos edad en vez de fecha si prefieres seguir tu esquema
+          genero: persona.genero_id || "", // Usamos el ID de tu tabla generos
+        });
+      }
+      setAvatarUrl(user.user_metadata?.avatar_url || null);
     }
   };
 
@@ -1100,34 +1107,31 @@ function ClientePerfil({ onAvatarUpdate }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage({ type: "", text: "" });
-
     try {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      const updatedMetadata = {
-        ...user.user_metadata,
-        full_name: formData.nombre,
-        telefono: formData.telefono,
-        tipoSangre: formData.tipoSangre,
-        alergias: formData.alergias,
-        numeroSeguro: formData.numeroSeguro,
-        fechaNacimiento: formData.fechaNacimiento,
-        genero: formData.genero,
-        direccion: formData.direccion,
-      };
 
-      const updates = { data: updatedMetadata };
-      if (formData.email !== user.email) {
-        updates.email = formData.email;
-      }
+      // 2. Actualizamos la tabla 'personas'
+      const { error: dbError } = await supabase
+        .from("personas")
+        .update({
+          nombres: formData.nombre,
+          apellidos: formData.apellido,
+          telefono: formData.telefono,
+          tipo_sangre: formData.tipoSangre,
+          alergias: formData.alergias,
+          edad: formData.edad,
+          genero_id: formData.genero,
+        })
+        .eq("id_auth", user.id);
 
-      const { error } = await supabase.auth.updateUser(updates);
-      if (error) throw error;
+      if (dbError) throw dbError;
 
-      setMessage({ type: "success", text: "Datos actualizados correctamente" });
-      cargarDatos();
+      setMessage({
+        type: "success",
+        text: "Perfil actualizado en base de datos.",
+      });
     } catch (error) {
       setMessage({ type: "error", text: "Error: " + error.message });
     } finally {
@@ -1136,9 +1140,14 @@ function ClientePerfil({ onAvatarUpdate }) {
   };
 
   return (
-    <div className="cliente-perfil">
-      <h2 className="section-title">Mis Datos</h2>
+    <div className="cliente-perfil fade-in">
+      <h2 className="section-title">Mi Perfil</h2>
+      <p className="subsection-note">
+        Gestiona tu identidad y ficha médica para servicios de emergencia y
+        membresías.
+      </p>
 
+      {/* SECCIÓN DE AVATAR (Usando tus clases de avatar-upload-section) */}
       <div className="avatar-upload-section">
         <div className="avatar-preview">
           {avatarUrl ? (
@@ -1166,91 +1175,54 @@ function ClientePerfil({ onAvatarUpdate }) {
       </div>
 
       <form onSubmit={handleSubmit} className="perfil-form">
+        <h3 className="subsection-title">Identidad Personal</h3>
+
         <div className="form-group">
-          <label>Nombre completo</label>
+          <label>Nombre Completo</label>
           <input
             type="text"
             name="nombre"
             value={formData.nombre}
             onChange={handleChange}
             disabled={loading}
+            placeholder="Ej: Juan Perez"
             required
           />
         </div>
 
         <div className="form-group">
-          <label>Correo electrónico</label>
+          <label>Correo Electrónico</label>
           <input
             type="email"
             name="email"
             value={formData.email}
-            onChange={handleChange}
-            disabled={loading}
-            required
+            disabled
+            className="input-disabled"
           />
           <small className="field-note">
-            Si cambias el correo, recibirás un enlace de verificación.
+            El correo está vinculado a tu cuenta y no se puede modificar aquí.
           </small>
         </div>
 
         <div className="form-group">
-          <label>Teléfono</label>
+          <label>Teléfono de Contacto</label>
           <input
             type="tel"
             name="telefono"
             value={formData.telefono}
             onChange={handleChange}
             disabled={loading}
-            required
+            placeholder="Ej: 0412-1234567"
           />
         </div>
 
-        <div className="form-group">
-          <label>Fecha de nacimiento</label>
-          <input
-            type="date"
-            name="fechaNacimiento"
-            value={formData.fechaNacimiento}
-            onChange={handleChange}
-            disabled={loading}
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Género</label>
-          <select
-            name="genero"
-            value={formData.genero}
-            onChange={handleChange}
-            disabled={loading}
-          >
-            <option value="">Seleccionar</option>
-            <option value="masculino">Masculino</option>
-            <option value="femenino">Femenino</option>
-            <option value="otro">Otro</option>
-            <option value="prefiero-no-decir">Prefiero no decir</option>
-          </select>
-        </div>
-
-        <div className="form-group">
-          <label>Dirección</label>
-          <input
-            type="text"
-            name="direccion"
-            value={formData.direccion}
-            onChange={handleChange}
-            disabled={loading}
-            placeholder="Calle, número, colonia, ciudad"
-          />
-        </div>
-
-        <h3 className="subsection-title">Información médica (opcional)</h3>
+        <h3 className="subsection-title">Información de Salud (Membresía)</h3>
         <p className="subsection-note">
-          Estos datos pueden ser útiles en caso de emergencia.
+          Esta información es vital en caso de accidentes.
         </p>
 
         <div className="form-group">
-          <label>Tipo de sangre</label>
+          <label>Tipo de Sangre</label>
           <select
             name="tipoSangre"
             value={formData.tipoSangre}
@@ -1258,35 +1230,26 @@ function ClientePerfil({ onAvatarUpdate }) {
             disabled={loading}
           >
             <option value="">Seleccionar</option>
-            <option value="O+">O+</option>
-            <option value="O-">O-</option>
-            <option value="A+">A+</option>
-            <option value="A-">A-</option>
-            <option value="B+">B+</option>
-            <option value="AB+">AB+</option>
+            <option value="O+">O Positivo (O+)</option>
+            <option value="O-">O Negativo (O-)</option>
+            <option value="A+">A Positivo (A+)</option>
+            <option value="A-">A Negativo (A-)</option>
+            <option value="B+">B Positivo (B+)</option>
+            <option value="B-">B Negativo (B-)</option>
+            <option value="AB+">AB Positivo (AB+)</option>
+            <option value="AB-">AB Negativo (AB-)</option>
           </select>
         </div>
 
         <div className="form-group">
-          <label>Alergias o condiciones médicas</label>
+          <label>Alergias o Condiciones</label>
           <input
             type="text"
             name="alergias"
             value={formData.alergias}
             onChange={handleChange}
             disabled={loading}
-            placeholder="Ej: Asma, alergia a penicilina"
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Número de seguro / póliza</label>
-          <input
-            type="text"
-            name="numeroSeguro"
-            value={formData.numeroSeguro}
-            onChange={handleChange}
-            disabled={loading}
+            placeholder="Ej: Penicilina, Asma, ninguna..."
           />
         </div>
 
@@ -1296,7 +1259,7 @@ function ClientePerfil({ onAvatarUpdate }) {
 
         <div className="form-actions">
           <button type="submit" disabled={loading} className="btn-primary">
-            {loading ? "Guardando..." : "Guardar Cambios"}
+            {loading ? "Guardando..." : "Actualizar Información"}
           </button>
           <button
             type="button"
@@ -1304,7 +1267,7 @@ function ClientePerfil({ onAvatarUpdate }) {
             disabled={loading}
             className="btn-secondary"
           >
-            Cancelar
+            Deshacer
           </button>
         </div>
       </form>

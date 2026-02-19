@@ -866,3 +866,121 @@ textarea:focus {
 
   /* Client-specific rules moved to public/assets/css/client.css */
 }
+
+/* === AJUSTES PARA EL REGISTRO PRO (MOMENTUN) === */
+
+/* Contenedor de Selección de Rol */
+.role-selector-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.role-card {
+  background: white;
+  border: 2px solid var(--gray);
+  border-radius: 15px;
+  padding: 15px;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.role-card.active {
+  border-color: var(--primary-red);
+  background: rgba(230, 57, 70, 0.05);
+}
+
+.role-card .check-icon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: var(--primary-red);
+  opacity: 0;
+  transition: var(--transition);
+}
+
+.role-card.active .check-icon {
+  opacity: 1;
+}
+
+.role-icon-big {
+  font-size: 24px;
+  margin-bottom: 8px;
+  color: var(--dark-gray);
+}
+
+.role-card.active .role-icon-big {
+  color: var(--primary-red);
+}
+
+.role-card h3 {
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.role-card p {
+  font-size: 11px;
+  color: #777;
+}
+
+/* Filas Responsivas (2 campos por fila) */
+.responsive-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+/* Secciones del Formulario */
+.form-section {
+  text-align: left;
+  margin-top: 10px;
+}
+
+.section-header {
+  font-size: 14px;
+  color: var(--dark-gray);
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--gray);
+  padding-bottom: 5px;
+}
+
+/* Animación de entrada para campos de comercio */
+.fade-in {
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Ajustes de Select */
+select.input-field {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23e63946' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+}
+
+/* Responsive para las filas */
+@media (max-width: 500px) {
+  .responsive-row {
+    grid-template-columns: 1fr; /* Un solo campo por fila en móvil */
+    gap: 20px;
+  }
+}
