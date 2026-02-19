@@ -14,6 +14,33 @@ export default function ClientView({
   const [busqueda, setBusqueda] = useState("");
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   const [productosFiltrados, setProductosFiltrados] = useState([]);
+  const [repuestosSugeridos, setRepuestosSugeridos] = useState([]);
+
+  // Estado para la moto seleccionada en sugerencias
+  const [motoSeleccionada, setMotoSeleccionada] = useState(null);
+
+  // --- FUNCIÓN PARA OBTENER SUGERENCIAS DE REPUESTOS (Pegar cerca de tus otras funciones) ---
+  const obtenerSugerencias = async (motoUsuario) => {
+    // motoUsuario.modelo podría ser "BR 200" o "Kobra" según tu tabla 'motos'
+    const { data, error } = await supabase
+      .from("productos")
+      .select(
+        `
+      id_producto,
+      nombre_producto,
+      precio,
+      imagen_url,
+      locales (nombre_local)
+    `,
+      )
+      // Filtramos donde la compatibilidad manual contenga el nombre del modelo
+      .ilike("compatibilidad_manual", `%${motoUsuario.modelo}%`)
+      .eq("status", true) // Solo productos activos
+      .limit(5);
+
+    if (error) console.log("Error sugerencias:", error);
+    else setRepuestosSugeridos(data);
+  };
 
   // --- FUNCIÓN PARA BUSCAR (Pegar cerca de tus otras funciones) ---
   const ejecutarBusqueda = () => {
@@ -44,6 +71,20 @@ export default function ClientView({
     anio: "",
     placa: "",
   });
+  const [sugerencias, setSugerencias] = useState([]);
+
+  const buscarSugerencias = async (nombreModelo) => {
+    if (!nombreModelo) return;
+
+    // Buscamos productos que mencionen el modelo en su descripción o compatibilidad
+    const { data, error } = await supabase
+      .from("productos")
+      .select("*, locales(nombre_local)")
+      .ilike("compatibilidad_manual", `%${nombreModelo}%`) // Busca coincidencias parciales
+      .limit(4);
+
+    if (!error) setSugerencias(data);
+  };
 
   // Deferred import of client-specific CSS to enable HMR and avoid loading it until needed
   useEffect(() => {
@@ -152,6 +193,85 @@ export default function ClientView({
   if (perfil?.nombre_rol !== "cliente") return null;
 
   // --- RENDERIZADO POR TABS ---
+  const eliminarMoto = async (id) => {
+    const confirmar = window.confirm(
+      "¿Estás seguro de que deseas eliminar esta moto?",
+    );
+    if (!confirmar) return;
+
+    try {
+      const { error } = await supabase.from("motos").delete().eq("id", id);
+      if (error) throw error;
+
+      setMotos(motos.filter((m) => m.id !== id));
+      alert("Moto eliminada correctamente.");
+    } catch (error) {
+      alert("Error al eliminar: " + error.message);
+    }
+  };
+
+  const [motoEditando, setMotoEditando] = useState(null);
+
+  const prepararEdicion = (moto) => {
+    setMotoEditando(moto.id);
+    setSeleccionMarca(moto.marca_id);
+    setNuevaMoto({
+      modelo: moto.modelo,
+      anio: moto.anio,
+      placa: moto.placa,
+    });
+    setMostrandoFormulario(true);
+  };
+
+  // Modificamos la función guardarMoto para que detecte si es edición
+  const guardarMotoModificada = async () => {
+    if (!perfil?.cedula) return;
+    if (!seleccionMarca || !nuevaMoto.modelo || !nuevaMoto.placa) {
+      alert("Completa todos los campos.");
+      return;
+    }
+
+    try {
+      const payload = {
+        modelo: nuevaMoto.modelo,
+        placa: nuevaMoto.placa,
+        anio: nuevaMoto.anio ? Number(nuevaMoto.anio) : null,
+        persona_cedula: Number(perfil.cedula),
+        marca_id: Number(seleccionMarca),
+      };
+
+      let error;
+      if (motoEditando) {
+        // MODO EDICIÓN
+        const { error: err } = await supabase
+          .from("motos")
+          .update(payload)
+          .eq("id", motoEditando);
+        error = err;
+      } else {
+        // MODO CREACIÓN (incluye tu validación de límite aquí si quieres)
+        const { error: err } = await supabase.from("motos").insert([payload]);
+        error = err;
+      }
+
+      if (error) throw error;
+
+      alert(motoEditando ? "Moto actualizada" : "Moto registrada");
+      cancelarEdicion();
+      await loadMotos();
+    } catch (error) {
+      alert("Error: " + error.message);
+    }
+  };
+
+  const cancelarEdicion = () => {
+    setMostrandoFormulario(false);
+    setMotoEditando(null);
+    setSeleccionMarca("");
+    setNuevaMoto({ modelo: "", anio: "", placa: "" });
+  };
+
+  // OJO: ESTE codigo es de prueba para editar motos, no olvides integrarlo bien con tu función guardarMoto original y el formulario.
 
   // ========== NUEVA VISTA: MIS DATOS (PERFIL) ==========
   if (activeTab === "perfil") {
@@ -571,7 +691,9 @@ export default function ClientView({
             className="data-card"
             style={{ padding: "20px", border: "2px solid var(--primary-red)" }}
           >
-            <h4 style={{ marginBottom: "15px" }}>Nueva Moto</h4>
+            <h4 style={{ marginBottom: "15px" }}>
+              {motoEditando ? "Editar Moto" : "Nueva Moto"}
+            </h4>
 
             {/* Selector de Marca */}
             <select
@@ -651,20 +773,19 @@ export default function ClientView({
             />
             <div style={{ display: "flex", gap: "10px" }}>
               <button
-                onClick={guardarMoto}
+                onClick={guardarMotoModificada} // <--- Nueva función
                 className="btn-main-login"
                 style={{ flex: 1 }}
               >
-                GUARDAR
+                {motoEditando ? "ACTUALIZAR" : "GUARDAR"}
               </button>
               <button
-                onClick={() => setMostrandoFormulario(false)}
+                onClick={cancelarEdicion} // <--- Nueva función de limpieza
                 style={{
                   background: "#eee",
                   border: "none",
                   padding: "10px",
                   borderRadius: "8px",
-                  cursor: "pointer",
                 }}
               >
                 X
@@ -675,7 +796,58 @@ export default function ClientView({
 
         {/* LISTA DE MOTOS EXISTENTES */}
         {motos.map((moto) => (
-          <div key={moto.id} className="data-card moto-card">
+          <div
+            key={moto.id}
+            className="data-card moto-card"
+            style={{
+              position: "relative",
+              cursor: "pointer",
+              border:
+                motoSeleccionada && motoSeleccionada.id === moto.id
+                  ? "2px solid var(--primary-red)"
+                  : undefined,
+            }}
+            onClick={() => {
+              setMotoSeleccionada(moto);
+              obtenerSugerencias(moto);
+            }}
+          >
+            {/* BOTONES DE ACCIÓN */}
+            <div
+              style={{
+                position: "absolute",
+                bottom: "10px",
+                right: "10px",
+                display: "flex",
+                gap: "10px",
+              }}
+            >
+              <button
+                onClick={() => prepararEdicion(moto)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#4285F4",
+                  cursor: "pointer",
+                }}
+                title="Editar"
+              >
+                <i className="fas fa-edit"></i>
+              </button>
+              <button
+                onClick={() => eliminarMoto(moto.id)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "var(--primary-red)",
+                  cursor: "pointer",
+                }}
+                title="Eliminar"
+              >
+                <i className="fas fa-trash"></i>
+              </button>
+            </div>
+
             <div
               style={{
                 display: "flex",
@@ -686,7 +858,7 @@ export default function ClientView({
               <div>
                 <h3 style={{ margin: 0 }}>
                   {marcas.find((m) => m.id === moto.marca_id)?.nombre ||
-                    "Marca Desconocida"}{" "}
+                    "Marca"}{" "}
                   • {moto.modelo}
                 </h3>
                 <p style={{ color: "#888", fontSize: "0.9rem" }}>{moto.anio}</p>
@@ -702,14 +874,57 @@ export default function ClientView({
                 padding: "10px",
                 borderRadius: "8px",
                 fontSize: "0.8rem",
+                width: "fit-content",
               }}
             >
-              <p>
+              <p style={{ margin: 0 }}>
                 <strong>Placa:</strong> {moto.placa || "—"}
               </p>
             </div>
           </div>
         ))}
+
+        {/* Sección de Sugerencias */}
+        <div className="mt-6">
+          <h3 className="text-lg font-bold text-gray-800">
+            {motoSeleccionada
+              ? `Repuestos para tu ${motoSeleccionada.modelo}`
+              : "Selecciona una moto para ver sugerencias"}
+          </h3>
+          <div className="flex overflow-x-auto gap-4 py-4">
+            {repuestosSugeridos.length > 0 ? (
+              repuestosSugeridos.map((prod) => (
+                <div
+                  key={prod.id_producto}
+                  className="sugerencia-repuesto-card"
+                >
+                  <div className="sugerencia-repuesto-img">
+                    {prod.imagen_url ? (
+                      <img src={prod.imagen_url} alt={prod.nombre_producto} />
+                    ) : (
+                      <span className="sugerencia-repuesto-sin-imagen">
+                        Sin imagen
+                      </span>
+                    )}
+                  </div>
+                  <div className="sugerencia-repuesto-nombre">
+                    {prod.nombre_producto}
+                  </div>
+                  <div className="sugerencia-repuesto-precio">
+                    ${prod.precio}
+                  </div>
+                  <div className="sugerencia-repuesto-local">
+                    {prod.locales?.nombre_local}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <span className="sugerencia-repuesto-sin-imagen">
+                No hay sugerencias disponibles
+              </span>
+            )}
+          </div>
+        </div>
       </div>
     );
   }
@@ -790,39 +1005,41 @@ export default function ClientView({
 // ================= COMPONENTE DE PERFIL DEL CLIENTE =================
 function ClientePerfil({ onAvatarUpdate }) {
   const [formData, setFormData] = useState({
-    nombre: '',
-    email: '',
-    telefono: '',
-    tipoSangre: '',
-    alergias: '',
-    numeroSeguro: '',
-    fechaNacimiento: '',
-    genero: '',
-    direccion: '',
+    nombre: "",
+    email: "",
+    telefono: "",
+    tipoSangre: "",
+    alergias: "",
+    numeroSeguro: "",
+    fechaNacimiento: "",
+    genero: "",
+    direccion: "",
   });
   const [avatarUrl, setAvatarUrl] = useState(null);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [message, setMessage] = useState({ type: '', text: '' });
+  const [message, setMessage] = useState({ type: "", text: "" });
 
   useEffect(() => {
     cargarDatos();
   }, []);
 
   const cargarDatos = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (user) {
       const metadata = user.user_metadata || {};
       setFormData({
-        nombre: metadata.full_name || '',
-        email: user.email || '',
-        telefono: metadata.telefono || '',
-        tipoSangre: metadata.tipoSangre || '',
-        alergias: metadata.alergias || '',
-        numeroSeguro: metadata.numeroSeguro || '',
-        fechaNacimiento: metadata.fechaNacimiento || '',
-        genero: metadata.genero || '',
-        direccion: metadata.direccion || '',
+        nombre: metadata.full_name || "",
+        email: user.email || "",
+        telefono: metadata.telefono || "",
+        tipoSangre: metadata.tipoSangre || "",
+        alergias: metadata.alergias || "",
+        numeroSeguro: metadata.numeroSeguro || "",
+        fechaNacimiento: metadata.fechaNacimiento || "",
+        genero: metadata.genero || "",
+        direccion: metadata.direccion || "",
       });
       setAvatarUrl(metadata.avatar_url || null);
     }
@@ -835,30 +1052,32 @@ function ClientePerfil({ onAvatarUpdate }) {
   const handleAvatarUpload = async (event) => {
     try {
       setUploading(true);
-      setMessage({ type: '', text: '' });
+      setMessage({ type: "", text: "" });
 
       if (!event.target.files || event.target.files.length === 0) {
-        throw new Error('Debes seleccionar una imagen.');
+        throw new Error("Debes seleccionar una imagen.");
       }
 
       const file = event.target.files[0];
-      const fileExt = file.name.split('.').pop();
+      const fileExt = file.name.split(".").pop();
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
       const filePath = fileName;
 
       const { error: uploadError } = await supabase.storage
-        .from('avatars')
+        .from("avatars")
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
       const { data: publicUrlData } = supabase.storage
-        .from('avatars')
+        .from("avatars")
         .getPublicUrl(filePath);
 
       const avatarUrl = publicUrlData.publicUrl;
 
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       const { error: updateError } = await supabase.auth.updateUser({
         data: { ...user.user_metadata, avatar_url: avatarUrl },
       });
@@ -867,9 +1086,12 @@ function ClientePerfil({ onAvatarUpdate }) {
 
       setAvatarUrl(avatarUrl);
       onAvatarUpdate?.(avatarUrl);
-      setMessage({ type: 'success', text: 'Foto actualizada correctamente.' });
+      setMessage({ type: "success", text: "Foto actualizada correctamente." });
     } catch (err) {
-      setMessage({ type: 'error', text: 'Error al subir la imagen: ' + err.message });
+      setMessage({
+        type: "error",
+        text: "Error al subir la imagen: " + err.message,
+      });
     } finally {
       setUploading(false);
     }
@@ -878,10 +1100,12 @@ function ClientePerfil({ onAvatarUpdate }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage({ type: '', text: '' });
+    setMessage({ type: "", text: "" });
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       const updatedMetadata = {
         ...user.user_metadata,
         full_name: formData.nombre,
@@ -902,10 +1126,10 @@ function ClientePerfil({ onAvatarUpdate }) {
       const { error } = await supabase.auth.updateUser(updates);
       if (error) throw error;
 
-      setMessage({ type: 'success', text: 'Datos actualizados correctamente' });
+      setMessage({ type: "success", text: "Datos actualizados correctamente" });
       cargarDatos();
     } catch (error) {
-      setMessage({ type: 'error', text: 'Error: ' + error.message });
+      setMessage({ type: "error", text: "Error: " + error.message });
     } finally {
       setLoading(false);
     }
@@ -921,13 +1145,13 @@ function ClientePerfil({ onAvatarUpdate }) {
             <img src={avatarUrl} alt="Avatar" className="avatar-image" />
           ) : (
             <div className="avatar-placeholder">
-              {formData.nombre?.charAt(0) || 'U'}
+              {formData.nombre?.charAt(0) || "U"}
             </div>
           )}
         </div>
         <div className="avatar-upload">
           <label htmlFor="avatar-input" className="btn-upload">
-            {uploading ? 'Subiendo...' : 'Cambiar foto'}
+            {uploading ? "Subiendo..." : "Cambiar foto"}
           </label>
           <input
             id="avatar-input"
@@ -935,7 +1159,7 @@ function ClientePerfil({ onAvatarUpdate }) {
             accept="image/*"
             onChange={handleAvatarUpload}
             disabled={uploading}
-            style={{ display: 'none' }}
+            style={{ display: "none" }}
           />
           <small className="field-note">JPG, PNG. Máx 2MB</small>
         </div>
@@ -944,28 +1168,62 @@ function ClientePerfil({ onAvatarUpdate }) {
       <form onSubmit={handleSubmit} className="perfil-form">
         <div className="form-group">
           <label>Nombre completo</label>
-          <input type="text" name="nombre" value={formData.nombre} onChange={handleChange} disabled={loading} required />
+          <input
+            type="text"
+            name="nombre"
+            value={formData.nombre}
+            onChange={handleChange}
+            disabled={loading}
+            required
+          />
         </div>
 
         <div className="form-group">
           <label>Correo electrónico</label>
-          <input type="email" name="email" value={formData.email} onChange={handleChange} disabled={loading} required />
-          <small className="field-note">Si cambias el correo, recibirás un enlace de verificación.</small>
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            disabled={loading}
+            required
+          />
+          <small className="field-note">
+            Si cambias el correo, recibirás un enlace de verificación.
+          </small>
         </div>
 
         <div className="form-group">
           <label>Teléfono</label>
-          <input type="tel" name="telefono" value={formData.telefono} onChange={handleChange} disabled={loading} required />
+          <input
+            type="tel"
+            name="telefono"
+            value={formData.telefono}
+            onChange={handleChange}
+            disabled={loading}
+            required
+          />
         </div>
 
         <div className="form-group">
           <label>Fecha de nacimiento</label>
-          <input type="date" name="fechaNacimiento" value={formData.fechaNacimiento} onChange={handleChange} disabled={loading} />
+          <input
+            type="date"
+            name="fechaNacimiento"
+            value={formData.fechaNacimiento}
+            onChange={handleChange}
+            disabled={loading}
+          />
         </div>
 
         <div className="form-group">
           <label>Género</label>
-          <select name="genero" value={formData.genero} onChange={handleChange} disabled={loading}>
+          <select
+            name="genero"
+            value={formData.genero}
+            onChange={handleChange}
+            disabled={loading}
+          >
             <option value="">Seleccionar</option>
             <option value="masculino">Masculino</option>
             <option value="femenino">Femenino</option>
@@ -976,15 +1234,29 @@ function ClientePerfil({ onAvatarUpdate }) {
 
         <div className="form-group">
           <label>Dirección</label>
-          <input type="text" name="direccion" value={formData.direccion} onChange={handleChange} disabled={loading} placeholder="Calle, número, colonia, ciudad" />
+          <input
+            type="text"
+            name="direccion"
+            value={formData.direccion}
+            onChange={handleChange}
+            disabled={loading}
+            placeholder="Calle, número, colonia, ciudad"
+          />
         </div>
 
         <h3 className="subsection-title">Información médica (opcional)</h3>
-        <p className="subsection-note">Estos datos pueden ser útiles en caso de emergencia.</p>
+        <p className="subsection-note">
+          Estos datos pueden ser útiles en caso de emergencia.
+        </p>
 
         <div className="form-group">
           <label>Tipo de sangre</label>
-          <select name="tipoSangre" value={formData.tipoSangre} onChange={handleChange} disabled={loading}>
+          <select
+            name="tipoSangre"
+            value={formData.tipoSangre}
+            onChange={handleChange}
+            disabled={loading}
+          >
             <option value="">Seleccionar</option>
             <option value="O+">O+</option>
             <option value="O-">O-</option>
@@ -997,21 +1269,41 @@ function ClientePerfil({ onAvatarUpdate }) {
 
         <div className="form-group">
           <label>Alergias o condiciones médicas</label>
-          <input type="text" name="alergias" value={formData.alergias} onChange={handleChange} disabled={loading} placeholder="Ej: Asma, alergia a penicilina" />
+          <input
+            type="text"
+            name="alergias"
+            value={formData.alergias}
+            onChange={handleChange}
+            disabled={loading}
+            placeholder="Ej: Asma, alergia a penicilina"
+          />
         </div>
 
         <div className="form-group">
           <label>Número de seguro / póliza</label>
-          <input type="text" name="numeroSeguro" value={formData.numeroSeguro} onChange={handleChange} disabled={loading} />
+          <input
+            type="text"
+            name="numeroSeguro"
+            value={formData.numeroSeguro}
+            onChange={handleChange}
+            disabled={loading}
+          />
         </div>
 
-        {message.text && <div className={`message ${message.type}`}>{message.text}</div>}
+        {message.text && (
+          <div className={`message ${message.type}`}>{message.text}</div>
+        )}
 
         <div className="form-actions">
           <button type="submit" disabled={loading} className="btn-primary">
-            {loading ? 'Guardando...' : 'Guardar Cambios'}
+            {loading ? "Guardando..." : "Guardar Cambios"}
           </button>
-          <button type="button" onClick={cargarDatos} disabled={loading} className="btn-secondary">
+          <button
+            type="button"
+            onClick={cargarDatos}
+            disabled={loading}
+            className="btn-secondary"
+          >
             Cancelar
           </button>
         </div>

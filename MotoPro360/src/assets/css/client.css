@@ -1,3 +1,70 @@
+/* Sugerencias de repuestos (tarjetas horizontales elegantes) */
+.sugerencia-repuesto-card {
+  min-width: 180px;
+  max-width: 220px;
+  background: linear-gradient(135deg, #fff 60%, #f8f9fa 100%);
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(220, 53, 69, 0.07);
+  border: 1.5px solid #f3f3f3;
+  padding: 18px 14px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  transition:
+    box-shadow 0.2s,
+    border 0.2s;
+  position: relative;
+}
+.sugerencia-repuesto-card:hover {
+  box-shadow: 0 6px 24px rgba(220, 53, 69, 0.13);
+  border: 1.5px solid var(--primary-red);
+}
+.sugerencia-repuesto-img {
+  width: 100%;
+  height: 80px;
+  background: #f3f3f3;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.sugerencia-repuesto-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.sugerencia-repuesto-nombre {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 2px;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sugerencia-repuesto-precio {
+  color: var(--primary-red);
+  font-weight: bold;
+  font-size: 1.05rem;
+  margin-bottom: 2px;
+}
+.sugerencia-repuesto-local {
+  font-size: 0.8rem;
+  color: #888;
+  margin-bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sugerencia-repuesto-sin-imagen {
+  color: #bbb;
+  font-size: 0.85rem;
+  font-style: italic;
+}
 /* Styles exclusive to ClientViews (moved from public/assets/css/client.css)
    Loaded dynamically with import() for deferred CSS and HMR support */
 
@@ -207,7 +274,7 @@
   padding: 2rem;
   background: white;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .section-title {
@@ -256,7 +323,7 @@
 .perfil-form select:focus {
   border-color: #dc3545;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(220,53,69,0.1);
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
 }
 
 .perfil-form input:disabled,
@@ -341,7 +408,7 @@
   padding: 4rem 2rem;
   background: white;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 /* Estilos para la sección de avatar */
@@ -364,7 +431,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .avatar-image {
