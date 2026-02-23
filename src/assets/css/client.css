@@ -1,0 +1,980 @@
+/* Sugerencias de repuestos (tarjetas horizontales elegantes) */
+.sugerencia-repuesto-card {
+  min-width: 180px;
+  max-width: 220px;
+  background: linear-gradient(135deg, #fff 60%, #f8f9fa 100%);
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(220, 53, 69, 0.07);
+  border: 1.5px solid #f3f3f3;
+  padding: 18px 14px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  transition:
+    box-shadow 0.2s,
+    border 0.2s;
+  position: relative;
+}
+.sugerencia-repuesto-card:hover {
+  box-shadow: 0 6px 24px rgba(220, 53, 69, 0.13);
+  border: 1.5px solid var(--primary-red);
+}
+.sugerencia-repuesto-img {
+  width: 100%;
+  height: 80px;
+  background: #f3f3f3;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.sugerencia-repuesto-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.sugerencia-repuesto-nombre {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 2px;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sugerencia-repuesto-precio {
+  color: var(--primary-red);
+  font-weight: bold;
+  font-size: 1.05rem;
+  margin-bottom: 2px;
+}
+.sugerencia-repuesto-local {
+  font-size: 0.8rem;
+  color: #888;
+  margin-bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sugerencia-repuesto-sin-imagen {
+  color: #bbb;
+  font-size: 0.85rem;
+  font-style: italic;
+}
+/* Styles exclusive to ClientViews (moved from public/assets/css/client.css)
+   Loaded dynamically with import() for deferred CSS and HMR support */
+
+/* Search results header */
+.search-back-btn {
+  border: none;
+  background: none;
+  color: var(--black);
+  padding: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.search-back-btn i {
+  color: var(--black);
+  font-size: 18px;
+}
+.search-results-input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 14px;
+  color: var(--dark-gray);
+  background: transparent;
+}
+.search-results-input:focus {
+  outline: 2px solid var(--primary-red);
+  box-shadow: 0 0 0 4px rgba(230, 57, 70, 0.08);
+  border-radius: 8px;
+}
+
+/* Responsive split (list + map) and client cards */
+@media (max-width: 768px) {
+  .responsive-split {
+    flex-direction: column;
+    gap: 16px;
+    display: flex;
+  }
+
+  .responsive-split > div {
+    min-height: 240px;
+  }
+
+  .moto-card {
+    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+    border-left: 5px solid var(--primary-red);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .moto-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--black);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: bold;
+  }
+
+  .coupon-card {
+    background: white;
+    border: 2px dashed var(--primary-red);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .coupon-circle {
+    width: 20px;
+    height: 20px;
+    background: var(--light-gray);
+    border-radius: 50%;
+    position: absolute;
+    left: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .coupon-circle.right {
+    left: auto;
+    right: -12px;
+  }
+
+  .course-card {
+    border: none;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .course-thumb {
+    height: 140px;
+    background: var(--black);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 3rem;
+    position: relative;
+  }
+
+  .play-icon {
+    opacity: 0.8;
+    transition: 0.3s;
+  }
+
+  .course-card:hover .play-icon {
+    transform: scale(1.2);
+    color: var(--primary-red);
+  }
+
+  .community-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border-bottom: 3px solid transparent;
+    transition: 0.3s;
+  }
+
+  .community-card:hover {
+    border-bottom: 3px solid var(--primary-red);
+    transform: translateY(-2px);
+  }
+
+  .community-avatar {
+    width: 50px;
+    height: 50px;
+    background: var(--dark-gray);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+  }
+
+  /* Perfil: botón/avatar circular tipo Facebook */
+  .btn-profile {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    transition:
+      transform 0.12s ease,
+      box-shadow 0.12s ease;
+  }
+  .btn-profile i {
+    font-size: 18px;
+    color: var(--black);
+  }
+  .btn-profile:focus {
+    outline: 2px solid rgba(66, 133, 244, 0.18);
+    outline-offset: 2px;
+  }
+  .btn-profile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  }
+  @media (max-width: 768px) {
+    .btn-profile {
+      width: 36px;
+      height: 36px;
+    }
+    .btn-profile i {
+      font-size: 16px;
+    }
+  }
+  /* Profile button used in ClientViews */
+  .btn-profile {
+    appearance: none;
+    -webkit-appearance: none;
+    border: none;
+    background: transparent;
+    color: var(--black);
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .btn-profile i {
+    font-size: 20px;
+  }
+  .btn-profile:hover {
+    background: rgba(0, 0, 0, 0.04);
+    transform: translateY(-1px);
+  }
+}
+
+/* client.css - estilos para la vista de perfil del cliente */
+
+.cliente-perfil {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+  color: #dc3545;
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 0.5rem;
+}
+
+.subsection-title {
+  font-size: 1.3rem;
+  margin: 1.5rem 0 0.5rem;
+  color: #495057;
+  font-weight: 600;
+}
+
+.subsection-note {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin-bottom: 1rem;
+}
+
+.perfil-form .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.perfil-form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.perfil-form input,
+.perfil-form select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.perfil-form input:focus,
+.perfil-form select:focus {
+  border-color: #dc3545;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.perfil-form input:disabled,
+.perfil-form select:disabled {
+  background-color: #e9ecef;
+  cursor: not-allowed;
+}
+
+.field-note {
+  display: block;
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-top: 0.25rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #c82333;
+}
+
+.btn-primary:disabled {
+  background: #e4606d;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #5a6268;
+}
+
+.btn-secondary:disabled {
+  background: #868e96;
+  cursor: not-allowed;
+}
+
+.message {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  text-align: center;
+}
+
+.message.success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.message.error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.placeholder-view {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Estilos para la sección de avatar */
+.avatar-upload-section {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+.avatar-preview {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #dc3545;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2.5rem;
+  font-weight: 600;
+  background: #dc3545;
+}
+
+.avatar-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.btn-upload {
+  background: #6c757d;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.2s;
+  display: inline-block;
+  max-width: 150px;
+}
+
+.btn-upload:hover {
+  background: #5a6268;
+}
+
+.btn-upload:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   MODO OSCURO PARA CLIENTVIEWS (RESULTADOS DE BÚSQUEDA Y VISTAS)
+   ========================================================================== */
+body.dark-mode .data-card {
+  background: #2d2d2d !important;
+  border-color: #444 !important;
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode .data-card h4,
+body.dark-mode .data-card h3,
+body.dark-mode .data-card h2 {
+  color: #fff !important;
+}
+
+body.dark-mode .data-card p,
+body.dark-mode .data-card span:not(.badge) {
+  color: #aaa !important;
+}
+
+body.dark-mode .data-card i {
+  color: #aaa !important;
+}
+
+body.dark-mode .search-back-btn i {
+  color: #fff !important;
+}
+
+body.dark-mode .search-results-input {
+  background-color: #2d2d2d !important;
+  border: 1px solid #444 !important;
+  color: #fff !important;
+}
+
+body.dark-mode .search-results-input::placeholder {
+  color: #aaa !important;
+}
+
+body.dark-mode .btn-main-login {
+  background: linear-gradient(135deg, var(--primary-red), var(--dark-red)) !important;
+  color: white !important;
+  border: none !important;
+}
+
+body.dark-mode .btn-main-login:hover {
+  box-shadow: 0 10px 20px rgba(255, 92, 108, 0.3) !important;
+}
+
+body.dark-mode .glass-card {
+  background: rgba(45, 45, 45, 0.97) !important;
+  border-color: var(--primary-red) !important;
+}
+
+body.dark-mode .glass-card h1 {
+  color: #fff !important;
+}
+
+body.dark-mode .glass-card p {
+  color: #aaa !important;
+}
+
+/* Contenedor del mapa y detalles del producto */
+body.dark-mode div[style*="background: #f9f9f9"] {
+  background: #2d2d2d !important;
+  border-color: #444 !important;
+}
+
+body.dark-mode div[style*="background: white"] {
+  background: #2d2d2d !important;
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode div[style*="color: #666"] {
+  color: #aaa !important;
+}
+
+body.dark-mode div[style*="color: #999"] {
+  color: #aaa !important;
+}
+
+body.dark-mode div[style*="color: #888"] {
+  color: #aaa !important;
+}
+
+body.dark-mode div[style*="color: #333"] {
+  color: #e0e0e0 !important;
+}
+
+/* Botón de cómo llegar */
+body.dark-mode button[style*="background: #4285F4"] {
+  background: #1a5bbf !important;
+}
+
+/* Sugerencias de repuestos */
+body.dark-mode .sugerencia-repuesto-card {
+  background: linear-gradient(135deg, #2d2d2d 60%, #3a3a3a 100%) !important;
+  border-color: #444 !important;
+}
+
+body.dark-mode .sugerencia-repuesto-nombre {
+  color: #fff !important;
+}
+
+body.dark-mode .sugerencia-repuesto-precio {
+  color: var(--primary-red) !important;
+}
+
+body.dark-mode .sugerencia-repuesto-local {
+  color: #aaa !important;
+}
+
+body.dark-mode .sugerencia-repuesto-sin-imagen {
+  color: #aaa !important;
+}
+
+/* Vista de motos (edición y lista) */
+body.dark-mode select,
+body.dark-mode input[type="text"],
+body.dark-mode input[type="number"] {
+  background-color: #3d3d3d !important;
+  border-color: #555 !important;
+  color: #fff !important;
+}
+
+body.dark-mode select option {
+  background-color: #3d3d3d !important;
+  color: #fff !important;
+}
+
+body.dark-mode button[style*="background: #eee"] {
+  background: #3d3d3d !important;
+  color: #fff !important;
+}
+
+/* Comunidad */
+body.dark-mode .community-card {
+  background: #2d2d2d !important;
+  border-bottom-color: #444 !important;
+}
+
+body.dark-mode .community-card h4 {
+  color: #fff !important;
+}
+
+body.dark-mode .community-card p {
+  color: #aaa !important;
+}
+
+/* Perfil del cliente (si aplica) */
+body.dark-mode .cliente-perfil {
+  background: #2d2d2d !important;
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode .cliente-perfil input,
+body.dark-mode .cliente-perfil select {
+  background-color: #3d3d3d !important;
+  border-color: #555 !important;
+  color: #fff !important;
+}
+
+body.dark-mode .cliente-perfil label {
+  color: #ddd !important;
+}
+
+body.dark-mode .cliente-perfil .btn-primary {
+  background: var(--primary-red) !important;
+}
+
+body.dark-mode .cliente-perfil .btn-secondary {
+  background: #555 !important;
+  color: #fff !important;
+}
+
+/* Mapa Leaflet (opcional) */
+body.dark-mode .leaflet-tile {
+  filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) !important;
+}
+
+/* ===== EMERGENCY MODAL (CLIENTE) ===== */
+.emergency-modal {
+  background: white;
+  border-radius: 24px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  padding: 2rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .emergency-modal {
+  background: #2d2d2d;
+  color: #e0e0e0;
+}
+
+.emergency-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 15px;
+}
+
+.emergency-header i {
+  font-size: 2.5rem;
+  color: #dc3545;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.emergency-header h2 {
+  margin: 0;
+  color: #dc3545;
+  font-weight: 700;
+}
+
+.emergency-content p {
+  line-height: 1.6;
+  color: #555;
+  margin-bottom: 25px;
+}
+
+body.dark-mode .emergency-content p {
+  color: #aaa;
+}
+
+.emergency-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.emergency-button {
+  background: #25D366; /* Color WhatsApp */
+  color: white;
+  border: none;
+  padding: 16px;
+  border-radius: 50px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 8px 20px rgba(37, 211, 102, 0.3);
+}
+
+.emergency-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(37, 211, 102, 0.4);
+}
+
+.emergency-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.emergency-cancel {
+  background: transparent;
+  border: 2px solid #aaa;
+  padding: 12px;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.emergency-cancel:hover {
+  background: #f0f0f0;
+}
+
+body.dark-mode .emergency-cancel {
+  color: #fff;
+  border-color: #666;
+}
+
+body.dark-mode .emergency-cancel:hover {
+  background: #444;
+}
+
+/* Ajuste del select dentro del modal */
+.emergency-modal .form-group select {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 2px solid #ddd;
+  font-size: 1rem;
+}
+
+body.dark-mode .emergency-modal .form-group select {
+  background: #3d3d3d;
+  border-color: #555;
+  color: #fff;
+}
+
+/* ===== BOTÓN FLOTANTE DE EMERGENCIA (VERSIÓN PEQUEÑA) ===== */
+.emergency-fab {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  background: linear-gradient(135deg, #ff4d4d, #cc0000);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 12px 18px;
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 8px 20px rgba(255, 0, 0, 0.4);
+  cursor: pointer;
+  z-index: 1000;
+  transition: all 0.3s ease;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  animation: pulse 2s infinite;
+}
+
+.emergency-fab i {
+  font-size: 1.3rem;
+}
+
+.emergency-fab:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 28px rgba(255, 0, 0, 0.6);
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* ===== MODAL DE EMERGENCIA ===== */
+.emergency-modal {
+  background: white;
+  border-radius: 24px;
+  padding: 2rem;
+  max-width: 450px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+  border: 2px solid #ff4444;
+  text-align: center;
+}
+
+.emergency-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  color: #cc0000;
+  margin-bottom: 20px;
+}
+
+.emergency-header i {
+  font-size: 2.5rem;
+}
+
+.emergency-header h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.emergency-text {
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 25px;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.emergency-modal .form-group {
+  text-align: left;
+  max-width: 350px;
+  margin: 0 auto 20px;
+}
+
+.emergency-modal .form-group label {
+  display: block;
+  text-align: center;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.emergency-modal select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: white;
+}
+
+.emergency-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 25px;
+}
+
+.btn-emergency {
+  background: #25D366;
+  color: white;
+  border: none;
+  border-radius: 40px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 180px;
+  justify-content: center;
+}
+
+.btn-emergency:hover {
+  background: #20b859;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(37, 211, 102, 0.3);
+}
+
+.btn-emergency:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-cancel {
+  background: #f0f0f0;
+  color: #333;
+  border: none;
+  border-radius: 40px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancel:hover {
+  background: #e0e0e0;
+}
+
+.ubicacion-info {
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 10px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 10px auto;
+  max-width: 300px;
+}
+
+/* Modo oscuro */
+body.dark-mode .emergency-modal {
+  background: #2d2d2d;
+  color: #e0e0e0;
+  border-color: #ff6666;
+}
+
+body.dark-mode .emergency-text {
+  color: #aaa;
+}
+
+body.dark-mode .btn-cancel {
+  background: #444;
+  color: #fff;
+}
+
+body.dark-mode .ubicacion-info {
+  background: #1e3a2a;
+  color: #a5d6a5;
+}
+
+body.dark-mode .emergency-modal select {
+  background: #3d3d3d;
+  color: white;
+  border-color: #555;
+}
