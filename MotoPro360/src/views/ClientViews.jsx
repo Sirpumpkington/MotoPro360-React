@@ -524,27 +524,103 @@ export default function ClientView({
                         {productoSeleccionado?.locales?.telefono}
                       </p>
 
-                      <button
-                        className="btn-main-login"
+                      <div
+                        className="contact-actions-container"
                         style={{
-                          background: "#4285F4",
                           marginTop: "15px",
-                          width: "100%",
                           display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
+                          flexDirection: "column",
                           gap: "10px",
                         }}
-                        // Busca el botón "CÓMO LLEGAR" y cambia el onClick por este:
-                        onClick={() =>
-                          window.open(
-                            `https://www.google.com/maps/dir/?api=1&destination=${coords.lat},${coords.lng}`,
-                            "_blank",
-                          )
-                        }
                       >
-                        <i className="fab fa-google"></i> CÓMO LLEGAR
-                      </button>
+                        {/* 1. BOTÓN GOOGLE MAPS (CÓMO LLEGAR) */}
+                        <button
+                          className="btn-contact-google"
+                          style={{
+                            background: "#4285F4",
+                            color: "white",
+                            padding: "12px",
+                            borderRadius: "12px",
+                            border: "none",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: "10px",
+                            cursor: "pointer",
+                            fontWeight: "600",
+                          }}
+                          onClick={() =>
+                            window.open(
+                              `https://www.google.com/maps/dir/?api=1&destination=${coords.lat},${coords.lng}`,
+
+                              "_blank",
+                            )
+                          }
+                        >
+                          <i className="fab fa-google"></i> CÓMO LLEGAR
+                        </button>
+
+                        {/* CONTENEDOR PARA WHATSAPP Y LLAMADA (Lado a lado) */}
+                        <div
+                          style={{
+                            display: "grid",
+                            gridTemplateColumns: "1fr 1fr",
+                            gap: "10px",
+                          }}
+                        >
+                          {/* 2. BOTÓN WHATSAPP */}
+                          <button
+                            className="btn-contact-whatsapp"
+                            style={{
+                              background: "#25D366",
+                              color: "white",
+                              padding: "12px",
+                              borderRadius: "12px",
+                              border: "none",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              gap: "10px",
+                              cursor: "pointer",
+                              fontWeight: "600",
+                            }}
+                            onClick={() => {
+                              const msg = encodeURIComponent(
+                                `Hola, vi el producto ${productoSeleccionado.nombre_producto} en MotoPro 360 y me interesa.`,
+                              );
+                              // CORRECCIÓN: Usamos productoSeleccionado.locales.telefono
+                              window.open(
+                                `https://wa.me/${productoSeleccionado.locales.telefono}?text=${msg}`,
+                                "_blank",
+                              );
+                            }}
+                          >
+                            <i className="fab fa-whatsapp"></i> WHATSAPP
+                          </button>
+
+                          {/* 3. BOTÓN LLAMAR */}
+                          <a
+                            // CORRECCIÓN: Usamos productoSeleccionado.locales.telefono
+                            href={`tel:${productoSeleccionado.locales.telefono}`}
+                            className="btn-contact-call"
+                            style={{
+                              background: "#1a1a1a",
+                              color: "white",
+                              padding: "12px",
+                              borderRadius: "12px",
+                              textDecoration: "none",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              gap: "10px",
+                              fontWeight: "600",
+                              textAlign: "center",
+                            }}
+                          >
+                            <i className="fas fa-phone-alt"></i> LLAMAR
+                          </a>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ) : (

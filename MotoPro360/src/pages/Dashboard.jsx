@@ -7,6 +7,7 @@ import ClientView from "../views/ClientViews.jsx";
 import LocalView from "../views/LocalViews.jsx";
 import AdminView from "../views/AdminViews.jsx";
 import UserProfileModal from "../components/UserProfileModal";
+import AsistenteIA from "./AsistenteIA.jsx";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -312,6 +313,8 @@ export default function Dashboard() {
           onClose={() => setIsProfileOpen(false)}
           onAvatarUpdate={(url) => setAvatarUrl(url)} // también para el modal
         />
+
+        <AsistenteIA />
       </main>
     </div>
   );
