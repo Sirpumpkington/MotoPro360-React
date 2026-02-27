@@ -85,33 +85,53 @@ body::before {
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
 }
 
-/* === LOGOTIPO DE LA EMPRESA === */
+/* === LOGOTIPO DE LA EMPRESA (VERSIÓN FINAL) === */
+.glass-card {
+  padding: 5px 30px 25px 30px; /* Superior: 5px, Inferior: 25px */
+}
+
 .company-logo {
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 25px;
-  min-height: 80px; /* Espacio fijo para que no se mueva el diseño */
+  margin: 0;                /* Sin márgenes */
+  min-height: auto;         /* Se ajusta al contenido */
 }
 
 .main-logo {
-  max-width: 220px;
-  max-height: 80px;
+  max-width: 380px;         /* Tamaño grande pero controlado */
+  max-height: 160px;
   width: auto;
   height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
-  transition: var(--transition);
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.2));
+  transition: transform 0.2s ease;
 }
 
 .main-logo:hover {
   transform: scale(1.03);
-  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.2));
 }
 
-/* === FIN DE LA PARTE DEL LOGO === */
+.login-title {
+  margin-top: 0;            /* Elimina espacio superior */
+  margin-bottom: 15px;      /* Espacio justo después del título */
+}
 
+/* Ajustes responsivos para pantallas medianas y pequeñas */
+@media (max-width: 600px) {
+  .main-logo {
+    max-width: 300px;
+    max-height: 130px;
+  }
+}
+
+@media (max-width: 400px) {
+  .main-logo {
+    max-width: 250px;
+    max-height: 100px;
+  }
+}
 .login-title {
   font-size: 14px;
   font-weight: 600;
@@ -983,4 +1003,186 @@ select.input-field {
     grid-template-columns: 1fr; /* Un solo campo por fila en móvil */
     gap: 20px;
   }
+}
+
+/* ===== SIDEBAR HEADER CON LOGO Y TEXTO PEGADOS A LA IZQUIERDA ===== */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;                /* Espacio entre logo y texto */
+  padding: 8px 8px 8px 2px;  /* Reducido padding izquierdo a 8px */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  margin-bottom: 16px;
+}
+
+.sidebar-logo {
+  height: 38px;
+  width: auto;
+  object-fit: contain;
+  filter: brightness(0) invert(1); /* Si tu logo es oscuro */
+}
+
+.sidebar-header span {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 300;
+  font-size: 1.5rem;
+  letter-spacing: 0.3px;
+  color: #ffffff !important;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   MODO OSCURO GLOBAL - VARIABLES Y ESTILOS BASE
+   ========================================================================== */
+body.dark-mode {
+  /* Redefinición de variables para tema oscuro */
+  --primary-red: #ff5c6c;
+  --dark-red: #a0101a;
+  --light-red: #ff8a8a;
+  --black: #ffffff;
+  --dark-gray: #e0e0e0;
+  --white: #1e1e1e;
+  --light-gray: #2d2d2d;
+  --gray: #3a3a3a;
+  --google-blue: #8ab4f8;
+  --google-dark-blue: #669df6;
+  --phone-green: #81c784;
+  --phone-dark-green: #66bb6a;
+  --shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+  background: #121212;
+  color: var(--dark-gray);
+}
+
+body.dark-mode .glass-card {
+  background: rgba(45, 45, 45, 0.97);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+  background-color: #2d2d2d;
+  border-color: #444;
+  color: #fff;
+}
+
+body.dark-mode input::placeholder,
+body.dark-mode select::placeholder,
+body.dark-mode textarea::placeholder {
+  color: #aaa;
+}
+
+body.dark-mode .btn-google {
+  background: #2d2d2d;
+  border-color: var(--google-blue);
+  color: var(--google-blue);
+}
+
+body.dark-mode .btn-google:hover {
+  background: var(--google-blue);
+  color: #fff;
+}
+
+body.dark-mode .btn-guest {
+  border-color: #fff;
+  color: #fff;
+}
+
+body.dark-mode .btn-guest:hover {
+  background: #fff;
+  color: #000;
+}
+
+body.dark-mode .footer-tag {
+  background: #3a3a3a;
+  color: #fff;
+}
+
+body.dark-mode .divider span {
+  background: #2d2d2d;
+  color: #aaa;
+}
+
+body.dark-mode .role-card {
+  background: #2d2d2d;
+  border-color: #444;
+}
+
+body.dark-mode .role-card.active {
+  border-color: var(--primary-red);
+  background: rgba(255, 92, 108, 0.1);
+}
+
+body.dark-mode .role-card .role-icon-big {
+  color: #aaa;
+}
+
+body.dark-mode .role-card.active .role-icon-big {
+  color: var(--primary-red);
+}
+
+body.dark-mode .role-card p {
+  color: #aaa;
+}
+
+/* Dashboard y layout */
+body.dark-mode .dashboard-overlay {
+  background-color: #121212;
+}
+
+body.dark-mode .sidebar {
+  background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+}
+
+body.dark-mode .sidebar-header {
+  border-bottom-color: rgba(255, 255, 255, 0.2);
+}
+
+body.dark-mode .nav-link {
+  color: #ccc;
+}
+
+body.dark-mode .nav-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+body.dark-mode .nav-link.active {
+  background: var(--primary-red);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(255, 92, 108, 0.3);
+}
+
+body.dark-mode .main-area {
+  background-color: #121212;
+}
+
+body.dark-mode .top-bar {
+  background-color: #1e1e1e;
+  border-bottom-color: #333;
+}
+
+body.dark-mode .user-info {
+  color: #fff;
+}
+
+body.dark-mode .avatar-circle {
+  background-color: #333;
+  color: #fff;
+  border-color: #555;
+}
+
+body.dark-mode .content-wrapper {
+  background-color: #121212;
+}
+
+body.dark-mode .data-card {
+  background-color: #2d2d2d;
+  border-color: #444;
+  color: #e0e0e0;
+}
+
+body.dark-mode .data-card h2 {
+  color: var(--primary-red);
 }

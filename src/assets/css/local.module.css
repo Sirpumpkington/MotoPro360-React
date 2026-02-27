@@ -165,3 +165,25 @@ h3 {
   align-items: center;
   justify-content: center;
 }
+/* ==========================================================================
+   MODO OSCURO PARA LOCALVIEWS
+   ========================================================================== */
+body.dark-mode .welcome-card-local {
+  background: #2d2d2d;
+  color: #e0e0e0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .local-card.add {
+  background: rgba(255, 92, 108, 0.1);
+  border-color: var(--primary-red);
+}
+
+body.dark-mode .local-thumb {
+  background: #3d3d3d;
+}
+
+body.dark-mode .local-edit-btn {
+  border-color: #555;
+  color: #fff;
+}

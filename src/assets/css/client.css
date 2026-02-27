@@ -479,3 +479,426 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* ==========================================================================
+   MODO OSCURO PARA CLIENTVIEWS
+   ========================================================================== */
+body.dark-mode .cliente-perfil,
+body.dark-mode .data-card,
+body.dark-mode .placeholder-view {
+  background: #2d2d2d;
+  color: #e0e0e0;
+  border-color: #444;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .section-title {
+  color: var(--primary-red);
+  border-bottom-color: #444;
+}
+
+body.dark-mode .subsection-title {
+  color: #ccc;
+}
+
+body.dark-mode .subsection-note {
+  color: #aaa;
+}
+
+body.dark-mode .perfil-form label {
+  color: #ddd;
+}
+
+body.dark-mode .perfil-form input,
+body.dark-mode .perfil-form select {
+  background-color: #3d3d3d;
+  border-color: #555;
+  color: #fff;
+}
+
+body.dark-mode .perfil-form input:focus,
+body.dark-mode .perfil-form select:focus {
+  border-color: var(--primary-red);
+  box-shadow: 0 0 0 3px rgba(255, 92, 108, 0.2);
+}
+
+body.dark-mode .field-note {
+  color: #aaa;
+}
+
+body.dark-mode .avatar-upload-section {
+  background: #3d3d3d;
+}
+
+body.dark-mode .message.success {
+  background: #1b5e20;
+  color: #c8e6c9;
+  border-color: #2e7d32;
+}
+
+body.dark-mode .message.error {
+  background: #b71c1c;
+  color: #ffcdd2;
+  border-color: #c62828;
+}
+
+/* Resultados de búsqueda y mapas */
+body.dark-mode .search-back-btn i {
+  color: #fff;
+}
+
+body.dark-mode .search-results-input {
+  background-color: #2d2d2d;
+  border-color: #444;
+  color: #fff;
+}
+
+body.dark-mode div[style*="background: #f9f9f9"] {
+  background: #2d2d2d !important;
+  border-color: #444 !important;
+}
+
+body.dark-mode div[style*="background: white"] {
+  background: #2d2d2d !important;
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode .sugerencia-repuesto-card {
+  background: linear-gradient(135deg, #2d2d2d 60%, #3a3a3a 100%);
+  border-color: #444;
+}
+
+body.dark-mode .sugerencia-repuesto-nombre {
+  color: #fff;
+}
+
+body.dark-mode .sugerencia-repuesto-local {
+  color: #aaa;
+}
+/* ===== MÓDULO DE EMERGENCIA VIAL ===== */
+.emergencia-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.emergencia-container .section-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #cc0000;
+}
+
+.emergencia-container .section-title i {
+  font-size: 2rem;
+}
+
+.btn-emergencia {
+  background: #25d366;
+  color: white;
+  border: none;
+  border-radius: 40px;
+  padding: 14px 28px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 8px 16px rgba(37, 211, 102, 0.3);
+}
+
+.btn-emergencia:hover {
+  background: #20b859;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(37, 211, 102, 0.4);
+}
+
+.btn-emergencia:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.emergencia-container .ubicacion-info {
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 10px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 15px auto;
+}
+
+/* Modo oscuro */
+body.dark-mode .emergencia-container .ubicacion-info {
+  background: #1e3a2a;
+  color: #a5d6a5;
+}
+
+/* ===== MÓDULO DE EMERGENCIA VIAL (VERSIÓN ELEGANTE) ===== */
+.emergencia-wrapper {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.emergencia-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.emergencia-icon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #ff4d4d, #cc0000);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  box-shadow: 0 10px 25px rgba(255, 0, 0, 0.3);
+  border: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.emergencia-icon i {
+  font-size: 2.5rem;
+  color: white;
+}
+
+.emergencia-header h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--primary-red);
+  margin: 0 0 5px;
+  letter-spacing: -0.5px;
+}
+
+.emergencia-header p {
+  font-size: 1rem;
+  color: #777;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.emergencia-card {
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.emergencia-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 30px 50px rgba(0, 0, 0, 0.12);
+}
+
+.emergencia-content {
+  padding: 30px;
+}
+
+.emergencia-desc {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 25px;
+  padding: 15px 20px;
+  background: #f9f9f9;
+  border-radius: 16px;
+  border-left: 4px solid var(--primary-red);
+}
+
+.emergencia-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+.emergencia-option {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px 20px;
+  background: #f5f5f5;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 2px solid transparent;
+}
+
+.emergencia-option:hover {
+  background: #f0f0f0;
+  transform: translateX(5px);
+}
+
+.emergencia-option.selected {
+  background: linear-gradient(135deg, #fff5f5, #ffe5e5);
+  border-color: var(--primary-red);
+  box-shadow: 0 5px 15px rgba(230, 57, 70, 0.15);
+}
+
+.emergencia-option input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #aaa;
+  border-radius: 50%;
+  margin: 0;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.emergencia-option input[type="radio"]:checked {
+  border-color: var(--primary-red);
+  background-color: var(--primary-red);
+  box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.2);
+}
+
+.emergencia-option input[type="radio"]:checked::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+}
+
+.option-icon {
+  font-size: 1.8rem;
+  min-width: 40px;
+  text-align: center;
+}
+
+.option-text {
+  flex: 1;
+}
+
+.option-text strong {
+  display: block;
+  font-size: 1.1rem;
+  color: #333;
+  margin-bottom: 3px;
+}
+
+.option-text small {
+  display: block;
+  font-size: 0.8rem;
+  color: #777;
+}
+
+.ubicacion-exito {
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 12px 18px;
+  border-radius: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  font-weight: 500;
+  border: 1px solid #c8e6c9;
+}
+
+.mensaje-estado {
+  padding: 12px 18px;
+  border-radius: 40px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.mensaje-estado.error {
+  background: #ffebee;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
+}
+
+.mensaje-estado.success {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+}
+
+.btn-emergencia-principal {
+  background: linear-gradient(135deg, #25D366, #128C7E);
+  color: white;
+  border: none;
+  border-radius: 60px;
+  padding: 16px 30px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+  width: 100%;
+  box-shadow: 0 15px 25px rgba(37, 211, 102, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-emergencia-principal:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 35px rgba(37, 211, 102, 0.4);
+}
+
+.btn-emergencia-principal:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: grayscale(0.3);
+}
+
+.btn-emergencia-principal i {
+  font-size: 1.5rem;
+}
+
+/* Modo oscuro */
+body.dark-mode .emergencia-card {
+  background: #2d2d2d;
+  border-color: #444;
+}
+
+body.dark-mode .emergencia-desc {
+  background: #3d3d3d;
+  color: #ccc;
+  border-left-color: var(--primary-red);
+}
+
+body.dark-mode .emergencia-option {
+  background: #3d3d3d;
+}
+
+body.dark-mode .emergencia-option:hover {
+  background: #4a4a4a;
+}
+
+body.dark-mode .emergencia-option.selected {
+  background: #4a2a2a;
+  border-color: var(--primary-red);
+}
+
+body.dark-mode .option-text strong {
+  color: #fff;
+}
+
+body.dark-mode .option-text small {
+  color: #aaa;
+}
+
+body.dark-mode .emergencia-header p {
+  color: #aaa;
+}

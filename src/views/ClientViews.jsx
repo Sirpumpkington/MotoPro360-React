@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { supabase } from "../supabaseClient"; // Asegúrate de que la ruta sea correcta
 import "leaflet/dist/leaflet.css";
+import Emergencia from "./local_modules/emergencia.jsx"; // <-- NUEVO MÓDULO
 
 export default function ClientView({
   activeTab,
@@ -271,9 +272,12 @@ export default function ClientView({
     setNuevaMoto({ modelo: "", anio: "", placa: "" });
   };
 
-  // OJO: ESTE codigo es de prueba para editar motos, no olvides integrarlo bien con tu función guardarMoto original y el formulario.
+  // ========== NUEVA VISTA: EMERGENCIA VIAL ==========
+  if (activeTab === "emergencia") {
+    return <Emergencia perfil={perfil} />;
+  }
 
-  // ========== NUEVA VISTA: MIS DATOS (PERFIL) ==========
+  // ========== VISTA: MIS DATOS (PERFIL) ==========
   if (activeTab === "perfil") {
     return <ClientePerfil onAvatarUpdate={onAvatarUpdate} />;
   }
@@ -336,7 +340,7 @@ export default function ClientView({
               <button
                 className="btn-main-login"
                 style={{ width: "100%", marginTop: "20px" }}
-                onClick={ejecutarBusqueda} // <--- CAMBIO AQUÍ
+                onClick={ejecutarBusqueda}
               >
                 BUSCAR DISPONIBILIDAD
               </button>
@@ -407,7 +411,7 @@ export default function ClientView({
                   <div
                     key={prod.id_producto}
                     className="data-card"
-                    onClick={() => setProductoSeleccionado(prod)} // <--- Seleccionar producto
+                    onClick={() => setProductoSeleccionado(prod)}
                     style={{
                       padding: "15px",
                       display: "flex",
@@ -552,7 +556,6 @@ export default function ClientView({
                           onClick={() =>
                             window.open(
                               `https://www.google.com/maps/dir/?api=1&destination=${coords.lat},${coords.lng}`,
-
                               "_blank",
                             )
                           }
@@ -588,7 +591,6 @@ export default function ClientView({
                               const msg = encodeURIComponent(
                                 `Hola, vi el producto ${productoSeleccionado.nombre_producto} en MotoPro 360 y me interesa.`,
                               );
-                              // CORRECCIÓN: Usamos productoSeleccionado.locales.telefono
                               window.open(
                                 `https://wa.me/${productoSeleccionado.locales.telefono}?text=${msg}`,
                                 "_blank",
@@ -600,7 +602,6 @@ export default function ClientView({
 
                           {/* 3. BOTÓN LLAMAR */}
                           <a
-                            // CORRECCIÓN: Usamos productoSeleccionado.locales.telefono
                             href={`tel:${productoSeleccionado.locales.telefono}`}
                             className="btn-contact-call"
                             style={{
@@ -636,10 +637,6 @@ export default function ClientView({
                       style={{ fontSize: "2rem", color: "orange" }}
                     ></i>
                     <p>Este local no tiene coordenadas registradas.</p>
-                    {console.log(
-                      "Revisa este objeto en consola:",
-                      productoSeleccionado,
-                    )}
                   </div>
                 )}
               </div>
@@ -849,14 +846,14 @@ export default function ClientView({
             />
             <div style={{ display: "flex", gap: "10px" }}>
               <button
-                onClick={guardarMotoModificada} // <--- Nueva función
+                onClick={guardarMotoModificada}
                 className="btn-main-login"
                 style={{ flex: 1 }}
               >
                 {motoEditando ? "ACTUALIZAR" : "GUARDAR"}
               </button>
               <button
-                onClick={cancelarEdicion} // <--- Nueva función de limpieza
+                onClick={cancelarEdicion}
                 style={{
                   background: "#eee",
                   border: "none",

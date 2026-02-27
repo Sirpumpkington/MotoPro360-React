@@ -70,6 +70,11 @@ export default function Dashboard() {
     navigate("/");
   };
 
+  const handleNavigateToProfile = () => {
+    setIsProfileOpen(false);
+    setActiveTab("perfil");
+  };
+
   if (loading)
     return (
       <div
@@ -102,7 +107,10 @@ export default function Dashboard() {
 
       {/* --- SIDEBAR LATERAL (MENÚ) --- */}
       <aside className={`sidebar ${menuAbierto ? "open" : ""}`}>
-        <div className="sidebar-header">MOTOPRO 360</div>
+        <div className="sidebar-header">
+          <img src="/assets/images/logo.png" alt="MotoPro360" className="sidebar-logo" />
+          <span>MOTOPRO 360</span>
+        </div>
         <nav style={{ flex: 1 }}>
           {/* OPCIÓN COMÚN: INICIO */}
           <div
@@ -118,15 +126,6 @@ export default function Dashboard() {
           {/* === MENÚ CLIENTE === */}
           {perfil?.nombre_rol === "cliente" && (
             <>
-              <div
-                className={`nav-link ${activeTab === "perfil" ? "active" : ""}`}
-                onClick={() => {
-                  setActiveTab("perfil");
-                  setMenuAbierto(false);
-                }}
-              >
-                <i className="fas fa-user-edit"></i> <span>Mis Datos</span>
-              </div>
               <div
                 className={`nav-link ${activeTab === "motos" ? "active" : ""}`}
                 onClick={() => {
@@ -162,6 +161,15 @@ export default function Dashboard() {
                 }}
               >
                 <i className="fas fa-users"></i> <span>Comunidad</span>
+              </div>
+              <div
+                className={`nav-link ${activeTab === "emergencia" ? "active" : ""}`}
+                onClick={() => {
+                  setActiveTab("emergencia");
+                  setMenuAbierto(false);
+                }}
+              >
+                <i className="fas fa-exclamation-triangle"></i> <span>Emergencia Vial</span>
               </div>
             </>
           )}
@@ -227,14 +235,6 @@ export default function Dashboard() {
             </>
           )}
         </nav>
-
-        <div
-          className="nav-link"
-          onClick={handleLogout}
-          style={{ marginTop: "auto", background: "rgba(0,0,0,0.2)" }}
-        >
-          <i className="fas fa-power-off"></i> <span>Cerrar Sesión</span>
-        </div>
       </aside>
 
       {/* --- ÁREA PRINCIPAL --- */}
@@ -299,7 +299,7 @@ export default function Dashboard() {
             perfil={perfil}
             busquedaRealizada={busquedaRealizada}
             setBusquedaRealizada={setBusquedaRealizada}
-            onAvatarUpdate={(url) => setAvatarUrl(url)} // <-- NUEVO
+            onAvatarUpdate={(url) => setAvatarUrl(url)}
           />
           <LocalView activeTab={activeTab} perfil={perfil} />
           <AdminView
@@ -311,7 +311,8 @@ export default function Dashboard() {
         <UserProfileModal
           isOpen={isProfileOpen}
           onClose={() => setIsProfileOpen(false)}
-          onAvatarUpdate={(url) => setAvatarUrl(url)} // también para el modal
+          onAvatarUpdate={(url) => setAvatarUrl(url)}
+          onNavigateToProfile={handleNavigateToProfile}
         />
 
         <AsistenteIA />

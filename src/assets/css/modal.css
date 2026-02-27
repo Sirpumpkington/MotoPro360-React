@@ -166,3 +166,48 @@ input:checked + .slider:before {
   display: flex;
   justify-content: flex-end; /* Alinea el contenido a la derecha */
 }
+
+/* ==========================================================================
+   MODO OSCURO PARA MODAL
+   ========================================================================== */
+body.dark-mode .user-menu-modal {
+  background: #2d2d2d;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .menu-header {
+  background: #3d3d3d;
+}
+
+body.dark-mode .text-details h4 {
+  color: #fff;
+}
+
+body.dark-mode .text-details span {
+  color: #aaa;
+}
+
+body.dark-mode .menu-item,
+body.dark-mode .menu-item-switch {
+  color: #e0e0e0;
+}
+
+body.dark-mode .menu-item i {
+  color: #aaa;
+}
+
+body.dark-mode .menu-item:hover {
+  background: #3d3d3d;
+}
+
+body.dark-mode .menu-divider {
+  background: #444;
+}
+
+body.dark-mode .slider {
+  background-color: #666;
+}
+
+body.dark-mode input:checked + .slider {
+  background-color: var(--primary-red);
+}

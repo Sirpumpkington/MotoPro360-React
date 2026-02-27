@@ -1,21 +1,61 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
-import "../assets/css/modal.css"; // Asegúrate de actualizar el CSS con el que te daré abajo
+import { useTheme } from "../context/ThemeContext";
+import "../assets/css/modal.css";
 
-const UserProfileModal = ({ isOpen, onClose, onAvatarUpdate }) => {
+const UserProfileModal = ({ isOpen, onClose, onAvatarUpdate, onNavigateToProfile }) => {
+  const { darkMode, toggleDarkMode } = useTheme();
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const [darkMode, setDarkMode] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (isOpen) fetchUserData();
   }, [isOpen]);
 
   const fetchUserData = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
     setUser(user);
+  };
+
+  const handleAvatarUpload = async (event) => {
+    try {
+      setUploading(true);
+      if (!event.target.files || event.target.files.length === 0) return;
+      const file = event.target.files[0];
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}_${Math.random()}.${fileExt}`;
+      const filePath = fileName;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file);
+      if (uploadError) throw uploadError;
+
+      const { data: publicUrlData } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+      const avatarUrl = publicUrlData.publicUrl;
+
+      const { error: updateError } = await supabase.auth.updateUser({
+        data: { ...user.user_metadata, avatar_url: avatarUrl }
+      });
+      if (updateError) throw updateError;
+
+      onAvatarUpdate(avatarUrl);
+      await fetchUserData();
+    } catch (error) {
+      alert('Error al subir avatar: ' + error.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/');
+    onClose();
   };
 
   if (!isOpen) return null;
@@ -23,7 +63,6 @@ const UserProfileModal = ({ isOpen, onClose, onAvatarUpdate }) => {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="user-menu-modal" onClick={(e) => e.stopPropagation()}>
-        {/* HEADER: PERFIL Y FOTO */}
         <div className="menu-header">
           <div className="user-info-main">
             <div className="avatar-container">
@@ -34,9 +73,17 @@ const UserProfileModal = ({ isOpen, onClose, onAvatarUpdate }) => {
                   {user?.user_metadata?.full_name?.charAt(0) || "U"}
                 </div>
               )}
-              <label htmlFor="avatar-input" className="edit-avatar-badge">
+              <label htmlFor="avatar-input-modal" className="edit-avatar-badge">
                 <i className="fas fa-camera"></i>
               </label>
+              <input
+                id="avatar-input-modal"
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarUpload}
+                disabled={uploading}
+                style={{ display: 'none' }}
+              />
             </div>
             <div className="text-details">
               <h4>{user?.user_metadata?.full_name || "Usuario"}</h4>
@@ -47,12 +94,12 @@ const UserProfileModal = ({ isOpen, onClose, onAvatarUpdate }) => {
 
         <div className="menu-divider"></div>
 
-        {/* LISTA DE OPCIONES ESTILO YOUTUBE */}
         <div className="menu-options">
           <button
             className="menu-item"
             onClick={() => {
-              /* Navegar a Mis Datos */ onClose();
+              onNavigateToProfile();
+              onClose();
             }}
           >
             <i className="fas fa-user-circle"></i>
@@ -68,7 +115,7 @@ const UserProfileModal = ({ isOpen, onClose, onAvatarUpdate }) => {
               <input
                 type="checkbox"
                 checked={darkMode}
-                onChange={() => setDarkMode(!darkMode)}
+                onChange={toggleDarkMode}
               />
               <span className="slider round"></span>
             </label>
@@ -79,6 +126,7 @@ const UserProfileModal = ({ isOpen, onClose, onAvatarUpdate }) => {
           <a
             href="https://facebook.com/motopro360"
             target="_blank"
+            rel="noopener noreferrer"
             className="menu-item"
           >
             <i className="fab fa-facebook"></i>
@@ -88,6 +136,7 @@ const UserProfileModal = ({ isOpen, onClose, onAvatarUpdate }) => {
           <a
             href="https://youtube.com/motopro360"
             target="_blank"
+            rel="noopener noreferrer"
             className="menu-item"
           >
             <i className="fab fa-youtube text-red"></i>
@@ -96,10 +145,7 @@ const UserProfileModal = ({ isOpen, onClose, onAvatarUpdate }) => {
 
           <div className="menu-divider"></div>
 
-          <button
-            className="menu-item logout"
-            onClick={() => supabase.auth.signOut()}
-          >
+          <button className="menu-item logout" onClick={handleLogout}>
             <i className="fas fa-sign-out-alt"></i>
             <span>Cerrar Sesión</span>
           </button>
