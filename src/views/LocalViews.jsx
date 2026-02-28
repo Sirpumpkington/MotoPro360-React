@@ -78,16 +78,8 @@ export default function LocalView({ activeTab, perfil }) {
       .order("created_at", { ascending: false });
 
     if (error) console.error("Error productos:", error.message);
-    if (data) {
-      setProductos(data);
-      // Extraemos los IDs que ya están en oferta en la BD para pintar los botones de naranja
-      const ofertasActivas = data
-        .filter((p) => p.en_oferta)
-        .map((p) => p.id_producto);
-      setOfertasSimuladas(ofertasActivas);
-    }
-  }; // Implementada las Ofertas como un campo booleano en productos para pruebas, luego se puede cambiar a una tabla aparte si se desea más complejidad
-  //OJO, Prueba con Gemini, si no funciona, vuelve a la versión anterior que usaba un array de IDs en el estado para simular las ofertas. La idea es que cada producto tenga un campo "en_oferta" que se actualice al activar/desactivar la oferta, así evitamos tener que manejar un estado separado para las ofertas simuladas.
+    if (data) setProductos(data);
+  };
 
   // --- 2. CARGA INICIAL DE DATOS ---
   useEffect(() => {
@@ -243,7 +235,7 @@ export default function LocalView({ activeTab, perfil }) {
       const { error } = await supabase
         .from("productos")
         .delete()
-        .eq("id_producto", id); // Usamos el ID exacto de la tabla
+        .eq("id_producto", id); // Usamos el ID exacto de tu tabla
 
       if (error) throw error;
 
@@ -292,31 +284,16 @@ export default function LocalView({ activeTab, perfil }) {
     }
   };
 
-  const toggleOferta = async (idProducto) => {
-    try {
-      const estaEnOferta = ofertasSimuladas.includes(idProducto);
-      const nuevoEstado = !estaEnOferta; // Cambiamos al estado contrario
-
-      // 1. Guardamos en Supabase
-      const { error } = await supabase
-        .from("productos")
-        .update({ en_oferta: nuevoEstado })
-        .eq("id_producto", idProducto);
-
-      if (error) throw error;
-
-      // 2. Actualizamos la vista local
-      if (estaEnOferta) {
-        setOfertasSimuladas(ofertasSimuladas.filter((id) => id !== idProducto));
-        alert("Oferta desactivada");
-      } else {
-        setOfertasSimuladas([...ofertasSimuladas, idProducto]);
-        alert("¡Oferta Flash activada en la base de datos!");
-      }
-    } catch (error) {
-      alert("Error al actualizar la oferta: " + error.message);
+  const toggleOferta = (idProducto) => {
+    // Simulación: Agregamos o quitamos el ID del array de ofertas
+    if (ofertasSimuladas.includes(idProducto)) {
+      setOfertasSimuladas(ofertasSimuladas.filter((id) => id !== idProducto));
+      alert("Oferta desactivada");
+    } else {
+      setOfertasSimuladas([...ofertasSimuladas, idProducto]);
+      alert("¡Oferta Flash activada por 24h! (Simulado)");
     }
-  }; //OJO Este también es parte de la implementación real de las ofertas, ahora cada producto tiene un campo "en_oferta" que se actualiza al activar/desactivar la oferta, y el estado local se sincroniza con la base de datos para reflejar los cambios en la UI.
+  };
 
   // --- VISTAS ---
   if (perfil?.nombre_rol !== "local") return null;

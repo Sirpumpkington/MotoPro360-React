@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { supabase } from "../supabaseClient"; // Asegúrate de que la ruta sea correcta
 import "leaflet/dist/leaflet.css";
-import Emergencia from "./local_modules/emergencia.jsx";
+import Emergencia from "./local_modules/emergencia.jsx"; // <-- NUEVO MÓDULO
 
 export default function ClientView({
   activeTab,
@@ -448,63 +448,15 @@ export default function ClientView({
                       >
                         {prod.locales?.nombre_local}
                       </p>
-                      <div
+                      <p
                         style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px",
+                          color: "var(--primary-red)",
+                          fontWeight: "bold",
                           margin: 0,
                         }}
                       >
-                        {prod.en_oferta ? (
-                          <>
-                            {/* Precio Original Tachado */}
-                            <span
-                              style={{
-                                textDecoration: "line-through",
-                                color: "#999",
-                                fontSize: "0.85rem",
-                              }}
-                            >
-                              ${prod.precio}
-                            </span>
-                            {/* Precio con Descuento */}
-                            <span
-                              style={{
-                                color: "var(--primary-red)",
-                                fontWeight: "bold",
-                                fontSize: "1.1rem",
-                              }}
-                            >
-                              ${(prod.precio * 0.8).toFixed(2)}
-                            </span>
-                            {/* Etiqueta de Oferta */}
-                            <span
-                              style={{
-                                background: "#FF9900",
-                                color: "white",
-                                fontSize: "0.6rem",
-                                padding: "2px 6px",
-                                borderRadius: "4px",
-                                fontWeight: "bold",
-                                textTransform: "uppercase",
-                              }}
-                            >
-                              Oferta
-                            </span>
-                          </>
-                        ) : (
-                          /* Si no está en oferta, precio normal */
-                          <span
-                            style={{
-                              color: "var(--primary-red)",
-                              fontWeight: "bold",
-                            }}
-                          >
-                            ${prod.precio}
-                          </span>
-                        )}
-                      </div>
+                        ${prod.precio}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -1052,7 +1004,12 @@ export default function ClientView({
 
   // TAB: PROMOCIONES (Placeholder)
   if (activeTab === "promos") {
-    return <VistaPromos />;
+    return (
+      <div className="placeholder-view">
+        <h2>Promociones</h2>
+        <p>Módulo en construcción</p>
+      </div>
+    );
   }
 
   // TAB: FORMACIÓN (Placeholder)
@@ -1387,78 +1344,6 @@ function ClientePerfil({ onAvatarUpdate }) {
           </button>
         </div>
       </form>
-    </div>
-  );
-}
-
-// ================= AQUI VAN LAS PROMOCIONES SIMULADAS (PARA PRUEBAS) =================
-// --- COMPONENTE DE PROMOCIONES ---
-function VistaPromos() {
-  const [ofertas, setOfertas] = React.useState([]);
-
-  React.useEffect(() => {
-    const cargarOfertas = async () => {
-      // Traemos todos los productos de toda la app que tengan en_oferta = true
-      const { data, error } = await supabase
-        .from("productos")
-        .select("*, locales(nombre_local)")
-        .eq("en_oferta", true);
-
-      if (data) setOfertas(data);
-    };
-    cargarOfertas();
-  }, []);
-
-  return (
-    <div style={{ padding: "20px" }}>
-      <h2>🔥 Promociones Activas</h2>
-      {ofertas.length === 0 ? (
-        <p>No hay ofertas disponibles en este momento.</p>
-      ) : (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
-            gap: "15px",
-          }}
-        >
-          {ofertas.map((prod) => (
-            <div
-              key={prod.id_producto}
-              style={{
-                padding: "15px",
-                border: "2px solid #FF9900",
-                borderRadius: "8px",
-                background: "#fff",
-              }}
-            >
-              <h4 style={{ margin: "0 0 10px 0" }}>{prod.nombre_producto}</h4>
-              <p style={{ margin: "0", color: "gray", fontSize: "0.9rem" }}>
-                Tienda: {prod.locales?.nombre_local || "Local desconocido"}
-              </p>
-              <p
-                style={{
-                  margin: "5px 0",
-                  textDecoration: "line-through",
-                  color: "#666",
-                }}
-              >
-                Precio normal: ${prod.precio}
-              </p>
-              <p
-                style={{
-                  margin: "0",
-                  fontWeight: "bold",
-                  color: "#FF9900",
-                  fontSize: "1.2rem",
-                }}
-              >
-                ¡Oferta: ${(prod.precio * 0.8).toFixed(2)}!
-              </p>
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
