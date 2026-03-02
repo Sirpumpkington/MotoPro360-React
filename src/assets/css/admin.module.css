@@ -1,0 +1,462 @@
+:root {
+  --primary-red: #e63946;
+  --dark-gray: #1a1a1a;
+  --gray: #f4f4f4;
+  --white: #ffffff;
+  --black: #000000;
+  --text-muted: #666666;
+}
+
+/* Minimal, focused module CSS used by AdminViews.jsx */
+
+/* Layout helpers */
+.content-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.card-left {
+  text-align: left;
+  padding: 25px;
+}
+
+.card-padding-20 {
+  padding: 20px;
+  border-radius: 16px;
+}
+
+.map-card {
+  padding: 10px;
+  overflow: hidden;
+}
+
+.section-header-row {
+  margin-bottom: 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.table-actions-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+/* Stat helpers */
+.stat-value {
+  font-size: 24px;
+  margin: 10px 0;
+  font-weight: 700;
+}
+.stat-desc {
+  color: #777;
+  font-size: 14px;
+}
+
+/* Button (replicated from client 'btn-main-login' style for admin) */
+.btn-main-login {
+  background: linear-gradient(135deg, var(--primary-red), #c1121f);
+  color: var(--white);
+  border: none;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(230, 57, 70, 0.18);
+  transition: all 0.25s ease;
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
+}
+.btn-main-login:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px rgba(230, 57, 70, 0.22);
+}
+
+/* Table utilities used by AdminViews */
+.table-container {
+  background: var(--white);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+}
+.crud-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 12px;
+}
+.table-header {
+  color: var(--primary-red);
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+}
+.table-cell-center {
+  text-align: center;
+}
+.table-cell-right {
+  text-align: right;
+}
+.table-cell-strong {
+  font-weight: 700;
+}
+
+/* Cursos table */
+.cursos-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+}
+.curso-row {
+  background: var(--white);
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(12, 12, 12, 0.04);
+  transition: transform 0.12s ease;
+}
+.curso-row:hover {
+  transform: translateY(-4px);
+}
+.curso-td {
+  padding: 15px;
+  vertical-align: middle;
+}
+.curso-td-first {
+  border-radius: 10px 0 0 10px;
+}
+.curso-td-last {
+  border-radius: 0 10px 10px 0;
+  text-align: right;
+}
+.curso-title {
+  font-weight: 600;
+  color: var(--dark-gray);
+}
+.curso-desc {
+  font-size: 12px;
+  color: #666;
+  max-height: 40px;
+  overflow: hidden;
+}
+.estado-activo {
+  padding: 4px 10px;
+  border-radius: 15px;
+  font-size: 11px;
+  font-weight: 700;
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+.estado-inactivo {
+  padding: 4px 10px;
+  border-radius: 15px;
+  font-size: 11px;
+  font-weight: 700;
+  background-color: #ffebee;
+  color: #d32f2f;
+}
+.curso-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+.action-icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background 0.12s ease;
+}
+.action-icon-button:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+.btn-toggle-active {
+  color: #2e7d32;
+}
+.btn-toggle-inactive {
+  color: #d32f2f;
+}
+
+/* Badges */
+.badge {
+  padding: 6px 14px;
+  border-radius: 30px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  display: inline-block;
+  border-width: 1px;
+  border-style: solid;
+}
+.badge-admin {
+  background: #ffebee;
+  color: #d32f2f;
+  border-color: #ffcdd2;
+}
+.badge-local {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border-color: #c8e6c9;
+}
+.badge-cliente {
+  background: #e3f2fd;
+  color: #1976d2;
+  border-color: #bbdefb;
+}
+
+/* Action buttons for rows */
+.action-btn {
+  border: none;
+  background: #f8f9fa;
+  cursor: pointer;
+  width: 35px;
+  height: 35px;
+  border-radius: 10px;
+  margin: 0 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.btn-edit {
+  color: #ffa000;
+}
+.btn-edit:hover {
+  background: #fff8e1;
+}
+.btn-delete {
+  color: #d32f2f;
+}
+.btn-delete:hover {
+  background: #ffebee;
+}
+
+/* Modals */
+.modal-content {
+  background: var(--white);
+  padding: 24px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
+  position: relative;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+.modal-form-group {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.modal-input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid var(--gray);
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+.modal-input:focus {
+  border-color: var(--primary-red);
+  box-shadow: 0 0 0 4px rgba(230, 57, 70, 0.06);
+}
+/* ==========================================================================
+   VARIABLES Y ADN VISUAL (MOTOPRO 360)
+   ========================================================================== */
+:root {
+  --primary-red: #e63946;
+  --red-gradient: linear-gradient(135deg, #e63946, #c1121f);
+  --dark-gray: #1a1a1a;
+  --gray: #f4f4f4;
+  --white: #ffffff;
+  --black: #000000;
+  --text-muted: #6b7280;
+  --bg-light: #f8f9fa;
+
+  /* Sombras y Bordes Estilo "Formación" */
+  --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  --modal-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+  --button-shadow: 0 8px 20px rgba(230, 57, 70, 0.25);
+  --radius-pill: 50px;
+  --radius-lg: 30px; /* Igual que tus cards de cursos */
+  --radius-md: 16px;
+}
+
+/* ==========================================================================
+   LAYOUT Y CONTENEDORES
+   ========================================================================== */
+.content-column {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.section-header-row {
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.table-container {
+  background: var(--white);
+  padding: 30px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--card-shadow);
+}
+
+/* ==========================================================================
+   BOTONES (Estilo "ACCEDER AHORA")
+   ========================================================================== */
+.btn-main-login,
+.btn-save {
+  background: var(--red-gradient);
+  color: var(--white);
+  border: none;
+  padding: 14px 28px;
+  border-radius: var(--radius-pill); /* Estilo ovalado */
+  font-weight: 800;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  cursor: pointer;
+  box-shadow: var(--button-shadow);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-main-login:hover,
+.btn-save:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 12px 28px rgba(230, 57, 70, 0.35);
+}
+
+.btn-cancel {
+  background: var(--gray);
+  color: var(--dark-gray);
+  border: none;
+  padding: 14px 28px;
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-cancel:hover {
+  background: #e5e7eb;
+  transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   TABLA DE CURSOS (Estilo Card List)
+   ========================================================================== */
+.cursos-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 15px; /* Espacio entre filas */
+}
+
+.curso-row {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+  transition: all 0.3s ease;
+}
+
+.curso-row:hover {
+  transform: translateX(10px); /* Deslizamiento elegante */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.curso-td {
+  padding: 20px;
+  vertical-align: middle;
+}
+
+.curso-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--dark-gray);
+  display: block;
+}
+
+.curso-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* ==========================================================================
+   MODALES (Limpieza y Elegancia)
+   ========================================================================== */
+.modal-content {
+  background: var(--white);
+  padding: 45px;
+  border-radius: var(--radius-lg); /* Bordes muy redondeados */
+  width: 95%;
+  max-width: 550px;
+  box-shadow: var(--modal-shadow);
+  border: 1px solid rgba(0, 0, 0, 0.03);
+  animation: modalSlideUp 0.4s ease-out;
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-input {
+  width: 100%;
+  padding: 16px 20px;
+  background: var(--bg-light);
+  border: 2px solid transparent;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.modal-input:focus {
+  background: var(--white);
+  border-color: var(--primary-red);
+  box-shadow: 0 0 0 5px rgba(230, 57, 70, 0.08);
+  outline: none;
+}
+
+/* ==========================================================================
+   MODO OSCURO (Sintonía total)
+   ========================================================================== */
+body.dark-mode {
+  --white: #1a1a1a;
+  --bg-light: #262626;
+  --dark-gray: #ffffff;
+  --gray: #333333;
+  --text-muted: #a1a1aa;
+  --card-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode .modal-content {
+  background: #141414;
+  border: 1px solid #2d2d2d;
+}
+
+body.dark-mode .curso-row {
+  background: #222222;
+}
+
+body.dark-mode .modal-input {
+  background: #2d2d2d;
+  color: white;
+}

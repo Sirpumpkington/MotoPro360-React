@@ -2,8 +2,10 @@ import React, { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { supabase } from "../supabaseClient"; // Asegúrate de que la ruta sea correcta
 import "leaflet/dist/leaflet.css";
-import Emergencia from "./local_modules/emergencia.jsx"; // <-- NUEVO MÓDULO
-
+import Emergencia from "./local_modules/emergencia.jsx";
+import VistaPromos from "./client_modules/promociones.jsx";
+import VistaCursos from "./client_modules/formacion.jsx";
+import Motos from "./client_modules/motos.jsx";
 export default function ClientView({
   activeTab,
   perfil,
@@ -448,15 +450,63 @@ export default function ClientView({
                       >
                         {prod.locales?.nombre_local}
                       </p>
-                      <p
+                      <div
                         style={{
-                          color: "var(--primary-red)",
-                          fontWeight: "bold",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
                           margin: 0,
                         }}
                       >
-                        ${prod.precio}
-                      </p>
+                        {prod.en_oferta ? (
+                          <>
+                            {/* Precio Original Tachado */}
+                            <span
+                              style={{
+                                textDecoration: "line-through",
+                                color: "#999",
+                                fontSize: "0.85rem",
+                              }}
+                            >
+                              ${prod.precio}
+                            </span>
+                            {/* Precio con Descuento */}
+                            <span
+                              style={{
+                                color: "var(--primary-red)",
+                                fontWeight: "bold",
+                                fontSize: "1.1rem",
+                              }}
+                            >
+                              ${(prod.precio * 0.8).toFixed(2)}
+                            </span>
+                            {/* Etiqueta de Oferta */}
+                            <span
+                              style={{
+                                background: "#FF9900",
+                                color: "white",
+                                fontSize: "0.6rem",
+                                padding: "2px 6px",
+                                borderRadius: "4px",
+                                fontWeight: "bold",
+                                textTransform: "uppercase",
+                              }}
+                            >
+                              Oferta
+                            </span>
+                          </>
+                        ) : (
+                          /* Si no está en oferta, precio normal */
+                          <span
+                            style={{
+                              color: "var(--primary-red)",
+                              fontWeight: "bold",
+                            }}
+                          >
+                            ${prod.precio}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -1004,22 +1054,13 @@ export default function ClientView({
 
   // TAB: PROMOCIONES (Placeholder)
   if (activeTab === "promos") {
-    return (
-      <div className="placeholder-view">
-        <h2>Promociones</h2>
-        <p>Módulo en construcción</p>
-      </div>
-    );
+    return <VistaPromos />;
   }
 
   // TAB: FORMACIÓN (Placeholder)
   if (activeTab === "cursos") {
-    return (
-      <div className="placeholder-view">
-        <h2>Formación</h2>
-        <p>Módulo en construcción</p>
-      </div>
-    );
+    // Le pasamos el perfil que ya recibes por props en ClientView
+    return <VistaCursos perfil={perfil} />;
   }
 
   // TAB: COMUNIDAD (Ejemplo estático mejorado)

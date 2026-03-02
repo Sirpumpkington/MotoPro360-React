@@ -108,7 +108,11 @@ export default function Dashboard() {
       {/* --- SIDEBAR LATERAL (MENÚ) --- */}
       <aside className={`sidebar ${menuAbierto ? "open" : ""}`}>
         <div className="sidebar-header">
-          <img src="/assets/images/logo.png" alt="MotoPro360" className="sidebar-logo" />
+          <img
+            src="/assets/images/logo.png"
+            alt="MotoPro360"
+            className="sidebar-logo"
+          />
           <span>MOTOPRO 360</span>
         </div>
         <nav style={{ flex: 1 }}>
@@ -169,7 +173,8 @@ export default function Dashboard() {
                   setMenuAbierto(false);
                 }}
               >
-                <i className="fas fa-exclamation-triangle"></i> <span>Emergencia Vial</span>
+                <i className="fas fa-exclamation-triangle"></i>{" "}
+                <span>Emergencia Vial</span>
               </div>
             </>
           )}
@@ -231,6 +236,15 @@ export default function Dashboard() {
               >
                 <i className="fas fa-users-cog"></i>{" "}
                 <span>Gestión Usuarios</span>
+              </div>
+              <div
+                className={`nav-link ${activeTab === "formacion" ? "active" : ""}`}
+                onClick={() => {
+                  setActiveTab("formacion");
+                  setMenuAbierto(false);
+                }}
+              >
+                <i className="fas fa-graduation-cap"></i> <span>Formación</span>
               </div>
             </>
           )}
