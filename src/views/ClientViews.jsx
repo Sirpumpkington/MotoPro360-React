@@ -5,7 +5,6 @@ import "leaflet/dist/leaflet.css";
 import Emergencia from "./local_modules/emergencia.jsx";
 import VistaPromos from "./client_modules/promociones.jsx";
 import VistaCursos from "./client_modules/formacion.jsx";
-import Motos from "./client_modules/motos.jsx";
 export default function ClientView({
   activeTab,
   perfil,
