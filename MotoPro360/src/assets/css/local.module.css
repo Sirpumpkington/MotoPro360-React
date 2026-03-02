@@ -1,0 +1,189 @@
+/* Styles exclusive to LocalViews */
+
+h3 {
+  color: var(--dark-gray);
+}
+
+.welcome-card-local {
+  background: var(--white);
+  padding: 30px;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  color: var(--dark-gray);
+}
+.local-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 25px;
+  padding: 10px;
+}
+
+.local-card {
+  min-height: 250px;
+  text-align: center;
+}
+
+.local-card.add {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--primary-red);
+  background: rgba(230, 57, 70, 0.05);
+  cursor: pointer;
+}
+
+.local-thumb {
+  height: 140px;
+  background: #e9ecef;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.local-price {
+  color: var(--primary-red);
+  font-weight: 800;
+  font-size: 1.2rem;
+}
+
+.local-edit-btn {
+  margin-top: 10px;
+  background: none;
+  border: 1px solid var(--gray);
+  padding: 5px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* Profile button used in LocalViews */
+.btn-profile {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease;
+}
+.btn-profile i {
+  font-size: 18px;
+  color: var(--black);
+}
+.btn-profile:focus {
+  outline: 2px solid rgba(66, 133, 244, 0.18);
+  outline-offset: 2px;
+}
+.btn-profile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+@media (max-width: 768px) {
+  .btn-profile {
+    width: 36px;
+    height: 36px;
+  }
+  .btn-profile i {
+    font-size: 16px;
+  }
+}
+
+.notifi-card {
+  background: rgba(248, 249, 250, 0.97);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-radius: 25px;
+  padding: 35px 30px;
+  box-shadow: var(--shadow);
+  text-align: center;
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  overflow: hidden;
+  transition: var(--transition);
+  color: var(--dark-gray);
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  padding: 15px;
+  border-left: 4px solid var(--primary-red);
+}
+
+.glass-card {
+  background: rgba(248, 249, 250, 0.97);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-radius: 25px;
+  padding: 35px 30px;
+  box-shadow: var(--shadow);
+  text-align: center;
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  overflow: hidden;
+  transition: var(--transition);
+  color: var(--dark-gray);
+}
+
+.edit-local-header {
+  margin: 0;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+  background: var(--primary-red);
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.local-edit-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.icon-notif {
+  background: #eee;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* ==========================================================================
+   MODO OSCURO PARA LOCALVIEWS
+   ========================================================================== */
+body.dark-mode .welcome-card-local {
+  background: #2d2d2d;
+  color: #e0e0e0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .local-card.add {
+  background: rgba(255, 92, 108, 0.1);
+  border-color: var(--primary-red);
+}
+
+body.dark-mode .local-thumb {
+  background: #3d3d3d;
+}
+
+body.dark-mode .local-edit-btn {
+  border-color: #555;
+  color: #fff;
+}

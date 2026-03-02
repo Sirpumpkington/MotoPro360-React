@@ -1,0 +1,904 @@
+/* Sugerencias de repuestos (tarjetas horizontales elegantes) */
+.sugerencia-repuesto-card {
+  min-width: 180px;
+  max-width: 220px;
+  background: linear-gradient(135deg, #fff 60%, #f8f9fa 100%);
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(220, 53, 69, 0.07);
+  border: 1.5px solid #f3f3f3;
+  padding: 18px 14px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  transition:
+    box-shadow 0.2s,
+    border 0.2s;
+  position: relative;
+}
+.sugerencia-repuesto-card:hover {
+  box-shadow: 0 6px 24px rgba(220, 53, 69, 0.13);
+  border: 1.5px solid var(--primary-red);
+}
+.sugerencia-repuesto-img {
+  width: 100%;
+  height: 80px;
+  background: #f3f3f3;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.sugerencia-repuesto-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.sugerencia-repuesto-nombre {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 2px;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sugerencia-repuesto-precio {
+  color: var(--primary-red);
+  font-weight: bold;
+  font-size: 1.05rem;
+  margin-bottom: 2px;
+}
+.sugerencia-repuesto-local {
+  font-size: 0.8rem;
+  color: #888;
+  margin-bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sugerencia-repuesto-sin-imagen {
+  color: #bbb;
+  font-size: 0.85rem;
+  font-style: italic;
+}
+/* Styles exclusive to ClientViews (moved from public/assets/css/client.css)
+   Loaded dynamically with import() for deferred CSS and HMR support */
+
+/* Search results header */
+.search-back-btn {
+  border: none;
+  background: none;
+  color: var(--black);
+  padding: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.search-back-btn i {
+  color: var(--black);
+  font-size: 18px;
+}
+.search-results-input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 14px;
+  color: var(--dark-gray);
+  background: transparent;
+}
+.search-results-input:focus {
+  outline: 2px solid var(--primary-red);
+  box-shadow: 0 0 0 4px rgba(230, 57, 70, 0.08);
+  border-radius: 8px;
+}
+
+/* Responsive split (list + map) and client cards */
+@media (max-width: 768px) {
+  .responsive-split {
+    flex-direction: column;
+    gap: 16px;
+    display: flex;
+  }
+
+  .responsive-split > div {
+    min-height: 240px;
+  }
+
+  .moto-card {
+    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+    border-left: 5px solid var(--primary-red);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .moto-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--black);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: bold;
+  }
+
+  .coupon-card {
+    background: white;
+    border: 2px dashed var(--primary-red);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .coupon-circle {
+    width: 20px;
+    height: 20px;
+    background: var(--light-gray);
+    border-radius: 50%;
+    position: absolute;
+    left: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .coupon-circle.right {
+    left: auto;
+    right: -12px;
+  }
+
+  .course-card {
+    border: none;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .course-thumb {
+    height: 140px;
+    background: var(--black);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 3rem;
+    position: relative;
+  }
+
+  .play-icon {
+    opacity: 0.8;
+    transition: 0.3s;
+  }
+
+  .course-card:hover .play-icon {
+    transform: scale(1.2);
+    color: var(--primary-red);
+  }
+
+  .community-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border-bottom: 3px solid transparent;
+    transition: 0.3s;
+  }
+
+  .community-card:hover {
+    border-bottom: 3px solid var(--primary-red);
+    transform: translateY(-2px);
+  }
+
+  .community-avatar {
+    width: 50px;
+    height: 50px;
+    background: var(--dark-gray);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+  }
+
+  /* Perfil: botón/avatar circular tipo Facebook */
+  .btn-profile {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    transition:
+      transform 0.12s ease,
+      box-shadow 0.12s ease;
+  }
+  .btn-profile i {
+    font-size: 18px;
+    color: var(--black);
+  }
+  .btn-profile:focus {
+    outline: 2px solid rgba(66, 133, 244, 0.18);
+    outline-offset: 2px;
+  }
+  .btn-profile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  }
+  @media (max-width: 768px) {
+    .btn-profile {
+      width: 36px;
+      height: 36px;
+    }
+    .btn-profile i {
+      font-size: 16px;
+    }
+  }
+  /* Profile button used in ClientViews */
+  .btn-profile {
+    appearance: none;
+    -webkit-appearance: none;
+    border: none;
+    background: transparent;
+    color: var(--black);
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .btn-profile i {
+    font-size: 20px;
+  }
+  .btn-profile:hover {
+    background: rgba(0, 0, 0, 0.04);
+    transform: translateY(-1px);
+  }
+}
+
+/* client.css - estilos para la vista de perfil del cliente */
+
+.cliente-perfil {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+  color: #dc3545;
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 0.5rem;
+}
+
+.subsection-title {
+  font-size: 1.3rem;
+  margin: 1.5rem 0 0.5rem;
+  color: #495057;
+  font-weight: 600;
+}
+
+.subsection-note {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin-bottom: 1rem;
+}
+
+.perfil-form .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.perfil-form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.perfil-form input,
+.perfil-form select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.perfil-form input:focus,
+.perfil-form select:focus {
+  border-color: #dc3545;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.perfil-form input:disabled,
+.perfil-form select:disabled {
+  background-color: #e9ecef;
+  cursor: not-allowed;
+}
+
+.field-note {
+  display: block;
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-top: 0.25rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #c82333;
+}
+
+.btn-primary:disabled {
+  background: #e4606d;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #5a6268;
+}
+
+.btn-secondary:disabled {
+  background: #868e96;
+  cursor: not-allowed;
+}
+
+.message {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  text-align: center;
+}
+
+.message.success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.message.error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.placeholder-view {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Estilos para la sección de avatar */
+.avatar-upload-section {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+.avatar-preview {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #dc3545;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2.5rem;
+  font-weight: 600;
+  background: #dc3545;
+}
+
+.avatar-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.btn-upload {
+  background: #6c757d;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.2s;
+  display: inline-block;
+  max-width: 150px;
+}
+
+.btn-upload:hover {
+  background: #5a6268;
+}
+
+.btn-upload:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   MODO OSCURO PARA CLIENTVIEWS
+   ========================================================================== */
+body.dark-mode .cliente-perfil,
+body.dark-mode .data-card,
+body.dark-mode .placeholder-view {
+  background: #2d2d2d;
+  color: #e0e0e0;
+  border-color: #444;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .section-title {
+  color: var(--primary-red);
+  border-bottom-color: #444;
+}
+
+body.dark-mode .subsection-title {
+  color: #ccc;
+}
+
+body.dark-mode .subsection-note {
+  color: #aaa;
+}
+
+body.dark-mode .perfil-form label {
+  color: #ddd;
+}
+
+body.dark-mode .perfil-form input,
+body.dark-mode .perfil-form select {
+  background-color: #3d3d3d;
+  border-color: #555;
+  color: #fff;
+}
+
+body.dark-mode .perfil-form input:focus,
+body.dark-mode .perfil-form select:focus {
+  border-color: var(--primary-red);
+  box-shadow: 0 0 0 3px rgba(255, 92, 108, 0.2);
+}
+
+body.dark-mode .field-note {
+  color: #aaa;
+}
+
+body.dark-mode .avatar-upload-section {
+  background: #3d3d3d;
+}
+
+body.dark-mode .message.success {
+  background: #1b5e20;
+  color: #c8e6c9;
+  border-color: #2e7d32;
+}
+
+body.dark-mode .message.error {
+  background: #b71c1c;
+  color: #ffcdd2;
+  border-color: #c62828;
+}
+
+/* Resultados de búsqueda y mapas */
+body.dark-mode .search-back-btn i {
+  color: #fff;
+}
+
+body.dark-mode .search-results-input {
+  background-color: #2d2d2d;
+  border-color: #444;
+  color: #fff;
+}
+
+body.dark-mode div[style*="background: #f9f9f9"] {
+  background: #2d2d2d !important;
+  border-color: #444 !important;
+}
+
+body.dark-mode div[style*="background: white"] {
+  background: #2d2d2d !important;
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode .sugerencia-repuesto-card {
+  background: linear-gradient(135deg, #2d2d2d 60%, #3a3a3a 100%);
+  border-color: #444;
+}
+
+body.dark-mode .sugerencia-repuesto-nombre {
+  color: #fff;
+}
+
+body.dark-mode .sugerencia-repuesto-local {
+  color: #aaa;
+}
+/* ===== MÓDULO DE EMERGENCIA VIAL ===== */
+.emergencia-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.emergencia-container .section-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #cc0000;
+}
+
+.emergencia-container .section-title i {
+  font-size: 2rem;
+}
+
+.btn-emergencia {
+  background: #25d366;
+  color: white;
+  border: none;
+  border-radius: 40px;
+  padding: 14px 28px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 8px 16px rgba(37, 211, 102, 0.3);
+}
+
+.btn-emergencia:hover {
+  background: #20b859;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(37, 211, 102, 0.4);
+}
+
+.btn-emergencia:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.emergencia-container .ubicacion-info {
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 10px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 15px auto;
+}
+
+/* Modo oscuro */
+body.dark-mode .emergencia-container .ubicacion-info {
+  background: #1e3a2a;
+  color: #a5d6a5;
+}
+
+/* ===== MÓDULO DE EMERGENCIA VIAL (VERSIÓN ELEGANTE) ===== */
+.emergencia-wrapper {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.emergencia-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.emergencia-icon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #ff4d4d, #cc0000);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  box-shadow: 0 10px 25px rgba(255, 0, 0, 0.3);
+  border: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.emergencia-icon i {
+  font-size: 2.5rem;
+  color: white;
+}
+
+.emergencia-header h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--primary-red);
+  margin: 0 0 5px;
+  letter-spacing: -0.5px;
+}
+
+.emergencia-header p {
+  font-size: 1rem;
+  color: #777;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.emergencia-card {
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.emergencia-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 30px 50px rgba(0, 0, 0, 0.12);
+}
+
+.emergencia-content {
+  padding: 30px;
+}
+
+.emergencia-desc {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 25px;
+  padding: 15px 20px;
+  background: #f9f9f9;
+  border-radius: 16px;
+  border-left: 4px solid var(--primary-red);
+}
+
+.emergencia-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+.emergencia-option {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px 20px;
+  background: #f5f5f5;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 2px solid transparent;
+}
+
+.emergencia-option:hover {
+  background: #f0f0f0;
+  transform: translateX(5px);
+}
+
+.emergencia-option.selected {
+  background: linear-gradient(135deg, #fff5f5, #ffe5e5);
+  border-color: var(--primary-red);
+  box-shadow: 0 5px 15px rgba(230, 57, 70, 0.15);
+}
+
+.emergencia-option input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #aaa;
+  border-radius: 50%;
+  margin: 0;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.emergencia-option input[type="radio"]:checked {
+  border-color: var(--primary-red);
+  background-color: var(--primary-red);
+  box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.2);
+}
+
+.emergencia-option input[type="radio"]:checked::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+}
+
+.option-icon {
+  font-size: 1.8rem;
+  min-width: 40px;
+  text-align: center;
+}
+
+.option-text {
+  flex: 1;
+}
+
+.option-text strong {
+  display: block;
+  font-size: 1.1rem;
+  color: #333;
+  margin-bottom: 3px;
+}
+
+.option-text small {
+  display: block;
+  font-size: 0.8rem;
+  color: #777;
+}
+
+.ubicacion-exito {
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 12px 18px;
+  border-radius: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  font-weight: 500;
+  border: 1px solid #c8e6c9;
+}
+
+.mensaje-estado {
+  padding: 12px 18px;
+  border-radius: 40px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.mensaje-estado.error {
+  background: #ffebee;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
+}
+
+.mensaje-estado.success {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+}
+
+.btn-emergencia-principal {
+  background: linear-gradient(135deg, #25D366, #128C7E);
+  color: white;
+  border: none;
+  border-radius: 60px;
+  padding: 16px 30px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+  width: 100%;
+  box-shadow: 0 15px 25px rgba(37, 211, 102, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-emergencia-principal:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 35px rgba(37, 211, 102, 0.4);
+}
+
+.btn-emergencia-principal:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: grayscale(0.3);
+}
+
+.btn-emergencia-principal i {
+  font-size: 1.5rem;
+}
+
+/* Modo oscuro */
+body.dark-mode .emergencia-card {
+  background: #2d2d2d;
+  border-color: #444;
+}
+
+body.dark-mode .emergencia-desc {
+  background: #3d3d3d;
+  color: #ccc;
+  border-left-color: var(--primary-red);
+}
+
+body.dark-mode .emergencia-option {
+  background: #3d3d3d;
+}
+
+body.dark-mode .emergencia-option:hover {
+  background: #4a4a4a;
+}
+
+body.dark-mode .emergencia-option.selected {
+  background: #4a2a2a;
+  border-color: var(--primary-red);
+}
+
+body.dark-mode .option-text strong {
+  color: #fff;
+}
+
+body.dark-mode .option-text small {
+  color: #aaa;
+}
+
+body.dark-mode .emergencia-header p {
+  color: #aaa;
+}
