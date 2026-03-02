@@ -4,7 +4,7 @@ import { supabase } from "../supabaseClient";
 import { useTheme } from "../context/ThemeContext";
 import "../assets/css/modal.css";
 
-const UserProfileModal = ({ isOpen, onClose, onAvatarUpdate, onNavigateToProfile }) => {
+const UserProfileModal = ({ isOpen, onClose, onAvatarUpdate, onNavigateToProfile, userRole }) => {
   const { darkMode, toggleDarkMode } = useTheme();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
@@ -95,16 +95,19 @@ const UserProfileModal = ({ isOpen, onClose, onAvatarUpdate, onNavigateToProfile
         <div className="menu-divider"></div>
 
         <div className="menu-options">
-          <button
-            className="menu-item"
-            onClick={() => {
-              onNavigateToProfile();
-              onClose();
-            }}
-          >
-            <i className="fas fa-user-circle"></i>
-            <span>Mis Datos Personales</span>
-          </button>
+          {/* Mostrar "Mis Datos Personales" solo si NO es administrador */}
+          {userRole !== "admin" && (
+            <button
+              className="menu-item"
+              onClick={() => {
+                onNavigateToProfile();
+                onClose();
+              }}
+            >
+              <i className="fas fa-user-circle"></i>
+              <span>Mis Datos Personales</span>
+            </button>
+          )}
 
           <div className="menu-item-switch">
             <div className="item-label">

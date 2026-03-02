@@ -166,16 +166,7 @@ export default function Dashboard() {
               >
                 <i className="fas fa-users"></i> <span>Comunidad</span>
               </div>
-              <div
-                className={`nav-link ${activeTab === "emergencia" ? "active" : ""}`}
-                onClick={() => {
-                  setActiveTab("emergencia");
-                  setMenuAbierto(false);
-                }}
-              >
-                <i className="fas fa-exclamation-triangle"></i>{" "}
-                <span>Emergencia Vial</span>
-              </div>
+              {/* Emergencia Vial ya no está en el menú */}
             </>
           )}
 
@@ -310,6 +301,7 @@ export default function Dashboard() {
         <div className="content-wrapper">
           <ClientView
             activeTab={activeTab}
+            setActiveTab={setActiveTab} // <-- AGREGADO
             perfil={perfil}
             busquedaRealizada={busquedaRealizada}
             setBusquedaRealizada={setBusquedaRealizada}
@@ -327,6 +319,7 @@ export default function Dashboard() {
           onClose={() => setIsProfileOpen(false)}
           onAvatarUpdate={(url) => setAvatarUrl(url)}
           onNavigateToProfile={handleNavigateToProfile}
+          userRole={perfil?.nombre_rol}
         />
 
         <AsistenteIA />

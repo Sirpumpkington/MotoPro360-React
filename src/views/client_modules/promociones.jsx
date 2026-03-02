@@ -1,72 +1,57 @@
-import React from "react";
-import { supabase } from "../../supabaseClient"; // Asegúrate de que la ruta sea correcta
+import React, { useState, useEffect } from "react";
+import { supabase } from "../../supabaseClient";
+import "../../assets/css/client.css";
 
 export default function VistaPromos() {
-  const [ofertas, setOfertas] = React.useState([]);
+  const [ofertas, setOfertas] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const cargarOfertas = async () => {
-      // Traemos todos los productos de toda la app que tengan en_oferta = true
+      setLoading(true);
       const { data, error } = await supabase
         .from("productos")
         .select("*, locales(nombre_local)")
         .eq("en_oferta", true);
-
       if (data) setOfertas(data);
+      setLoading(false);
     };
     cargarOfertas();
   }, []);
 
-  return (
-    <div style={{ padding: "20px" }}>
-      <h2>🔥 Promociones Activas</h2>
-      {ofertas.length === 0 ? (
+  if (loading) {
+    return <div className="promos-loading">Cargando promociones...</div>;
+  }
+
+  if (ofertas.length === 0) {
+    return (
+      <div className="promos-empty">
         <p>No hay ofertas disponibles en este momento.</p>
-      ) : (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
-            gap: "15px",
-          }}
-        >
-          {ofertas.map((prod) => (
-            <div
-              key={prod.id_producto}
-              style={{
-                padding: "15px",
-                border: "2px solid #FF9900",
-                borderRadius: "8px",
-                background: "#fff",
-              }}
-            >
-              <h4 style={{ margin: "0 0 10px 0" }}>{prod.nombre_producto}</h4>
-              <p style={{ margin: "0", color: "gray", fontSize: "0.9rem" }}>
-                Tienda: {prod.locales?.nombre_local || "Local desconocido"}
-              </p>
-              <p
-                style={{
-                  margin: "5px 0",
-                  textDecoration: "line-through",
-                  color: "#666",
-                }}
-              >
-                Precio normal: ${prod.precio}
-              </p>
-              <p
-                style={{
-                  margin: "0",
-                  fontWeight: "bold",
-                  color: "#FF9900",
-                  fontSize: "1.2rem",
-                }}
-              >
-                ¡Oferta: ${(prod.precio * 0.8).toFixed(2)}!
-              </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="promos-container">
+      <h2 className="promos-title">Promociones Activas</h2>
+      <div className="promos-grid">
+        {ofertas.map((prod) => (
+          <div key={prod.id_producto} className="promo-card">
+            <div className="promo-header">
+              <h3 className="promo-title">{prod.nombre_producto}</h3>
+              <span className="promo-badge">OFERTA</span>
             </div>
-          ))}
-        </div>
-      )}
+            <p className="promo-store">
+              <i className="fas fa-store"></i> {prod.locales?.nombre_local || "Local desconocido"}
+            </p>
+            <div className="promo-prices">
+              <span className="promo-old-price">${prod.precio}</span>
+              <span className="promo-new-price">${(prod.precio * 0.8).toFixed(2)}</span>
+            </div>
+            <button className="promo-btn">Ver oferta</button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
