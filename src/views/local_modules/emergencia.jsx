@@ -3,6 +3,8 @@ import { supabase } from "../../supabaseClient";
 
 export default function Emergencia({ perfil }) {
   const [tipoEmergencia, setTipoEmergencia] = useState("");
+  const [subTipoMecanica, setSubTipoMecanica] = useState("");
+  const [otroTexto, setOtroTexto] = useState(""); // <-- nuevo estado
   const [enviando, setEnviando] = useState(false);
   const [ubicacion, setUbicacion] = useState(null);
   const [mensajeEstado, setMensajeEstado] = useState({ type: "", text: "" });
@@ -20,21 +22,48 @@ export default function Emergencia({ perfil }) {
       label: "Falla mecánica",
       icon: "🔧",
       desc: "Moto averiada, no puedo continuar",
-      mensaje: "Mi moto ha sufrido una falla mecánica y estoy varado en la vía. Requiero ayuda.",
-    },
-    {
-      value: "robo",
-      label: "Robo o asalto",
-      icon: "⚠️",
-      desc: "Situación de inseguridad",
-      mensaje: "He sido víctima de un robo/asalto. Necesito ayuda de las autoridades y asistencia.",
+      // El mensaje se construirá según la subopción
     },
     {
       value: "otro",
       label: "Otro tipo",
       icon: "📞",
-      desc: "Emergencia no especificada",
-      mensaje: "Tengo una emergencia vial diferente. Por favor contactarme lo antes posible.",
+      desc: "Describe tu emergencia",
+      // No tiene mensaje fijo, se usará el texto ingresado
+    },
+  ];
+
+  // Subopciones para falla mecánica
+  const subOpcionesMecanica = [
+    {
+      value: "no_arranca",
+      label: "Motor no arranca",
+      desc: "El motor no enciende o no tiene chispa",
+      mensaje: "Mi moto no arranca. He intentado encenderla varias veces sin éxito. Necesito asistencia mecánica.",
+    },
+    {
+      value: "electrico",
+      label: "Falla en el sistema eléctrico",
+      desc: "Luces, tablero o batería sin funcionar",
+      mensaje: "Tengo una falla eléctrica: las luces no encienden o el tablero no funciona. Requiero ayuda.",
+    },
+    {
+      value: "transmision",
+      label: "Problemas con la transmisión",
+      desc: "Cadena, embrague o caja de cambios",
+      mensaje: "La transmisión de mi moto falla: la cadena se ha saltado, el embrague no responde o la caja de cambios tiene problemas. Necesito asistencia.",
+    },
+    {
+      value: "frenos",
+      label: "Frenos no responden",
+      desc: "Frenos delanteros o traseros inoperativos",
+      mensaje: "¡URGENTE! Los frenos de mi moto no responden correctamente. Es una situación peligrosa. Necesito ayuda inmediata.",
+    },
+    {
+      value: "sobrecalentamiento",
+      label: "Sobrecalentamiento del motor",
+      desc: "Motor se calienta demasiado",
+      mensaje: "El motor de mi moto se está sobrecalentando. He tenido que detenerme. Requiero asistencia mecánica.",
     },
   ];
 
@@ -69,6 +98,22 @@ export default function Emergencia({ perfil }) {
       return;
     }
 
+    // Validaciones específicas
+    if (tipoEmergencia === "mecanica" && !subTipoMecanica) {
+      setMensajeEstado({
+        type: "error",
+        text: "Por favor selecciona el tipo de falla mecánica.",
+      });
+      return;
+    }
+    if (tipoEmergencia === "otro" && !otroTexto.trim()) {
+      setMensajeEstado({
+        type: "error",
+        text: "Por favor describe tu emergencia.",
+      });
+      return;
+    }
+
     setEnviando(true);
     setMensajeEstado({ type: "", text: "" });
 
@@ -81,12 +126,25 @@ export default function Emergencia({ perfil }) {
         ubicacionTexto = "\n📍 No se pudo obtener ubicación automática. Intenta compartirla manualmente.";
       }
 
-      const opcion = opcionesEmergencia.find((o) => o.value === tipoEmergencia);
-      const mensajePersonalizado = opcion?.mensaje || "Emergencia vial reportada.";
+      let mensajePersonalizado = "";
+      let opcionLabel = "";
+
+      if (tipoEmergencia === "mecanica") {
+        const sub = subOpcionesMecanica.find(s => s.value === subTipoMecanica);
+        mensajePersonalizado = sub?.mensaje || "Tengo una falla mecánica y necesito ayuda.";
+        opcionLabel = sub?.label || "Falla mecánica";
+      } else if (tipoEmergencia === "otro") {
+        mensajePersonalizado = otroTexto.trim();
+        opcionLabel = "Otro tipo de emergencia";
+      } else {
+        const opcion = opcionesEmergencia.find(o => o.value === tipoEmergencia);
+        mensajePersonalizado = opcion?.mensaje || "Emergencia vial reportada.";
+        opcionLabel = opcion?.label || "Emergencia";
+      }
 
       const mensaje = `🚨 *EMERGENCIA VIAL* 🚨
 Usuario: ${perfil?.nombres || "Usuario"} (${perfil?.cedula || "Sin cédula"})
-Tipo: ${opcion?.label || tipoEmergencia}
+Tipo: ${opcionLabel}
 ${mensajePersonalizado}
 ${ubicacionTexto}
 ⏰ Fecha: ${new Date().toLocaleString()}`;
@@ -142,7 +200,12 @@ ${ubicacionTexto}
                   name="tipoEmergencia"
                   value={op.value}
                   checked={tipoEmergencia === op.value}
-                  onChange={(e) => setTipoEmergencia(e.target.value)}
+                  onChange={(e) => {
+                    setTipoEmergencia(e.target.value);
+                    // Resetear subtipos si cambia
+                    if (e.target.value !== "mecanica") setSubTipoMecanica("");
+                    if (e.target.value !== "otro") setOtroTexto("");
+                  }}
                   disabled={enviando}
                 />
                 <span className="option-icon">{op.icon}</span>
@@ -153,6 +216,44 @@ ${ubicacionTexto}
               </label>
             ))}
           </div>
+
+          {/* Subopciones de falla mecánica */}
+          {tipoEmergencia === "mecanica" && (
+            <div className="subopciones-container">
+              <p className="subopciones-titulo">Selecciona el tipo de falla:</p>
+              <div className="subopciones-grid">
+                {subOpcionesMecanica.map((sub) => (
+                  <button
+                    key={sub.value}
+                    className={`subopcion-btn ${subTipoMecanica === sub.value ? "active" : ""}`}
+                    onClick={() => setSubTipoMecanica(sub.value)}
+                    disabled={enviando}
+                  >
+                    <span className="subopcion-icon">🔧</span>
+                    <div className="subopcion-texto">
+                      <strong>{sub.label}</strong>
+                      <small>{sub.desc}</small>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Campo de texto para "Otro tipo" */}
+          {tipoEmergencia === "otro" && (
+            <div className="otro-container">
+              <p className="otro-titulo">Describe tu emergencia:</p>
+              <textarea
+                className="otro-textarea"
+                placeholder="Ej: Me quedé sin gasolina, necesito que me traigan..."
+                value={otroTexto}
+                onChange={(e) => setOtroTexto(e.target.value)}
+                disabled={enviando}
+                rows={4}
+              />
+            </div>
+          )}
 
           {ubicacion && (
             <div className="ubicacion-exito">
@@ -171,7 +272,7 @@ ${ubicacionTexto}
           <button
             className="btn-emergencia-principal"
             onClick={enviarWhatsApp}
-            disabled={enviando || !tipoEmergencia}
+            disabled={enviando || !tipoEmergencia || (tipoEmergencia === "mecanica" && !subTipoMecanica) || (tipoEmergencia === "otro" && !otroTexto.trim())}
           >
             {enviando ? (
               <>

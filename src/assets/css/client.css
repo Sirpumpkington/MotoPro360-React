@@ -866,6 +866,175 @@ body.dark-mode .emergencia-container .ubicacion-info {
   font-size: 1.5rem;
 }
 
+/* ===== SUB-OPCIONES PARA FALLA MECÁNICA ===== */
+
+.subopciones-container {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.subopciones-titulo {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.subopciones-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.subopcion-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 15px;
+  background: white;
+  border: 2px solid #eee;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  width: 100%;
+  font-family: inherit;
+}
+
+.subopcion-btn:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary-red);
+  box-shadow: 0 5px 15px rgba(230, 57, 70, 0.1);
+}
+
+.subopcion-btn.active {
+  background: linear-gradient(135deg, #fff5f5, #ffe5e5);
+  border-color: var(--primary-red);
+  box-shadow: 0 5px 15px rgba(230, 57, 70, 0.15);
+}
+
+.subopcion-icon {
+  font-size: 1.5rem;
+  min-width: 30px;
+  text-align: center;
+}
+
+.subopcion-texto {
+  flex: 1;
+}
+
+.subopcion-texto strong {
+  display: block;
+  font-size: 0.95rem;
+  color: #333;
+  margin-bottom: 2px;
+}
+
+.subopcion-texto small {
+  display: block;
+  font-size: 0.7rem;
+  color: #777;
+  line-height: 1.3;
+}
+
+/* Modo oscuro */
+body.dark-mode .subopciones-container {
+  background: #3d3d3d;
+  border-color: #555;
+}
+
+body.dark-mode .subopciones-titulo {
+  color: #ccc;
+}
+
+body.dark-mode .subopcion-btn {
+  background: #2d2d2d;
+  border-color: #444;
+}
+
+body.dark-mode .subopcion-btn:hover {
+  border-color: #ff8a8a;
+}
+
+body.dark-mode .subopcion-btn.active {
+  background: #4a2a2a;
+  border-color: #ff8a8a;
+}
+
+body.dark-mode .subopcion-texto strong {
+  color: #fff;
+}
+
+body.dark-mode .subopcion-texto small {
+  color: #aaa;
+}
+
+/* ===== CCS Otro Tipo de emergencia ===== */
+
+.otro-container {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 16px;
+  border-left: 4px solid var(--primary-red);
+}
+
+.otro-titulo {
+  margin: 0 0 10px 0;
+  color: var(--dark-gray);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.otro-textarea {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid var(--gray);
+  border-radius: 12px;
+  font-size: 0.95rem;
+  resize: vertical;
+  background: white;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.otro-textarea:focus {
+  border-color: var(--primary-red);
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(230, 57, 70, 0.1);
+}
+
+.otro-textarea:disabled {
+  background-color: #f0f0f0;
+  cursor: not-allowed;
+}
+
+/* Modo oscuro */
+body.dark-mode .otro-container {
+  background: #2d2d2d;
+  border-left-color: var(--primary-red);
+}
+
+body.dark-mode .otro-titulo {
+  color: #fff;
+}
+
+body.dark-mode .otro-textarea {
+  background: #3d3d3d;
+  border-color: #555;
+  color: white;
+}
+
+body.dark-mode .otro-textarea:focus {
+  border-color: #ff8a8a;
+  box-shadow: 0 0 0 4px rgba(255, 138, 138, 0.2);
+}
+
 /* Modo oscuro */
 body.dark-mode .emergencia-card {
   background: #2d2d2d;
@@ -1600,6 +1769,7 @@ body.dark-mode .carousel-item.active {
   padding: 0;
   box-shadow: none;
   border: none;
+  margin-top: 55px;
 }
 
 .locales-carousel-track {
@@ -2388,7 +2558,7 @@ body.dark-mode .sugerencia-local {
   display: flex;
   gap: 15px;
   align-items: center;
-  transition: all 0.2s;
+  transition: all 0.3s;
 }
 
 .sugerencia-card:hover {
@@ -2493,4 +2663,4 @@ body.dark-mode .sugerencia-local {
 body.dark-mode .moto-card.selected {
   border-color: #ff8a8a;
   box-shadow: 0 0 0 2px rgba(255, 138, 138, 0.3);
-}
+} 
