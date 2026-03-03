@@ -166,6 +166,16 @@ export default function Dashboard() {
               >
                 <i className="fas fa-users"></i> <span>Comunidad</span>
               </div>
+
+              <div
+                className={`nav-link ${activeTab === "Membresias" ? "active" : ""}`}
+                onClick={() => {
+                  setActiveTab("Membresias");
+                  setMenuAbierto(false);
+                }}
+              >
+                <i className="fas fa-star"></i> <span>Membresías</span>
+              </div>
               {/* Emergencia Vial ya no está en el menú */}
             </>
           )}

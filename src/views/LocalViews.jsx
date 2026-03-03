@@ -384,5 +384,14 @@ export default function LocalView({ activeTab, perfil }) {
     );
   }
 
+  if (activeTab === "membresias") {
+  }
+  return (
+    <div className={styles.membresias}>
+      <h2>Gestión de Membresías</h2>
+      <p>Próximamente podrás gestionar tus membresías aquí.</p>
+    </div>
+  );
+
   return null;
 }
