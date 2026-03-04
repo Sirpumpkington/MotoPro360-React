@@ -5,8 +5,11 @@ import "leaflet/dist/leaflet.css";
 import Emergencia from "./local_modules/emergencia.jsx";
 import VistaPromos from "./client_modules/promociones.jsx";
 import VistaCursos from "./client_modules/formacion.jsx";
-
+import "../assets/css/client.css";
+import VistaMembresias from "./client_modules/membresias.jsx";
+import VistaGrupos from "./client_modules/grupos.jsx";
 // productos de ejemplo
+
 const productosEjemplo = [
   {
     id_producto: 1,
@@ -372,7 +375,10 @@ export default function ClientView({
     fetchModelos();
   }, [seleccionMarca]);
 
-  if (perfil?.nombre_rol !== "cliente") return null;
+  if (!perfil)
+    return <div className="client-view-loading">Cargando perfil...</div>;
+  if (perfil?.nombre_rol !== "cliente")
+    return <div className="client-view-loading"></div>;
 
   // Funciones de motos
   const eliminarMoto = async (id) => {
@@ -1109,32 +1115,7 @@ export default function ClientView({
   if (activeTab === "comunidad") {
     return (
       <>
-        <div className="comunidad-container">
-          <div className="comunidad-header">
-            <h2 className="comunidad-title">Comunidad</h2>
-            <p className="comunidad-subtitle">
-              Únete a otros moteros en tu zona
-            </p>
-          </div>
-          <div className="comunidad-lista">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="comunidad-item">
-                <div className="comunidad-avatar">
-                  <i className="fas fa-users"></i>
-                </div>
-                <div className="comunidad-info">
-                  <h3 className="comunidad-nombre">
-                    Moteros de Caracas - Zona Este {i}
-                  </h3>
-                  <p className="comunidad-miembros">
-                    <i className="fas fa-user-friends"></i> 1.2k Miembros
-                  </p>
-                </div>
-                <button className="comunidad-btn">Unirme</button>
-              </div>
-            ))}
-          </div>
-        </div>
+        <VistaGrupos perfil={perfil} />
         <button
           className="emergency-fab"
           onClick={() => setActiveTab("emergencia")}
@@ -1142,6 +1123,15 @@ export default function ClientView({
           <i className="fas fa-exclamation-triangle"></i>
           <span>Emergencia Vial</span>
         </button>
+      </>
+    );
+  }
+
+  if (activeTab === "Membresias") {
+    return (
+      <>
+        <VistaMembresias />
+        {/* Puedes agregar botones flotantes aquí si los necesitas en el futuro */}
       </>
     );
   }

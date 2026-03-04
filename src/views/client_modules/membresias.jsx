@@ -1,0 +1,186 @@
+import React, { useState } from "react";
+
+export default function MembresiasView() {
+  const [isPagoModalOpen, setIsPagoModalOpen] = useState(false);
+  const [membresiaSeleccionada, setMembresiaSeleccionada] = useState(null);
+
+  return (
+    <div className="content-column">
+      <div className="section-header-row">
+        <div>
+          <h2 style={{ fontWeight: "800", color: "var(--dark-gray)" }}>
+            PLANES Y PAGOS
+          </h2>
+          <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>
+            Gestión de membresías para alumnos de MotoPro 360
+          </p>
+        </div>
+      </div>
+
+      <div className="membership-grid">
+        <div className="membership-card">
+          <h3 className="mem-title">Pro</h3>
+          <div className="mem-price">
+            $25<span>/mes</span>
+          </div>
+          <ul className="mem-features">
+            <li>
+              <span className="check-icon">✔</span> Acceso a Cursos Nivel 1
+            </li>
+            <li>
+              <span className="check-icon">✔</span> Soporte Técnico
+            </li>
+          </ul>
+          <button
+            className="btn-cancel"
+            style={{ width: "100%", borderRadius: "50px" }}
+            onClick={() => {
+              setMembresiaSeleccionada({
+                id: 1,
+                nombre: "Básica",
+                precio: 25,
+              });
+              setIsPagoModalOpen(true);
+            }}
+          >
+            REGISTRAR PAGO
+          </button>
+        </div>
+
+        {/* NIVEL 2 */}
+        <div className="membership-card featured">
+          <div
+            className="badge badge-admin"
+            style={{ position: "absolute", top: "20px", right: "20px" }}
+          >
+            RECOMENDADO
+          </div>
+          <h3 className="mem-title">Premium</h3>
+          <div className="mem-price">
+            $50<span>/mes</span>
+          </div>
+          <ul className="mem-features">
+            <li>
+              <span className="check-icon">✔</span> Acceso Total
+            </li>
+            <li>
+              <span className="check-icon">✔</span> Asesoría VIP
+            </li>
+          </ul>
+          <button
+            className="btn-main-login"
+            style={{ width: "100%", borderRadius: "50px" }}
+            onClick={() => {
+              setMembresiaSeleccionada({
+                id: 2,
+                nombre: "Premium",
+                precio: 50,
+              });
+              setIsPagoModalOpen(true);
+            }}
+          >
+            REGISTRAR PAGO
+          </button>
+        </div>
+      </div>
+
+      {isPagoModalOpen && (
+        <div
+          className="modal-overlay"
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "rgba(0,0,0,0.5)",
+            zIndex: 1100,
+            padding: "20px",
+          }}
+        >
+          <div
+            className="modal-content"
+            style={{
+              maxWidth: "450px",
+              width: "100%",
+              background: "var(--bg-light, #fff)",
+              borderRadius: "12px",
+              boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
+              padding: "18px",
+            }}
+          >
+            <h2 className="login-title">NUEVO PAGO</h2>
+            <div
+              style={{
+                backgroundColor: "var(--bg-light)",
+                padding: "15px",
+                borderRadius: "15px",
+                marginBottom: "20px",
+                textAlign: "center",
+              }}
+            >
+              <h3 style={{ margin: "5px 0", color: "var(--primary-red)" }}>
+                {membresiaSeleccionada?.nombre}
+              </h3>
+              <p style={{ fontWeight: "800" }}>
+                Monto: ${membresiaSeleccionada?.precio}
+              </p>
+            </div>
+
+            <form
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "15px",
+              }}
+            >
+              <input
+                type="text"
+                placeholder="Ingrese su correo"
+                className="login-input"
+                required
+                style={{ width: "100%" }}
+              />
+              <div style={{ display: "flex", gap: "10px" }}>
+                <select
+                  className="login-input"
+                  style={{ flex: 1, width: "100%" }}
+                >
+                  <option>Zelle</option>
+                  <option>Efectivo</option>
+                </select>
+                <input
+                  type="text"
+                  placeholder="Referencia"
+                  className="login-input"
+                  style={{ flex: 2, width: "100%" }}
+                  required
+                />
+              </div>
+              <div className="modal-actions">
+                <button
+                  type="submit"
+                  className="btn-main-login"
+                  style={{ flex: 1 }}
+                >
+                  CONFIRMAR
+                </button>
+                <button
+                  type="button"
+                  className="btn-cancel"
+                  style={{ flex: 1 }}
+                  onClick={() => setIsPagoModalOpen(false)}
+                >
+                  CANCELAR
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

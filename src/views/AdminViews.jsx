@@ -4,6 +4,7 @@ import "leaflet/dist/leaflet.css";
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import styles from "../assets/css/admin.module.css";
+import VistaAprobaciones from "./admin_modules/gruposadm.jsx";
 
 // Crear iconos personalizados con DivIcon (no requieren archivos de imagen)
 const createIcon = (color, iconClass) => {
@@ -11,7 +12,7 @@ const createIcon = (color, iconClass) => {
     html: `<i class="${iconClass}" style="color: ${color}; font-size: 24px; text-shadow: 0 2px 4px rgba(0,0,0,0.2);"></i>`,
     className: "custom-marker",
     iconSize: [24, 24],
-    popupAnchor: [0, -12]
+    popupAnchor: [0, -12],
   });
 };
 
@@ -76,7 +77,7 @@ export default function AdminView({ activeTab, usuarios, perfil }) {
       if (personas) {
         const merged = personas.map((p) => {
           const r = (roles || []).find(
-            (x) => String(x.persona_cedula) === String(p.cedula)
+            (x) => String(x.persona_cedula) === String(p.cedula),
           );
           return { ...p, nombre_rol: r?.nombre_rol || "cliente" };
         });
@@ -102,7 +103,7 @@ export default function AdminView({ activeTab, usuarios, perfil }) {
           id_membresia: payload.id_membresia || 1,
         },
       ],
-      { onConflict: "cedula" }
+      { onConflict: "cedula" },
     );
     if (errPersona) return alert("Error persona: " + errPersona.message);
 
@@ -169,11 +170,13 @@ export default function AdminView({ activeTab, usuarios, perfil }) {
       // Cargar motos con ubicación (ajusta según tu esquema)
       const { data: motosData, error: errorMotos } = await supabase
         .from("motos")
-        .select(`
+        .select(
+          `
           *,
           ubicaciones(latitud, longitud),
           personas!inner(nombres, apellidos)
-        `)
+        `,
+        )
         .not("ubicacion_id", "is", null); // Solo motos con ubicación
 
       if (errorMotos) {
@@ -206,7 +209,7 @@ export default function AdminView({ activeTab, usuarios, perfil }) {
   const eliminarCurso = async (id) => {
     if (
       window.confirm(
-        "¿Estás seguro de eliminar este curso? Esta acción no se puede deshacer."
+        "¿Estás seguro de eliminar este curso? Esta acción no se puede deshacer.",
       )
     ) {
       const { error } = await supabase
@@ -334,7 +337,10 @@ export default function AdminView({ activeTab, usuarios, perfil }) {
                     loc.ubicaciones?.latitud && (
                       <Marker
                         key={`local-${loc.id_local}`}
-                        position={[loc.ubicaciones.latitud, loc.ubicaciones.longitud]}
+                        position={[
+                          loc.ubicaciones.latitud,
+                          loc.ubicaciones.longitud,
+                        ]}
                         icon={localIcon}
                       >
                         <Popup>
@@ -343,7 +349,7 @@ export default function AdminView({ activeTab, usuarios, perfil }) {
                           {loc.telefono}
                         </Popup>
                       </Marker>
-                    )
+                    ),
                 )}
 
               {/* Marcadores de motos */}
@@ -353,7 +359,10 @@ export default function AdminView({ activeTab, usuarios, perfil }) {
                     moto.ubicaciones?.latitud && (
                       <Marker
                         key={`moto-${moto.id}`}
-                        position={[moto.ubicaciones.latitud, moto.ubicaciones.longitud]}
+                        position={[
+                          moto.ubicaciones.latitud,
+                          moto.ubicaciones.longitud,
+                        ]}
                         icon={motoIcon}
                       >
                         <Popup>
@@ -361,10 +370,11 @@ export default function AdminView({ activeTab, usuarios, perfil }) {
                           <br />
                           {moto.placa && `Placa: ${moto.placa}`}
                           <br />
-                          Dueño: {moto.personas?.nombres} {moto.personas?.apellidos}
+                          Dueño: {moto.personas?.nombres}{" "}
+                          {moto.personas?.apellidos}
                         </Popup>
                       </Marker>
-                    )
+                    ),
                 )}
             </MapContainer>
           </div>
@@ -429,8 +439,8 @@ export default function AdminView({ activeTab, usuarios, perfil }) {
                 rol === "admin"
                   ? styles.badgeAdmin
                   : rol === "local"
-                  ? styles.badgeLocal
-                  : styles.badgeCliente;
+                    ? styles.badgeLocal
+                    : styles.badgeCliente;
               return (
                 <div key={u.cedula} className={styles.userCard}>
                   <div className={styles.userCardHeader}>
@@ -449,10 +459,12 @@ export default function AdminView({ activeTab, usuarios, perfil }) {
                   </div>
                   <div className={styles.userDetails}>
                     <p className={styles.userDetailItem}>
-                      <i className="fas fa-id-card"></i> <span>Cédula:</span> {u.cedula}
+                      <i className="fas fa-id-card"></i> <span>Cédula:</span>{" "}
+                      {u.cedula}
                     </p>
                     <p className={styles.userDetailItem}>
-                      <i className="fas fa-phone"></i> <span>Teléfono:</span> {u.telefono || "No registrado"}
+                      <i className="fas fa-phone"></i> <span>Teléfono:</span>{" "}
+                      {u.telefono || "No registrado"}
                     </p>
                   </div>
                   <div className={styles.userActions}>
@@ -505,7 +517,9 @@ export default function AdminView({ activeTab, usuarios, perfil }) {
           </div>
 
           {cursos.length === 0 ? (
-            <div className={styles.emptyState}>No hay cursos registrados actualmente.</div>
+            <div className={styles.emptyState}>
+              No hay cursos registrados actualmente.
+            </div>
           ) : (
             <div className={styles.cursosGrid}>
               {cursos.map((c) => (
@@ -532,7 +546,9 @@ export default function AdminView({ activeTab, usuarios, perfil }) {
                       title={c.activo ? "Desactivar" : "Activar"}
                       className={styles.cursoActionBtn}
                     >
-                      <i className={`fas ${c.activo ? "fa-eye" : "fa-eye-slash"}`}></i>
+                      <i
+                        className={`fas ${c.activo ? "fa-eye" : "fa-eye-slash"}`}
+                      ></i>
                     </button>
                     <button
                       onClick={() => {
@@ -575,7 +591,10 @@ export default function AdminView({ activeTab, usuarios, perfil }) {
                 &times;
               </button>
             </div>
-            <form onSubmit={crearOActualizarUsuario} className={styles.modalForm}>
+            <form
+              onSubmit={crearOActualizarUsuario}
+              className={styles.modalForm}
+            >
               <div className={styles.formGrid}>
                 <div className={styles.formGroup}>
                   <label htmlFor="cedula">Cédula</label>
@@ -584,11 +603,19 @@ export default function AdminView({ activeTab, usuarios, perfil }) {
                     id="cedula"
                     placeholder="Ej: 12345678"
                     required
-                    value={editingUser ? editingUser.cedula : nuevoUsuario.cedula}
+                    value={
+                      editingUser ? editingUser.cedula : nuevoUsuario.cedula
+                    }
                     onChange={(e) =>
                       editingUser
-                        ? setEditingUser({ ...editingUser, cedula: e.target.value })
-                        : setNuevoUsuario({ ...nuevoUsuario, cedula: e.target.value })
+                        ? setEditingUser({
+                            ...editingUser,
+                            cedula: e.target.value,
+                          })
+                        : setNuevoUsuario({
+                            ...nuevoUsuario,
+                            cedula: e.target.value,
+                          })
                     }
                     disabled={!!editingUser}
                   />
@@ -600,11 +627,19 @@ export default function AdminView({ activeTab, usuarios, perfil }) {
                     id="nombres"
                     placeholder="Ej: Juan"
                     required
-                    value={editingUser ? editingUser.nombres : nuevoUsuario.nombres}
+                    value={
+                      editingUser ? editingUser.nombres : nuevoUsuario.nombres
+                    }
                     onChange={(e) =>
                       editingUser
-                        ? setEditingUser({ ...editingUser, nombres: e.target.value })
-                        : setNuevoUsuario({ ...nuevoUsuario, nombres: e.target.value })
+                        ? setEditingUser({
+                            ...editingUser,
+                            nombres: e.target.value,
+                          })
+                        : setNuevoUsuario({
+                            ...nuevoUsuario,
+                            nombres: e.target.value,
+                          })
                     }
                   />
                 </div>
@@ -615,11 +650,21 @@ export default function AdminView({ activeTab, usuarios, perfil }) {
                     id="apellidos"
                     placeholder="Ej: Pérez"
                     required
-                    value={editingUser ? editingUser.apellidos : nuevoUsuario.apellidos}
+                    value={
+                      editingUser
+                        ? editingUser.apellidos
+                        : nuevoUsuario.apellidos
+                    }
                     onChange={(e) =>
                       editingUser
-                        ? setEditingUser({ ...editingUser, apellidos: e.target.value })
-                        : setNuevoUsuario({ ...nuevoUsuario, apellidos: e.target.value })
+                        ? setEditingUser({
+                            ...editingUser,
+                            apellidos: e.target.value,
+                          })
+                        : setNuevoUsuario({
+                            ...nuevoUsuario,
+                            apellidos: e.target.value,
+                          })
                     }
                   />
                 </div>
@@ -629,11 +674,19 @@ export default function AdminView({ activeTab, usuarios, perfil }) {
                     type="email"
                     id="correo"
                     placeholder="ejemplo@correo.com"
-                    value={editingUser ? editingUser.correo : nuevoUsuario.correo}
+                    value={
+                      editingUser ? editingUser.correo : nuevoUsuario.correo
+                    }
                     onChange={(e) =>
                       editingUser
-                        ? setEditingUser({ ...editingUser, correo: e.target.value })
-                        : setNuevoUsuario({ ...nuevoUsuario, correo: e.target.value })
+                        ? setEditingUser({
+                            ...editingUser,
+                            correo: e.target.value,
+                          })
+                        : setNuevoUsuario({
+                            ...nuevoUsuario,
+                            correo: e.target.value,
+                          })
                     }
                   />
                 </div>
@@ -643,11 +696,19 @@ export default function AdminView({ activeTab, usuarios, perfil }) {
                     type="tel"
                     id="telefono"
                     placeholder="04121234567"
-                    value={editingUser ? editingUser.telefono : nuevoUsuario.telefono}
+                    value={
+                      editingUser ? editingUser.telefono : nuevoUsuario.telefono
+                    }
                     onChange={(e) =>
                       editingUser
-                        ? setEditingUser({ ...editingUser, telefono: e.target.value })
-                        : setNuevoUsuario({ ...nuevoUsuario, telefono: e.target.value })
+                        ? setEditingUser({
+                            ...editingUser,
+                            telefono: e.target.value,
+                          })
+                        : setNuevoUsuario({
+                            ...nuevoUsuario,
+                            telefono: e.target.value,
+                          })
                     }
                   />
                 </div>
@@ -655,11 +716,21 @@ export default function AdminView({ activeTab, usuarios, perfil }) {
                   <label htmlFor="rol">Rol</label>
                   <select
                     id="rol"
-                    value={editingUser ? editingUser.nombre_rol : nuevoUsuario.nombre_rol}
+                    value={
+                      editingUser
+                        ? editingUser.nombre_rol
+                        : nuevoUsuario.nombre_rol
+                    }
                     onChange={(e) =>
                       editingUser
-                        ? setEditingUser({ ...editingUser, nombre_rol: e.target.value })
-                        : setNuevoUsuario({ ...nuevoUsuario, nombre_rol: e.target.value })
+                        ? setEditingUser({
+                            ...editingUser,
+                            nombre_rol: e.target.value,
+                          })
+                        : setNuevoUsuario({
+                            ...nuevoUsuario,
+                            nombre_rol: e.target.value,
+                          })
                     }
                   >
                     <option value="cliente">Cliente</option>
@@ -709,11 +780,19 @@ export default function AdminView({ activeTab, usuarios, perfil }) {
                     type="text"
                     placeholder="Ej: Mecánica Básica"
                     required
-                    value={cursoEditando ? cursoEditando.titulo : nuevoCurso.titulo}
+                    value={
+                      cursoEditando ? cursoEditando.titulo : nuevoCurso.titulo
+                    }
                     onChange={(e) =>
                       cursoEditando
-                        ? setCursoEditando({ ...cursoEditando, titulo: e.target.value })
-                        : setNuevoCurso({ ...nuevoCurso, titulo: e.target.value })
+                        ? setCursoEditando({
+                            ...cursoEditando,
+                            titulo: e.target.value,
+                          })
+                        : setNuevoCurso({
+                            ...nuevoCurso,
+                            titulo: e.target.value,
+                          })
                     }
                   />
                 </div>
@@ -722,11 +801,21 @@ export default function AdminView({ activeTab, usuarios, perfil }) {
                   <textarea
                     rows="3"
                     placeholder="Breve descripción del curso"
-                    value={cursoEditando ? cursoEditando.descripcion : nuevoCurso.descripcion}
+                    value={
+                      cursoEditando
+                        ? cursoEditando.descripcion
+                        : nuevoCurso.descripcion
+                    }
                     onChange={(e) =>
                       cursoEditando
-                        ? setCursoEditando({ ...cursoEditando, descripcion: e.target.value })
-                        : setNuevoCurso({ ...nuevoCurso, descripcion: e.target.value })
+                        ? setCursoEditando({
+                            ...cursoEditando,
+                            descripcion: e.target.value,
+                          })
+                        : setNuevoCurso({
+                            ...nuevoCurso,
+                            descripcion: e.target.value,
+                          })
                     }
                   />
                 </div>
@@ -735,23 +824,43 @@ export default function AdminView({ activeTab, usuarios, perfil }) {
                   <input
                     type="url"
                     placeholder="https://classroom.google.com/..."
-                    value={cursoEditando ? cursoEditando.enlace_classroom : nuevoCurso.enlace_classroom}
+                    value={
+                      cursoEditando
+                        ? cursoEditando.enlace_classroom
+                        : nuevoCurso.enlace_classroom
+                    }
                     onChange={(e) =>
                       cursoEditando
-                        ? setCursoEditando({ ...cursoEditando, enlace_classroom: e.target.value })
-                        : setNuevoCurso({ ...nuevoCurso, enlace_classroom: e.target.value })
+                        ? setCursoEditando({
+                            ...cursoEditando,
+                            enlace_classroom: e.target.value,
+                          })
+                        : setNuevoCurso({
+                            ...nuevoCurso,
+                            enlace_classroom: e.target.value,
+                          })
                     }
                   />
                 </div>
                 <div className={styles.formGroup}>
                   <label>Membresía mínima</label>
                   <select
-                    value={cursoEditando ? cursoEditando.id_membresia_minima : nuevoCurso.id_membresia_minima}
+                    value={
+                      cursoEditando
+                        ? cursoEditando.id_membresia_minima
+                        : nuevoCurso.id_membresia_minima
+                    }
                     onChange={(e) => {
                       const val = parseInt(e.target.value);
                       cursoEditando
-                        ? setCursoEditando({ ...cursoEditando, id_membresia_minima: val })
-                        : setNuevoCurso({ ...nuevoCurso, id_membresia_minima: val });
+                        ? setCursoEditando({
+                            ...cursoEditando,
+                            id_membresia_minima: val,
+                          })
+                        : setNuevoCurso({
+                            ...nuevoCurso,
+                            id_membresia_minima: val,
+                          });
                     }}
                   >
                     <option value={1}>Básica (Nivel 1)</option>
@@ -775,6 +884,9 @@ export default function AdminView({ activeTab, usuarios, perfil }) {
           </div>
         </div>
       )}
+
+      {/*SECCION APROBAR GRUPOS */}
+      {activeTab === "Grupos" && <VistaAprobaciones />}
     </div>
   );
 }

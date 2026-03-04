@@ -247,6 +247,15 @@ export default function Dashboard() {
               >
                 <i className="fas fa-graduation-cap"></i> <span>Formación</span>
               </div>
+              <div
+                className={`nav-link ${activeTab === "Grupos" ? "active" : ""}`}
+                onClick={() => {
+                  setActiveTab("Grupos");
+                  setMenuAbierto(false);
+                }}
+              >
+                <i className="fas fa-users"></i> <span>Grupos</span>
+              </div>
             </>
           )}
         </nav>
