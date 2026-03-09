@@ -95,12 +95,12 @@ body::before {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 0;                /* Sin márgenes */
-  min-height: auto;         /* Se ajusta al contenido */
+  margin: 0; /* Sin márgenes */
+  min-height: auto; /* Se ajusta al contenido */
 }
 
 .main-logo {
-  max-width: 380px;         /* Tamaño grande pero controlado */
+  max-width: 380px; /* Tamaño grande pero controlado */
   max-height: 160px;
   width: auto;
   height: auto;
@@ -114,8 +114,8 @@ body::before {
 }
 
 .login-title {
-  margin-top: 0;            /* Elimina espacio superior */
-  margin-bottom: 15px;      /* Espacio justo después del título */
+  margin-top: 0; /* Elimina espacio superior */
+  margin-bottom: 15px; /* Espacio justo después del título */
 }
 
 /* Ajustes responsivos para pantallas medianas y pequeñas */
@@ -505,6 +505,80 @@ input:focus {
   margin-bottom: 30px;
   padding-bottom: 20px;
   border-bottom: 1px solid var(--gray);
+}
+/* Ajustes específicos para el bloque de horario en Registro.jsx */
+.responsive-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.time-header {
+  flex-basis: 100%;
+  text-align: left;
+  margin: 6px 0 8px 2px;
+  font-weight: 700;
+  color: var(--dark-gray);
+}
+
+/* Forzar que los inputs de hora queden en la misma línea cuando haya espacio */
+.form-section .time-row,
+.form-section .responsive-row.time-row {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  align-items: center;
+}
+
+.form-section .time-row .input-group,
+.form-section .responsive-row .input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1 1 calc(50% - 12px);
+  min-width: 140px;
+}
+
+.form-section .input-group {
+  min-width: 0;
+}
+
+.form-section .input-group label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.85rem;
+  color: #888;
+}
+
+.form-section .input-group input[type="time"] {
+  width: 100%;
+  padding: 12px 20px 12px 45px;
+  border-radius: 10px;
+  border: 2px solid #888;
+  background: var(--white);
+}
+
+/* Asegurar que el select "Tipo de Servicio" muestre su borde correctamente */
+.form-section .input-group select {
+  border: 2px solid #888 !important;
+  border-radius: 12px;
+  background: var(--white);
+}
+
+@media (max-width: 600px) {
+  .responsive-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .time-header {
+    margin-top: 8px;
+  }
+  .form-section .time-row .input-group,
+  .form-section .responsive-row .input-group {
+    flex: 1 1 100%;
+  }
 }
 /* (Section title / input-row moved to unused block at end) */
 
@@ -1007,8 +1081,8 @@ select.input-field {
 .sidebar-header {
   display: flex;
   align-items: center;
-  gap: 6px;                /* Espacio entre logo y texto */
-  padding: 8px 8px 8px 2px;  /* Reducido padding izquierdo a 8px */
+  gap: 6px; /* Espacio entre logo y texto */
+  padding: 8px 8px 8px 2px; /* Reducido padding izquierdo a 8px */
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
   margin-bottom: 16px;
 }
@@ -1021,7 +1095,7 @@ select.input-field {
 }
 
 .sidebar-header span {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   font-weight: 300;
   font-size: 1.5rem;
   letter-spacing: 0.3px;
@@ -1183,4 +1257,4 @@ body.dark-mode .data-card {
 
 body.dark-mode .data-card h2 {
   color: var(--primary-red);
-} 
+}

@@ -15,7 +15,8 @@ export default function Emergencia({ perfil }) {
       label: "Accidente de tránsito",
       icon: "🚑",
       desc: "Choque, volcadura o incidente vial",
-      mensaje: "¡URGENTE! He tenido un accidente de tránsito. Necesito asistencia inmediata.",
+      mensaje:
+        "¡URGENTE! He tenido un accidente de tránsito. Necesito asistencia inmediata.",
     },
     {
       value: "mecanica",
@@ -28,7 +29,7 @@ export default function Emergencia({ perfil }) {
       value: "otro",
       label: "Otro tipo",
       icon: "📞",
-      desc: "Describe tu emergencia",
+      desc: "Porfavor Especifica tu emergencia",
       // No tiene mensaje fijo, se usará el texto ingresado
     },
   ];
@@ -39,31 +40,36 @@ export default function Emergencia({ perfil }) {
       value: "no_arranca",
       label: "Motor no arranca",
       desc: "El motor no enciende o no tiene chispa",
-      mensaje: "Mi moto no arranca. He intentado encenderla varias veces sin éxito. Necesito asistencia mecánica.",
+      mensaje:
+        "Mi moto no arranca. He intentado encenderla varias veces sin éxito. Necesito asistencia mecánica.",
     },
     {
       value: "electrico",
       label: "Falla en el sistema eléctrico",
       desc: "Luces, tablero o batería sin funcionar",
-      mensaje: "Tengo una falla eléctrica: las luces no encienden o el tablero no funciona. Requiero ayuda.",
+      mensaje:
+        "Tengo una falla eléctrica: las luces no encienden o el tablero no funciona. Requiero ayuda.",
     },
     {
       value: "transmision",
       label: "Problemas con la transmisión",
       desc: "Cadena, embrague o caja de cambios",
-      mensaje: "La transmisión de mi moto falla: la cadena se ha saltado, el embrague no responde o la caja de cambios tiene problemas. Necesito asistencia.",
+      mensaje:
+        "La transmisión de mi moto falla: la cadena se ha saltado, el embrague no responde o la caja de cambios tiene problemas. Necesito asistencia.",
     },
     {
       value: "frenos",
       label: "Frenos no responden",
       desc: "Frenos delanteros o traseros inoperativos",
-      mensaje: "¡URGENTE! Los frenos de mi moto no responden correctamente. Es una situación peligrosa. Necesito ayuda inmediata.",
+      mensaje:
+        "¡URGENTE! Los frenos de mi moto no responden correctamente. Es una situación peligrosa. Necesito ayuda inmediata.",
     },
     {
       value: "sobrecalentamiento",
       label: "Sobrecalentamiento del motor",
       desc: "Motor se calienta demasiado",
-      mensaje: "El motor de mi moto se está sobrecalentando. He tenido que detenerme. Requiero asistencia mecánica.",
+      mensaje:
+        "El motor de mi moto se está sobrecalentando. He tenido que detenerme. Requiero asistencia mecánica.",
     },
   ];
 
@@ -84,7 +90,7 @@ export default function Emergencia({ perfil }) {
         },
         (err) => {
           reject("No se pudo obtener ubicación: " + err.message);
-        }
+        },
       );
     });
   };
@@ -123,21 +129,27 @@ export default function Emergencia({ perfil }) {
         const coords = await obtenerUbicacion();
         ubicacionTexto = `\n📍 Ubicación: https://maps.google.com/?q=${coords.lat},${coords.lng}`;
       } catch (err) {
-        ubicacionTexto = "\n📍 No se pudo obtener ubicación automática. Intenta compartirla manualmente.";
+        ubicacionTexto =
+          "\n📍 No se pudo obtener ubicación automática. Intenta compartirla manualmente.";
       }
 
       let mensajePersonalizado = "";
       let opcionLabel = "";
 
       if (tipoEmergencia === "mecanica") {
-        const sub = subOpcionesMecanica.find(s => s.value === subTipoMecanica);
-        mensajePersonalizado = sub?.mensaje || "Tengo una falla mecánica y necesito ayuda.";
+        const sub = subOpcionesMecanica.find(
+          (s) => s.value === subTipoMecanica,
+        );
+        mensajePersonalizado =
+          sub?.mensaje || "Tengo una falla mecánica y necesito ayuda.";
         opcionLabel = sub?.label || "Falla mecánica";
       } else if (tipoEmergencia === "otro") {
         mensajePersonalizado = otroTexto.trim();
         opcionLabel = "Otro tipo de emergencia";
       } else {
-        const opcion = opcionesEmergencia.find(o => o.value === tipoEmergencia);
+        const opcion = opcionesEmergencia.find(
+          (o) => o.value === tipoEmergencia,
+        );
         mensajePersonalizado = opcion?.mensaje || "Emergencia vial reportada.";
         opcionLabel = opcion?.label || "Emergencia";
       }
@@ -186,7 +198,8 @@ ${ubicacionTexto}
       <div className="emergencia-card">
         <div className="emergencia-content">
           <p className="emergencia-desc">
-            En caso de accidente o emergencia en la vía, selecciona el tipo de situación y envía un mensaje de auxilio con tu ubicación actual.
+            En caso de accidente o emergencia en la vía, selecciona el tipo de
+            situación y envía un mensaje de auxilio con tu ubicación actual.
           </p>
 
           <div className="emergencia-options">
@@ -264,7 +277,9 @@ ${ubicacionTexto}
 
           {mensajeEstado.text && (
             <div className={`mensaje-estado ${mensajeEstado.type}`}>
-              <i className={`fas ${mensajeEstado.type === "error" ? "fa-exclamation-circle" : "fa-check-circle"}`}></i>
+              <i
+                className={`fas ${mensajeEstado.type === "error" ? "fa-exclamation-circle" : "fa-check-circle"}`}
+              ></i>
               <span>{mensajeEstado.text}</span>
             </div>
           )}
@@ -272,7 +287,12 @@ ${ubicacionTexto}
           <button
             className="btn-emergencia-principal"
             onClick={enviarWhatsApp}
-            disabled={enviando || !tipoEmergencia || (tipoEmergencia === "mecanica" && !subTipoMecanica) || (tipoEmergencia === "otro" && !otroTexto.trim())}
+            disabled={
+              enviando ||
+              !tipoEmergencia ||
+              (tipoEmergencia === "mecanica" && !subTipoMecanica) ||
+              (tipoEmergencia === "otro" && !otroTexto.trim())
+            }
           >
             {enviando ? (
               <>
