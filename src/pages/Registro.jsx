@@ -272,7 +272,6 @@ export default function Registro() {
               >
                 <i className="fas fa-store-alt"></i> Datos del Negocio
               </h3>
-
               <div className="input-group">
                 <i className="fas fa-building icon-field"></i>
                 <input
@@ -282,7 +281,6 @@ export default function Registro() {
                   onChange={handleChange}
                 />
               </div>
-
               <div className="responsive-row">
                 <div className="input-group">
                   <i className="fas fa-map-marker-alt icon-field"></i>
@@ -298,7 +296,7 @@ export default function Registro() {
                   <input
                     type="text"
                     name="rfc"
-                    placeholder="RIF / Cédula Jurídica"
+                    placeholder="RIF"
                     onChange={handleChange}
                   />
                 </div>
@@ -321,7 +319,6 @@ export default function Registro() {
                   <option value="taller">Taller Mecánico</option>
                   <option value="repuestos">Venta de Repuestos</option>
                   <option value="concesionario">Concesionario</option>
-                  <option value="grua">Servicio de Grúa</option>
                 </select>
               </div>
             </div>

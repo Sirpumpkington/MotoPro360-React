@@ -60,7 +60,7 @@ export default function MiLocal({
                     className="badge"
                     style={{
                       background: "#d4edda",
-                      color: "#155724",
+                      color: "#0e491c",
                       padding: "5px 10px",
                       borderRadius: "20px",
                       fontSize: "0.8rem",
@@ -78,8 +78,20 @@ export default function MiLocal({
                     {datosLocal.direccion_fisica || "No especificada"}
                   </p>
                   <p>
-                    <strong>RIF:</strong> J-12345678-9 (Simulado)
+                    <strong>RIF:</strong> J-12345678-9
                   </p>
+                </div>
+                <div>
+                  <p>
+                    <strong>Tipo de Servicio:</strong>
+                    {localPerfil.tipo_comercio || "No especificado"}
+                  </p>
+                  <div>
+                    <p>
+                      <strong>Horario de Atención:</strong>
+                      {localPerfil.horario_atencion || "No especificado"}
+                    </p>
+                  </div>
                 </div>
               </>
             ) : (
