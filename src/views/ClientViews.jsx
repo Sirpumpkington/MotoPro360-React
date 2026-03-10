@@ -8,6 +8,7 @@ import VistaCursos from "./client_modules/formacion.jsx";
 import "../assets/css/client.css";
 import VistaMembresias from "./client_modules/membresias.jsx";
 import VistaGrupos from "./client_modules/grupos.jsx";
+import MotosView from "./client_modules/motos.jsx";
 // productos de ejemplo
 
 const productosEjemplo = [
@@ -221,38 +222,11 @@ export default function ClientView({
   const [busqueda, setBusqueda] = useState("");
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   const [productosFiltrados, setProductosFiltrados] = useState([]);
-  const [repuestosSugeridos, setRepuestosSugeridos] = useState([]);
-  const [motoSeleccionada, setMotoSeleccionada] = useState(null);
   const [productosDestacados, setProductosDestacados] = useState([]);
   const [localesDestacados, setLocalesDestacados] = useState([]);
-  const [motos, setMotos] = useState([]);
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [mostrandoFormulario, setMostrandoFormulario] = useState(false);
-  const [marcas, setMarcas] = useState([]);
-  const [modelosFiltrados, setModelosFiltrados] = useState([]);
-  const [seleccionMarca, setSeleccionMarca] = useState("");
-  const [nuevaMoto, setNuevaMoto] = useState({
-    modelo: "",
-    anio: "",
-    placa: "",
-  });
   const [sugerencias, setSugerencias] = useState([]);
-  const [motoEditando, setMotoEditando] = useState(null);
-
-  // Funciones de sugerencias y búsqueda
-  const obtenerSugerencias = async (motoUsuario) => {
-    const { data, error } = await supabase
-      .from("productos")
-      .select(
-        "id_producto, nombre_producto, precio, imagen_url, locales (nombre_local)",
-      )
-      .ilike("compatibilidad_manual", `%${motoUsuario.modelo}%`)
-      .eq("status", true)
-      .limit(5);
-    if (error) console.log("Error sugerencias:", error);
-    else setRepuestosSugeridos(data);
-  };
 
   const ejecutarBusqueda = () => {
     if (!busqueda.trim()) return;
@@ -260,22 +234,11 @@ export default function ClientView({
     const q = busqueda.toLowerCase();
     const resultados = base.filter((prod) => {
       const nombre = (prod.nombre_producto || prod.nombre || "").toLowerCase();
-      const compat = (prod.compatibilidad_manual || "").toLowerCase();
-      return nombre.includes(q) || compat.includes(q);
+      return nombre.includes(q);
     });
     setProductosFiltrados(resultados || []);
     setBusquedaRealizada(true);
     setProductoSeleccionado(null);
-  };
-
-  const buscarSugerencias = async (nombreModelo) => {
-    if (!nombreModelo) return;
-    const { data, error } = await supabase
-      .from("productos")
-      .select("*, locales(nombre_local)")
-      .ilike("compatibilidad_manual", `%${nombreModelo}%`)
-      .limit(4);
-    if (!error) setSugerencias(data);
   };
 
   // Cargar CSS
@@ -325,122 +288,15 @@ export default function ClientView({
           setLocalesDestacados(localesEjemplo);
         }
       }
-      if (activeTab === "motos") {
-        const fetchMarcas = async () => {
-          const { data } = await supabase
-            .from("marcas")
-            .select("*")
-            .order("nombre", { ascending: true });
-          if (data) setMarcas(data);
-        };
-        const loadMotos = async () => {
-          const { data, error } = await supabase
-            .from("motos")
-            .select("*")
-            .eq("persona_cedula", perfil.cedula)
-            .order("id", { ascending: false });
-          if (!error) setMotos(data || []);
-        };
-        fetchMarcas();
-        loadMotos();
-      }
       setLoading(false);
     };
     fetchData();
   }, [activeTab, perfil]);
 
-  const loadMotos = async () => {
-    if (!perfil) return;
-    const { data, error } = await supabase
-      .from("motos")
-      .select("*")
-      .eq("persona_cedula", perfil.cedula)
-      .order("id", { ascending: false });
-    if (!error) setMotos(data || []);
-  };
-
-  useEffect(() => {
-    const fetchModelos = async () => {
-      if (!seleccionMarca) {
-        setModelosFiltrados([]);
-        return;
-      }
-      const { data } = await supabase
-        .from("modelos")
-        .select("*")
-        .eq("marca_id", seleccionMarca)
-        .order("nombre_modelo", { ascending: true });
-      if (data) setModelosFiltrados(data);
-    };
-    fetchModelos();
-  }, [seleccionMarca]);
-
   if (!perfil)
     return <div className="client-view-loading">Cargando perfil...</div>;
   if (perfil?.nombre_rol !== "cliente")
     return <div className="client-view-loading"></div>;
-
-  // Funciones de motos
-  const eliminarMoto = async (id) => {
-    if (!window.confirm("¿Estás seguro de que deseas eliminar esta moto?"))
-      return;
-    try {
-      const { error } = await supabase.from("motos").delete().eq("id", id);
-      if (error) throw error;
-      setMotos(motos.filter((m) => m.id !== id));
-      alert("Moto eliminada correctamente.");
-    } catch (error) {
-      alert("Error al eliminar: " + error.message);
-    }
-  };
-
-  const prepararEdicion = (moto) => {
-    setMotoEditando(moto.id);
-    setSeleccionMarca(moto.marca_id);
-    setNuevaMoto({ modelo: moto.modelo, anio: moto.anio, placa: moto.placa });
-    setMostrandoFormulario(true);
-  };
-
-  const guardarMotoModificada = async () => {
-    if (!perfil?.cedula) return;
-    if (!seleccionMarca || !nuevaMoto.modelo || !nuevaMoto.placa) {
-      alert("Completa todos los campos.");
-      return;
-    }
-    try {
-      const payload = {
-        modelo: nuevaMoto.modelo,
-        placa: nuevaMoto.placa,
-        anio: nuevaMoto.anio ? Number(nuevaMoto.anio) : null,
-        persona_cedula: Number(perfil.cedula),
-        marca_id: Number(seleccionMarca),
-      };
-      let error;
-      if (motoEditando) {
-        const { error: err } = await supabase
-          .from("motos")
-          .update(payload)
-          .eq("id", motoEditando);
-        error = err;
-      } else {
-        const { error: err } = await supabase.from("motos").insert([payload]);
-        error = err;
-      }
-      if (error) throw error;
-      alert(motoEditando ? "Moto actualizada" : "Moto registrada");
-      cancelarEdicion();
-      await loadMotos();
-    } catch (error) {
-      alert("Error: " + error.message);
-    }
-  };
-
-  const cancelarEdicion = () => {
-    setMostrandoFormulario(false);
-    setMotoEditando(null);
-    setSeleccionMarca("");
-    setNuevaMoto({ modelo: "", anio: "", placa: "" });
-  };
 
   // ========== VISTAS ==========
   if (activeTab === "emergencia") {
@@ -877,200 +733,7 @@ export default function ClientView({
   if (activeTab === "motos") {
     return (
       <>
-        <div className="motos-container">
-          <div className="motos-header">
-            <h2 className="motos-title">Mis Motos</h2>
-            {!mostrandoFormulario && motos.length < 3 && (
-              <button
-                className="motos-add-btn"
-                onClick={() => {
-                  setMostrandoFormulario(true);
-                  setMotoEditando(null);
-                  setNuevaMoto({ modelo: "", anio: "", placa: "" });
-                  setSeleccionMarca("");
-                }}
-              >
-                <i className="fas fa-plus"></i> Registrar Moto
-              </button>
-            )}
-          </div>
-          {mostrandoFormulario && (
-            <div className="moto-form-card">
-              <h3>{motoEditando ? "Editar Moto" : "Registrar nueva moto"}</h3>
-              <form onSubmit={(e) => e.preventDefault()} className="moto-form">
-                <div className="form-group">
-                  <label>Marca</label>
-                  <select
-                    value={seleccionMarca}
-                    onChange={(e) => setSeleccionMarca(e.target.value)}
-                    required
-                  >
-                    <option value="">Selecciona una marca</option>
-                    {marcas.map((m) => (
-                      <option key={m.id} value={m.id}>
-                        {m.nombre}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label>Modelo</label>
-                  <select
-                    value={nuevaMoto.modelo}
-                    onChange={(e) =>
-                      setNuevaMoto({ ...nuevaMoto, modelo: e.target.value })
-                    }
-                    disabled={!seleccionMarca}
-                    required
-                  >
-                    <option value="">Selecciona un modelo</option>
-                    {modelosFiltrados.map((mod) => (
-                      <option key={mod.id} value={mod.nombre_modelo}>
-                        {mod.nombre_modelo}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label>Placa</label>
-                  <input
-                    type="text"
-                    value={nuevaMoto.placa}
-                    onChange={(e) =>
-                      setNuevaMoto({ ...nuevaMoto, placa: e.target.value })
-                    }
-                    placeholder="Ej: ABC123"
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Año</label>
-                  <input
-                    type="number"
-                    value={nuevaMoto.anio}
-                    onChange={(e) =>
-                      setNuevaMoto({ ...nuevaMoto, anio: e.target.value })
-                    }
-                    placeholder="Ej: 2020"
-                  />
-                </div>
-                <div className="moto-form-actions">
-                  <button
-                    type="button"
-                    onClick={guardarMotoModificada}
-                    className="btn-primary"
-                  >
-                    {motoEditando ? "Actualizar" : "Guardar"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={cancelarEdicion}
-                    className="btn-secondary"
-                  >
-                    Cancelar
-                  </button>
-                </div>
-              </form>
-            </div>
-          )}
-          <div className="motos-list">
-            {motos.length === 0 && !mostrandoFormulario ? (
-              <p className="motos-empty">
-                Aún no has registrado ninguna moto. ¡Agrega una!
-              </p>
-            ) : (
-              motos.map((moto) => (
-                <div
-                  key={moto.id}
-                  className={`moto-card ${motoSeleccionada?.id === moto.id ? "selected" : ""}`}
-                  onClick={() => {
-                    setMotoSeleccionada(moto);
-                    obtenerSugerencias(moto);
-                  }}
-                >
-                  <div className="moto-avatar">
-                    <i className="fas fa-motorcycle"></i>
-                  </div>
-                  <div className="moto-info">
-                    <h3 className="moto-nombre">
-                      {marcas.find((m) => m.id === moto.marca_id)?.nombre ||
-                        "Marca"}{" "}
-                      {moto.modelo}
-                    </h3>
-                    <p className="moto-detalle">
-                      <i className="fas fa-calendar-alt"></i>{" "}
-                      {moto.anio || "Año no especificado"}
-                    </p>
-                    <p className="moto-detalle">
-                      <i className="fas fa-id-card"></i>{" "}
-                      {moto.placa || "Sin placa"}
-                    </p>
-                  </div>
-                  <div className="moto-actions">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        prepararEdicion(moto);
-                      }}
-                      className="moto-edit-btn"
-                      title="Editar"
-                    >
-                      <i className="fas fa-edit"></i>
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        eliminarMoto(moto.id);
-                      }}
-                      className="moto-delete-btn"
-                      title="Eliminar"
-                    >
-                      <i className="fas fa-trash"></i>
-                    </button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-          {motoSeleccionada && (
-            <div className="moto-sugerencias">
-              <h3 className="sugerencias-titulo">
-                Repuestos sugeridos para tu {motoSeleccionada.modelo}
-              </h3>
-              {repuestosSugeridos.length > 0 ? (
-                <div className="sugerencias-grid">
-                  {repuestosSugeridos.map((prod) => (
-                    <div key={prod.id_producto} className="sugerencia-card">
-                      <div className="sugerencia-img">
-                        {prod.imagen_url ? (
-                          <img
-                            src={prod.imagen_url}
-                            alt={prod.nombre_producto}
-                          />
-                        ) : (
-                          <i className="fas fa-box"></i>
-                        )}
-                      </div>
-                      <div className="sugerencia-info">
-                        <p className="sugerencia-nombre">
-                          {prod.nombre_producto}
-                        </p>
-                        <p className="sugerencia-precio">${prod.precio}</p>
-                        <p className="sugerencia-local">
-                          {prod.locales?.nombre_local || "Local desconocido"}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="sugerencias-vacio">
-                  No hay sugerencias disponibles para esta moto.
-                </p>
-              )}
-            </div>
-          )}
-        </div>
+        <MotosView perfil={perfil} />
         <button
           className="emergency-fab"
           onClick={() => setActiveTab("emergencia")}

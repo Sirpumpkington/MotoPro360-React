@@ -1,5 +1,6 @@
 import React from "react";
 import styles from "../../assets/css/local.module.css";
+import Select from "react-select";
 
 export default function Productos({
   busqueda,
@@ -15,6 +16,7 @@ export default function Productos({
   productosFiltrados,
   editarStock,
   eliminarProducto,
+  modelos,
 }) {
   return (
     <div style={{ padding: "20px" }}>
@@ -81,6 +83,7 @@ export default function Productos({
         </div>
       )}
       {creandoProducto ? (
+        /* Formulario para crear nuevo producto */
         <div className="glass-card">
           <h3>Nuevo Producto</h3>
           <label>Nombre</label>
@@ -143,6 +146,63 @@ export default function Productos({
             ))}
           </select>
 
+          <label>Stock_Mínimo</label>
+          <input type="text" placeholder="Introduzca el Minimo del stock" />
+
+          {/* Desde aqui los registron que van en la tabla: productos_compatibilidad*/}
+
+          <label>Modelos Compatibles</label>
+          <Select
+            isMulti
+            options={modelos.map((m) => ({
+              value: m.id,
+              label: `${m.nombre_modelo} (${m.marcas?.nombre || m.marcas?.[0]?.nombre || "Sin marca"})`,
+            }))}
+            value={modelos
+              .filter((m) => nuevoProducto.modelosSeleccionados.includes(m.id))
+              .map((m) => ({
+                value: m.id,
+                label: m.nombre_modelo,
+                label: `${m.nombre_modelo} (${m.marcas?.nombre || m.marcas?.[0]?.nombre || "Sin marca"})`,
+              }))}
+            onChange={(selected) => {
+              const ids = selected ? selected.map((s) => s.value) : [];
+              setNuevoProducto({ ...nuevoProducto, modelosSeleccionados: ids });
+            }}
+            placeholder="Seleccione modelos compatibles..."
+            styles={{
+              control: (base) => ({
+                ...base,
+                padding: "2px",
+                borderRadius: "12px",
+              }),
+            }}
+          />
+
+          <label>Año compatible</label>
+          <h4>desde:</h4>
+          <input
+            type="number"
+            value={nuevoProducto.compat_desde || ""}
+            onChange={(e) =>
+              setNuevoProducto({
+                ...nuevoProducto,
+                compat_desde: e.target.value,
+              })
+            }
+          />
+          <h4>hasta:</h4>
+          <input
+            type="number"
+            value={nuevoProducto.compat_hasta || ""}
+            onChange={(e) =>
+              setNuevoProducto({
+                ...nuevoProducto,
+                compat_hasta: e.target.value,
+              })
+            }
+          />
+          {/* Aqui finalizan los que van en la tabla: productos_compatibilidad*/}
           <label>Descripción</label>
           <textarea
             value={nuevoProducto.descripcion}
@@ -153,6 +213,8 @@ export default function Productos({
               })
             }
           />
+
+          {/* Botones de accion*/}
 
           <div style={{ display: "flex", gap: "10px", marginTop: "15px" }}>
             <button className="btn-main-login" onClick={guardarProducto}>

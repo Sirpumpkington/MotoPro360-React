@@ -130,6 +130,31 @@ export default function MiLocal({
               }
             />
 
+            <label>Horario de Atención</label>
+            <h3>desde:</h3>
+            <input
+              type="time"
+              rows="2"
+              value={datosLocal.horario_atencion}
+              onChange={(e) =>
+                setDatosLocal({
+                  ...datosLocal,
+                  horario_atencion: e.target.value,
+                })
+              }
+            />
+            <h3>hasta:</h3>
+            <input
+              type="time"
+              rows="2"
+              value={datosLocal.horario_atencion}
+              onChange={(e) =>
+                setDatosLocal({
+                  ...datosLocal,
+                  horario_atencion: e.target.value,
+                })
+              }
+            />
             <div style={{ display: "flex", gap: "10px", marginTop: "15px" }}>
               <button
                 className="btn-main-login"

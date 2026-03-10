@@ -3,15 +3,28 @@ import { supabase } from "../supabaseClient";
 import styles from "../assets/css/local.module.css"; // Asegúrate de tener este archivo para estilos específicos
 import TabInicio from "./local_modules/tabinicio.jsx"; // Importamos la pestaña de inicio para mostrar notificaciones
 import MiLocal from "./local_modules/MiLocal.jsx"; // Importamos el componente de Mi Local para editar perfil
-import Productos from "./local_modules/Productos.jsx"; // Importamos el componente de Productos para gestionar inventario
+import Productos from "./local_modules/productos.jsx"; // Importamos el componente de Productos para gestionar inventario
 import Ofertas from "./local_modules/ofertas.jsx"; // Importamos el componente de Ofertas para gestionar promociones
 
+// ============================================================================
+// COMPONENTE PRINCIPAL: LocalView
+// Descripción: Este es el panel de control para los usuarios con rol "local".
+//              Aquí se manejan todas las pestañas: Inicio (notificaciones),
+//              Mi Local (perfil del negocio), Productos (inventario) y Ofertas.
+//              Se comunica con Supabase para guardar y recuperar datos.
+// ============================================================================
+
 export default function LocalView({ activeTab, perfil }) {
-  // --- ESTADOS GLOBALES ---
-  const [localPerfil, setLocalPerfil] = useState(null);
-  const [productos, setProductos] = useState([]);
-  const [categorias, setCategorias] = useState([]);
-  const [modelos, setModelos] = useState([]); // Para la compatibilidad
+  // ==========================================================================
+  // BLOQUE 1: ESTADOS (Variables que guardan información y cambian con el tiempo)
+  // ==========================================================================
+  // -- Datos principales --
+  const [localPerfil, setLocalPerfil] = useState(null); // Información del local (negocio)
+  const [productos, setProductos] = useState([]); // Lista de productos del local
+  const [categorias, setCategorias] = useState([]); // Lista de categorías de productos
+
+  const [modelos, setModelos] = useState([]); //aqui esta para la compatibilidad de los productos.
+
   const [loading, setLoading] = useState(false);
 
   // --- ESTADOS PARA FORMULARIOS ---
@@ -65,8 +78,35 @@ export default function LocalView({ activeTab, perfil }) {
     stock_actual: "",
     stock_minimo: 5,
     categoria_id: "",
-    compatibilidad_ids: [],
+    modelosSeleccionados: [], // Lista de ids de modelos seleccionados (coincide con Productos.jsx)
+    compat_desde: "",
+    compat_hasta: "",
+    compatibilidad_manual: "", // Campo guardable en la BD (puede ser array o string según tu esquema)
   });
+
+  //aqui hacemos la consulta para traer los modelos y mostrarlos en el select de compatibilidad al crear/editar un producto.
+  //  Esto es importante para que el local pueda seleccionar a qué modelos de moto es compatible su producto,
+  //  y luego esa información se puede mostrar en la ficha del producto para los clientes.
+
+  useEffect(() => {
+    const fetchModelos = async () => {
+      const { data, error } = await supabase
+
+        .from("modelos")
+        .select(
+          `id,
+            nombre_modelo,
+            marcas (
+            nombre
+                )
+              `,
+        ) // Si tienes relación con marcas
+        .order("nombre_modelo");
+      if (error) console.error(error);
+      else setModelos(data);
+    };
+    fetchModelos();
+  }, []);
 
   // --- 1. FUNCIÓN PARA CARGAR PRODUCTOS ---
   // Moviendo esto aquí arriba para que el useEffect la pueda usar sin problemas
@@ -99,7 +139,11 @@ export default function LocalView({ activeTab, perfil }) {
         // Traer Categorías y Modelos en paralelo
         const [resCat, resMod] = await Promise.all([
           supabase.from("categorias").select("*"),
-          supabase.from("modelos").select("*").order("nombre_modelo"),
+          // Traer modelos incluyendo la relación a marcas (nombre)
+          supabase
+            .from("modelos")
+            .select(`id, nombre_modelo, marcas ( nombre )`)
+            .order("nombre_modelo"),
         ]);
 
         if (resCat.data) setCategorias(resCat.data);
@@ -197,20 +241,51 @@ export default function LocalView({ activeTab, perfil }) {
 
     try {
       setLoading(true);
-      const { error } = await supabase.from("productos").insert([
-        {
-          local_id: localPerfil.id_local,
-          nombre_producto: nuevoProducto.nombre_producto,
-          descripcion: nuevoProducto.descripcion,
-          precio: parseFloat(nuevoProducto.precio),
-          stock_actual: parseInt(nuevoProducto.stock_actual),
-          categoria_id: parseInt(nuevoProducto.categoria_id),
-          compatibilidad_manual: nuevoProducto.compatibilidad_manual,
-          status: true,
-        },
-      ]);
+      // 1) Insertar producto y obtener id
+      const { data: inserted, error: insertErr } = await supabase
+        .from("productos")
+        .insert([
+          {
+            local_id: localPerfil.id_local,
+            nombre_producto: nuevoProducto.nombre_producto,
+            descripcion: nuevoProducto.descripcion,
+            precio: parseFloat(nuevoProducto.precio),
+            stock_actual: parseInt(nuevoProducto.stock_actual),
+            categoria_id: parseInt(nuevoProducto.categoria_id),
+            status: true,
+          },
+        ])
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (insertErr) throw insertErr;
+
+      const idProducto = inserted.id_producto || inserted.id;
+
+      // 2) Insertar filas en productos_compatibilidad si hay modelos seleccionados
+      if (
+        nuevoProducto.modelosSeleccionados &&
+        nuevoProducto.modelosSeleccionados.length > 0
+      ) {
+        const desde = nuevoProducto.compat_desde
+          ? Number(nuevoProducto.compat_desde)
+          : null;
+        const hasta = nuevoProducto.compat_hasta
+          ? Number(nuevoProducto.compat_hasta)
+          : null;
+        const compatRows = nuevoProducto.modelosSeleccionados.map(
+          (idModelo) => ({
+            id_producto: idProducto,
+            id_modelo: Number(idModelo),
+            anio_desde: desde,
+            anio_hasta: hasta,
+          }),
+        );
+        const { error: compatErr } = await supabase
+          .from("productos_compatibilidad")
+          .insert(compatRows);
+        if (compatErr) throw compatErr;
+      }
 
       setCreandoProducto(false);
       // Limpiar form
@@ -219,7 +294,11 @@ export default function LocalView({ activeTab, perfil }) {
         precio: "",
         descripcion: "",
         stock_actual: "",
+        stock_minimo: 5,
         categoria_id: "",
+        modelosSeleccionados: [],
+        compat_desde: "",
+        compat_hasta: "",
         compatibilidad_manual: "",
       });
       fetchProductos(localPerfil.id_local);
@@ -369,6 +448,7 @@ export default function LocalView({ activeTab, perfil }) {
         productosFiltrados={productosFiltrados}
         editarStock={editarStock}
         eliminarProducto={eliminarProducto}
+        modelos={modelos}
       />
     );
   }
