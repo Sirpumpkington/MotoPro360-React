@@ -11,6 +11,7 @@ import VistaGrupos from "./client_modules/grupos.jsx";
 import MotosView from "./client_modules/motos.jsx";
 // productos de ejemplo
 
+// productos de ejemplo
 const productosEjemplo = [
   {
     id_producto: 1,
@@ -344,33 +345,12 @@ export default function ClientView({
         {!busquedaRealizada ? (
           <div style={{ width: "100%", maxWidth: "1200px", margin: "0 auto" }}>
             <ProductCarousel productos={productosDestacados} />
-            <div
-              className="glass-card"
-              style={{
-                border: "2px solid var(--primary-red)",
-                padding: "30px",
-                marginTop: "20px",
-              }}
-            >
-              <h1
-                style={{
-                  color: "var(--black)",
-                  marginBottom: "15px",
-                  fontSize: "2rem",
-                }}
-              >
-                ¿Qué necesitas hoy?
-              </h1>
-              <p
-                style={{
-                  color: "#666",
-                  marginBottom: "25px",
-                  fontSize: "1.1rem",
-                }}
-              >
+            <div className="search-card glass-card">
+              <h1 className="search-title">¿Qué necesitas hoy?</h1>
+              <p className="search-subtitle">
                 Encuentra repuestos, talleres y grúas cerca de ti.
               </p>
-              <div className="input-group">
+              <div className="input-group search-input-group">
                 <i className="fas fa-search icon-field"></i>
                 <input
                   type="text"
@@ -380,11 +360,7 @@ export default function ClientView({
                   onKeyDown={(e) => e.key === "Enter" && ejecutarBusqueda()}
                 />
               </div>
-              <button
-                className="btn-main-login"
-                style={{ width: "100%", marginTop: "20px" }}
-                onClick={ejecutarBusqueda}
-              >
+              <button className="btn-search" onClick={ejecutarBusqueda}>
                 BUSCAR DISPONIBILIDAD
               </button>
             </div>
@@ -392,18 +368,7 @@ export default function ClientView({
           </div>
         ) : (
           <>
-            <div
-              style={{
-                background: "white",
-                padding: "12px",
-                borderRadius: "12px",
-                display: "flex",
-                gap: "10px",
-                boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
-                marginBottom: "10px",
-                alignItems: "center",
-              }}
-            >
+            <div className="search-results-header">
               <button
                 onClick={() => setBusquedaRealizada(false)}
                 className="search-back-btn"
@@ -419,127 +384,41 @@ export default function ClientView({
                 className="search-results-input"
                 autoFocus
               />
-              <button
-                onClick={ejecutarBusqueda}
-                className="btn-main-login"
-                style={{ marginLeft: "auto" }}
-              >
+              <button onClick={ejecutarBusqueda} className="btn-search small">
                 Buscar
               </button>
             </div>
-            <div
-              style={{
-                display: "flex",
-                flex: 1,
-                gap: "20px",
-                overflow: "hidden",
-              }}
-              className="responsive-split"
-            >
+            <div className="results-split">
               {/* Lista de Productos Filtrados */}
-              <div
-                style={{
-                  overflowY: "auto",
-                  flex: 1,
-                  paddingRight: "10px",
-                  color: "#333",
-                }}
-              >
-                <h3 style={{ color: "darkgrey" }}>
+              <div className="results-list">
+                <h3 className="results-count">
                   {productosFiltrados.length} resultados encontrados
                 </h3>
                 {productosFiltrados.map((prod) => (
                   <div
                     key={prod.id_producto}
-                    className="data-card"
+                    className={`result-card ${productoSeleccionado?.id_producto === prod.id_producto ? "selected" : ""}`}
                     onClick={() => setProductoSeleccionado(prod)}
-                    style={{
-                      padding: "15px",
-                      display: "flex",
-                      gap: "15px",
-                      marginBottom: "15px",
-                      cursor: "pointer",
-                      border:
-                        productoSeleccionado?.id_producto === prod.id_producto
-                          ? "2px solid var(--primary-red)"
-                          : "1px solid #eee",
-                    }}
                   >
-                    <div
-                      style={{
-                        width: "60px",
-                        height: "60px",
-                        background: "#f0f0f0",
-                        borderRadius: "8px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <i className="fas fa-box" style={{ color: "#ccc" }}></i>
+                    <div className="result-img">
+                      <i className="fas fa-box"></i>
                     </div>
-                    <div>
-                      <h4 style={{ margin: 0 }}>{prod.nombre_producto}</h4>
-                      <p
-                        style={{
-                          fontSize: "0.8rem",
-                          color: "#666",
-                          margin: "2px 0",
-                        }}
-                      >
+                    <div className="result-info">
+                      <h4 className="result-title">{prod.nombre_producto}</h4>
+                      <p className="result-store">
                         {prod.locales?.nombre_local}
                       </p>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px",
-                          margin: 0,
-                        }}
-                      >
+                      <div className="result-price">
                         {prod.en_oferta ? (
                           <>
-                            <span
-                              style={{
-                                textDecoration: "line-through",
-                                color: "#999",
-                                fontSize: "0.85rem",
-                              }}
-                            >
-                              ${prod.precio}
-                            </span>
-                            <span
-                              style={{
-                                color: "var(--primary-red)",
-                                fontWeight: "bold",
-                                fontSize: "1.1rem",
-                              }}
-                            >
+                            <span className="old-price">${prod.precio}</span>
+                            <span className="new-price">
                               ${(prod.precio * 0.8).toFixed(2)}
                             </span>
-                            <span
-                              style={{
-                                background: "#FF9900",
-                                color: "white",
-                                fontSize: "0.6rem",
-                                padding: "2px 6px",
-                                borderRadius: "4px",
-                                fontWeight: "bold",
-                                textTransform: "uppercase",
-                              }}
-                            >
-                              Oferta
-                            </span>
+                            <span className="offer-badge">Oferta</span>
                           </>
                         ) : (
-                          <span
-                            style={{
-                              color: "var(--primary-red)",
-                              fontWeight: "bold",
-                            }}
-                          >
-                            ${prod.precio}
-                          </span>
+                          <span className="normal-price">${prod.precio}</span>
                         )}
                       </div>
                     </div>
@@ -547,46 +426,18 @@ export default function ClientView({
                 ))}
               </div>
               {/* Contenedor del Mapa */}
-              <div
-                style={{
-                  flex: 1.5,
-                  borderRadius: "15px",
-                  overflow: "hidden",
-                  background: "#f9f9f9",
-                  border: "1px solid #ddd",
-                  display: "flex",
-                  flexDirection: "column",
-                }}
-              >
+              <div className="map-container">
                 {!productoSeleccionado ? (
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      height: "100%",
-                      color: "#999",
-                    }}
-                  >
-                    <i
-                      className="fas fa-map-marked-alt"
-                      style={{ fontSize: "3rem", marginBottom: "10px" }}
-                    ></i>
+                  <div className="map-placeholder">
+                    <i className="fas fa-map-marked-alt"></i>
                     <p>Toca un producto para ver su ubicación</p>
                   </div>
                 ) : coords ? (
-                  <div
-                    style={{
-                      height: "100%",
-                      display: "flex",
-                      flexDirection: "column",
-                    }}
-                  >
+                  <div className="map-wrapper">
                     <MapContainer
                       center={[coords.lat, coords.lng]}
                       zoom={15}
-                      style={{ height: "50%", width: "100%" }}
+                      className="map-leaflet"
                       key={productoSeleccionado?.id_producto}
                     >
                       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
@@ -596,44 +447,23 @@ export default function ClientView({
                         </Popup>
                       </Marker>
                     </MapContainer>
-                    <div
-                      style={{ padding: "20px", background: "white", flex: 1 }}
-                    >
-                      <h3 style={{ margin: 0, color: "var(--primary-red)" }}>
+                    <div className="map-details">
+                      <h3 className="map-store">
                         {productoSeleccionado?.locales?.nombre_local}
                       </h3>
-                      <p style={{ margin: "10px 0", fontSize: "0.9rem" }}>
+                      <p className="map-address">
                         <i className="fas fa-map-marker-alt"></i>{" "}
                         {coords.direccion_fisica}
                       </p>
-                      <p style={{ margin: "5px 0", fontWeight: "bold" }}>
+                      <p className="map-phone">
                         <i className="fas fa-phone"></i>{" "}
                         {productoSeleccionado?.locales?.telefono}
                       </p>
-                      <div
-                        className="contact-actions-container"
-                        style={{
-                          marginTop: "15px",
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "10px",
-                        }}
-                      >
+
+                      {/* Botones circulares gigantes */}
+                      <div className="action-circles">
                         <button
-                          className="btn-contact-google"
-                          style={{
-                            background: "#4285F4",
-                            color: "white",
-                            padding: "12px",
-                            borderRadius: "12px",
-                            border: "none",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            gap: "10px",
-                            cursor: "pointer",
-                            fontWeight: "600",
-                          }}
+                          className="circle-btn google-circle"
                           onClick={() =>
                             window.open(
                               `https://www.google.com/maps/dir/?api=1&destination=${coords.lat},${coords.lng}`,
@@ -641,77 +471,37 @@ export default function ClientView({
                             )
                           }
                         >
-                          <i className="fab fa-google"></i> CÓMO LLEGAR
+                          <i className="fab fa-google"></i>
+                          <span>Cómo llegar</span>
                         </button>
-                        <div
-                          style={{
-                            display: "grid",
-                            gridTemplateColumns: "1fr 1fr",
-                            gap: "10px",
+                        <button
+                          className="circle-btn whatsapp-circle"
+                          onClick={() => {
+                            const msg = encodeURIComponent(
+                              `Hola, vi el producto ${productoSeleccionado.nombre_producto} en MotoPro 360 y me interesa.`,
+                            );
+                            window.open(
+                              `https://wa.me/${productoSeleccionado.locales.telefono}?text=${msg}`,
+                              "_blank",
+                            );
                           }}
                         >
-                          <button
-                            className="btn-contact-whatsapp"
-                            style={{
-                              background: "#25D366",
-                              color: "white",
-                              padding: "12px",
-                              borderRadius: "12px",
-                              border: "none",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              gap: "10px",
-                              cursor: "pointer",
-                              fontWeight: "600",
-                            }}
-                            onClick={() => {
-                              const msg = encodeURIComponent(
-                                `Hola, vi el producto ${productoSeleccionado.nombre_producto} en MotoPro 360 y me interesa.`,
-                              );
-                              window.open(
-                                `https://wa.me/${productoSeleccionado.locales.telefono}?text=${msg}`,
-                                "_blank",
-                              );
-                            }}
-                          >
-                            <i className="fab fa-whatsapp"></i> WHATSAPP
-                          </button>
-                          <a
-                            href={`tel:${productoSeleccionado.locales.telefono}`}
-                            className="btn-contact-call"
-                            style={{
-                              background: "#1a1a1a",
-                              color: "white",
-                              padding: "12px",
-                              borderRadius: "12px",
-                              textDecoration: "none",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              gap: "10px",
-                              fontWeight: "600",
-                              textAlign: "center",
-                            }}
-                          >
-                            <i className="fas fa-phone-alt"></i> LLAMAR
-                          </a>
-                        </div>
+                          <i className="fab fa-whatsapp"></i>
+                          <span>WhatsApp</span>
+                        </button>
+                        <a
+                          href={`tel:${productoSeleccionado.locales.telefono}`}
+                          className="circle-btn call-circle"
+                        >
+                          <i className="fas fa-phone-alt"></i>
+                          <span>Llamar</span>
+                        </a>
                       </div>
                     </div>
                   </div>
                 ) : (
-                  <div
-                    style={{
-                      padding: "40px",
-                      textAlign: "center",
-                      color: "#666",
-                    }}
-                  >
-                    <i
-                      className="fas fa-exclamation-triangle"
-                      style={{ fontSize: "2rem", color: "orange" }}
-                    ></i>
+                  <div className="map-error">
+                    <i className="fas fa-exclamation-triangle"></i>
                     <p>Este local no tiene coordenadas registradas.</p>
                   </div>
                 )}
@@ -794,7 +584,6 @@ export default function ClientView({
     return (
       <>
         <VistaMembresias />
-        {/* Puedes agregar botones flotantes aquí si los necesitas en el futuro */}
       </>
     );
   }
