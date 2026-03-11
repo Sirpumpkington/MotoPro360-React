@@ -230,16 +230,26 @@ export default function ClientView({
   const [sugerencias, setSugerencias] = useState([]);
 
   const ejecutarBusqueda = () => {
-    if (!busqueda.trim()) return;
+    // 1. Si el input está vacío, reseteamos todo para volver al inicio
+    if (!busqueda.trim()) {
+      setBusquedaRealizada(false);
+      setProductosFiltrados([]);
+      setProductoSeleccionado(null);
+      return;
+    }
+
+    // 2. Si hay texto, procedemos con el filtro normal
     const base = productos || [];
     const q = busqueda.toLowerCase();
+
     const resultados = base.filter((prod) => {
       const nombre = (prod.nombre_producto || prod.nombre || "").toLowerCase();
       return nombre.includes(q);
     });
-    setProductosFiltrados(resultados || []);
+
+    setProductosFiltrados(resultados);
     setBusquedaRealizada(true);
-    setProductoSeleccionado(null);
+    setProductoSeleccionado(null); // Limpiamos el mapa al hacer una nueva búsqueda
   };
 
   // Cargar CSS
@@ -253,6 +263,16 @@ export default function ClientView({
     };
   }, []);
 
+  //Esta es una funcion auxiliar para los descuentos, se puede eliminar si no se va a usar
+  const obtenerPromocionActiva = (producto) => {
+    if (!producto.promociones || producto.promociones.length === 0) return null;
+    const ahora = new Date();
+    // Buscamos una promoción activa y con fecha de expiración >= hoy
+    return producto.promociones.find(
+      (p) => p.activa && new Date(p.fecha_expiracion) >= ahora,
+    );
+  };
+  //Hasta aquí
   // Cargar datos según la pestaña
   useEffect(() => {
     if (!perfil) return;
@@ -263,14 +283,20 @@ export default function ClientView({
           .from("productos")
           .select(
             `
-            *,
-            categorias (nombre_categoria),
-            locales (nombre_local, telefono, ubicacion_id, ubicaciones (latitud, longitud, direccion_fisica))
-          `,
+      *,
+      categorias (nombre_categoria),
+      locales (nombre_local, telefono, ubicacion_id, ubicaciones (latitud, longitud, direccion_fisica)),
+      promociones (*)
+    `,
           )
           .eq("status", true);
+
         if (!error) setProductos(data || []);
         setProductosDestacados(productosEjemplo);
+
+        {
+          /*Hasta Aquí*/
+        }
         const { data: localesData } = await supabase
           .from("locales")
           .select("id_local, nombre_local, logo_url")
@@ -394,36 +420,60 @@ export default function ClientView({
                 <h3 className="results-count">
                   {productosFiltrados.length} resultados encontrados
                 </h3>
-                {productosFiltrados.map((prod) => (
-                  <div
-                    key={prod.id_producto}
-                    className={`result-card ${productoSeleccionado?.id_producto === prod.id_producto ? "selected" : ""}`}
-                    onClick={() => setProductoSeleccionado(prod)}
-                  >
-                    <div className="result-img">
-                      <i className="fas fa-box"></i>
-                    </div>
-                    <div className="result-info">
-                      <h4 className="result-title">{prod.nombre_producto}</h4>
-                      <p className="result-store">
-                        {prod.locales?.nombre_local}
-                      </p>
-                      <div className="result-price">
-                        {prod.en_oferta ? (
-                          <>
-                            <span className="old-price">${prod.precio}</span>
-                            <span className="new-price">
-                              ${(prod.precio * 0.8).toFixed(2)}
+
+                {/*ESTO TAMBIEN ESTA SIENDO MODIFICADO*/}
+                {productosFiltrados.map((prod) => {
+                  const promoActiva = obtenerPromocionActiva(prod);
+                  const precioOriginal = prod.precio;
+                  let precioFinal = precioOriginal;
+                  let descuento = 0;
+
+                  if (promoActiva) {
+                    descuento = promoActiva.descuento_porcentaje;
+                    precioFinal = (
+                      precioOriginal *
+                      (1 - descuento / 100)
+                    ).toFixed(2);
+                  }
+
+                  return (
+                    <div
+                      key={prod.id_producto}
+                      className={`result-card ${productoSeleccionado?.id_producto === prod.id_producto ? "selected" : ""}`}
+                      onClick={() => setProductoSeleccionado(prod)}
+                    >
+                      <div className="result-img">
+                        <i className="fas fa-box"></i>
+                      </div>
+                      <div className="result-info">
+                        <h4 className="result-title">{prod.nombre_producto}</h4>
+                        <p className="result-store">
+                          {prod.locales?.nombre_local}
+                        </p>
+
+                        {/* PRECIO CON OFERTA (si aplica) */}
+                        <div className="result-price">
+                          {promoActiva ? (
+                            <>
+                              <span className="old-price">
+                                ${precioOriginal}
+                              </span>
+                              <span className="new-price">${precioFinal}</span>
+                              <span className="offer-badge">
+                                {descuento}% OFF
+                              </span>
+                            </>
+                          ) : (
+                            <span className="normal-price">
+                              ${precioOriginal}
                             </span>
-                            <span className="offer-badge">Oferta</span>
-                          </>
-                        ) : (
-                          <span className="normal-price">${prod.precio}</span>
-                        )}
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
+                {/*Hasta aquí*/}
               </div>
               {/* Contenedor del Mapa */}
               <div className="map-container">

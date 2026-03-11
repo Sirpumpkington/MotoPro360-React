@@ -1,90 +1,240 @@
-import React from "react";
-import styles from "../../assets/css/local.module.css"; // Asegúrate de tener este archivo para estilos específicos
+import React, { useState } from "react";
+import { supabase } from "../../supabaseClient";
+import "../../assets/css/Ofertas.css";
+export default function Ofertas({ productos, onRefresh }) {
+  // ------------------------------------------------------------
+  // Estado local del componente
+  // ------------------------------------------------------------
+  const [productoSeleccionado, setProductoSeleccionado] = useState(null); // Producto actual en edición
+  const [descuento, setDescuento] = useState(""); // % de descuento
+  const [fechaExpiracion, setFechaExpiracion] = useState(""); // Fecha límite (YYYY-MM-DD)
+  const [cargando, setCargando] = useState(false); // Para evitar múltiples envíos
+  const calcularPrecioConDescuento = (precioOriginal, porcentaje) => {
+    if (!porcentaje) return precioOriginal;
+    return (precioOriginal * (1 - porcentaje / 100)).toFixed(2);
+  };
 
-export default function Ofertas({ productos, ofertasSimuladas, toggleOferta }) {
+  // ------------------------------------------------------------
+  // Función: Al hacer clic en una tarjeta de producto
+  // ------------------------------------------------------------
+  const handleSeleccionarProducto = (producto) => {
+    setProductoSeleccionado(producto);
+    const promo = producto.promociones?.[0]; // Tomamos la primera promoción (asumimos una activa a la vez)
+
+    if (promo) {
+      setDescuento(promo.descuento_porcentaje);
+      // Formatear fecha para input type="date" (YYYY-MM-DD)
+      if (promo.fecha_expiracion) {
+        const fecha = new Date(promo.fecha_expiracion);
+        const año = fecha.getFullYear();
+        const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+        const dia = String(fecha.getDate()).padStart(2, "0");
+        setFechaExpiracion(`${año}-${mes}-${dia}`);
+      } else {
+        setFechaExpiracion("");
+      }
+    } else {
+      // Si no tiene promoción, limpiamos los campos
+      setDescuento("");
+      setFechaExpiracion("");
+    }
+  };
+
+  // ------------------------------------------------------------
+  // Función: Cerrar el panel flotante
+  // ------------------------------------------------------------
+  const cerrarPanel = () => {
+    setProductoSeleccionado(null);
+    setDescuento("");
+    setFechaExpiracion("");
+  };
+
+  // ------------------------------------------------------------
+  // Función: Guardar o actualizar una oferta
+  // ------------------------------------------------------------
+  const guardarOferta = async () => {
+    // Validaciones básicas
+    if (!descuento || descuento <= 0) {
+      alert("Ingresa un porcentaje válido");
+      return;
+    }
+    if (!fechaExpiracion) {
+      alert("Selecciona una fecha de expiración");
+      return;
+    }
+
+    setCargando(true);
+    try {
+      const promoExistente = productoSeleccionado.promociones?.[0];
+      const payload = {
+        id_producto: productoSeleccionado.id_producto,
+        descuento_porcentaje: parseFloat(descuento),
+        fecha_expiracion: fechaExpiracion,
+        activa: true, // Siempre activamos al guardar
+      };
+
+      let error;
+      if (promoExistente) {
+        // Actualizar la promoción existente
+        const { error: err } = await supabase
+          .from("promociones")
+          .update(payload)
+          .eq("id", promoExistente.id);
+        error = err;
+      } else {
+        // Insertar nueva promoción
+        const { error: err } = await supabase
+          .from("promociones")
+          .insert([payload]);
+        error = err;
+      }
+
+      if (error) throw error;
+
+      alert("Oferta guardada correctamente");
+      cerrarPanel();
+      onRefresh(); // Recargar productos para reflejar cambios
+    } catch (error) {
+      console.error(error);
+      alert("Error al guardar la oferta: " + error.message);
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  // ------------------------------------------------------------
+  // Función: Desactivar una oferta (sin eliminarla)
+  // ------------------------------------------------------------
+  const desactivarOferta = async () => {
+    const promo = productoSeleccionado.promociones?.[0];
+    if (!promo) return;
+
+    if (!window.confirm("¿Desactivar esta oferta?")) return;
+
+    setCargando(true);
+    try {
+      const { error } = await supabase
+        .from("promociones")
+        .update({ activa: false })
+        .eq("id", promo.id);
+
+      if (error) throw error;
+
+      alert("Oferta desactivada");
+      cerrarPanel();
+      onRefresh();
+    } catch (error) {
+      alert("Error al desactivar: " + error.message);
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  // ------------------------------------------------------------
+  // Renderizado
+  // ------------------------------------------------------------
   return (
-    <div style={{ padding: "20px" }}>
-      <div
-        className={styles["welcome-card-local"]}
-        style={{
-          background: "linear-gradient(135deg, #ff4d00 0%, #FFCC00 100%)",
-          color: "white",
-          marginBottom: "20px",
-        }}
-      >
-        <h2 style={{ color: "white" }}>🔥 Zona de Ofertas</h2>
-        <p style={{ color: "white" }}>
-          Selecciona un producto para aplicar un descuento flash.
-        </p>
-      </div>
+    <div className="ofertas-admin-view">
+      {/* Grilla de productos */}
+      <div className="promos-grid">
+        {productos.map((prod) => {
+          const promo = prod.promociones?.[0];
+          const esActiva = promo?.activa;
+          const precioConDescuento = esActiva
+            ? calcularPrecioConDescuento(
+                prod.precio,
+                promo.descuento_porcentaje,
+              )
+            : null;
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
-          gap: "15px",
-        }}
-      >
-        {productos && productos.length === 0 ? (
-          <p>No tienes productos para ofertar.</p>
-        ) : (
-          productos.map((prod) => {
-            const enOferta = ofertasSimuladas.includes(prod.id_producto);
-            return (
-              <div
-                key={prod.id_producto}
-                className="data-card"
-                style={{
-                  padding: "15px",
-                  border: enOferta ? "2px solid #FF9900" : "1px solid #eee",
-                }}
-              >
-                <div
-                  style={{ display: "flex", justifyContent: "space-between" }}
-                >
-                  <h4 style={{ margin: 0 }}>{prod.nombre_producto}</h4>
-                  {enOferta && (
-                    <span
-                      className="badge"
-                      style={{ background: "red", color: "white" }}
-                    >
-                      -20% OFF
-                    </span>
-                  )}
-                </div>
-                <p style={{ margin: "5px 0", color: "#666" }}>
-                  Precio regular: ${prod.precio}
-                </p>
-
-                {enOferta && (
-                  <p
-                    style={{
-                      fontWeight: "bold",
-                      color: "#FF9900",
-                      fontSize: "1.1rem",
-                    }}
-                  >
-                    Ahora: ${(prod.precio * 0.8).toFixed(2)}
-                  </p>
+          return (
+            <div
+              key={prod.id_producto}
+              className={`promo-card ${esActiva ? "active-border" : ""}`}
+              onClick={() => handleSeleccionarProducto(prod)}
+            >
+              <h4>{prod.nombre_producto}</h4>
+              <div className="precio-container">
+                {esActiva ? (
+                  <>
+                    <span className="precio-original">${prod.precio}</span>
+                    <span className="precio-oferta">${precioConDescuento}</span>
+                  </>
+                ) : (
+                  <span className="precio-normal">${prod.precio}</span>
                 )}
-
-                <button
-                  className="btn-main-login"
-                  style={{
-                    width: "100%",
-                    marginTop: "10px",
-                    background: enOferta ? "#333" : "#FF9900",
-                    border: "none",
-                  }}
-                  onClick={() => toggleOferta(prod.id_producto)}
-                >
-                  {enOferta ? "Terminar Oferta" : "Aplicar Descuento"}
-                </button>
               </div>
-            );
-          })
-        )}
+              {esActiva ? (
+                <>
+                  <span className="status-on">
+                    Oferta: {promo.descuento_porcentaje}%
+                  </span>
+                  <span className="fecha-expiracion">
+                    Hasta:{" "}
+                    {new Date(promo.fecha_expiracion).toLocaleDateString()}
+                  </span>
+                </>
+              ) : (
+                <span className="status-off">Sin oferta activa</span>
+              )}
+            </div>
+          );
+        })}
       </div>
+
+      {/* Panel flotante de configuración (solo visible si hay un producto seleccionado) */}
+      {productoSeleccionado && (
+        <div className="oferta-floating-panel">
+          <h3>Configurar Oferta: {productoSeleccionado.nombre_producto}</h3>
+
+          <label>% Descuento</label>
+          {descuento > 0 && (
+            <p className="vista-previa">
+              Precio con descuento: $
+              {calcularPrecioConDescuento(
+                productoSeleccionado.precio,
+                descuento,
+              )}
+            </p>
+          )}
+          <input
+            type="number"
+            min="1"
+            max="100"
+            value={descuento}
+            onChange={(e) => setDescuento(e.target.value)}
+            disabled={cargando}
+          />
+
+          <label>Fecha de Expiración</label>
+          <input
+            type="date"
+            value={fechaExpiracion}
+            onChange={(e) => setFechaExpiracion(e.target.value)}
+            disabled={cargando}
+          />
+
+          <div className="panel-actions">
+            <button onClick={guardarOferta} disabled={cargando}>
+              {cargando ? "Guardando..." : "Activar Oferta"}
+            </button>
+
+            {productoSeleccionado.promociones?.[0]?.activa && (
+              <button
+                onClick={desactivarOferta}
+                disabled={cargando}
+                className="btn-desactivar"
+              >
+                Desactivar Oferta
+              </button>
+            )}
+
+            <button onClick={cerrarPanel} disabled={cargando}>
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

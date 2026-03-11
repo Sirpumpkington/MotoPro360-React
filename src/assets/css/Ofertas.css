@@ -1,0 +1,137 @@
+.ofertas-admin-view {
+  padding: 20px;
+}
+
+.promos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.promo-card {
+  background: white;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    border 0.2s;
+  border: 2px solid transparent;
+}
+
+.promo-card:hover {
+  transform: translateY(-2px);
+}
+
+.promo-card.active-border {
+  border-color: #ff9900;
+}
+
+.status-on {
+  color: #27ae60;
+  font-weight: bold;
+}
+
+.status-off {
+  color: #999;
+}
+
+.fecha-expiracion {
+  display: block;
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 4px;
+}
+
+.oferta-floating-panel {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 300px;
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+
+.oferta-floating-panel h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+.oferta-floating-panel label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.oferta-floating-panel input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.panel-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.panel-actions button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #e63946;
+  color: white;
+  cursor: pointer;
+}
+
+.panel-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.panel-actions .btn-desactivar {
+  background: #666;
+}
+
+.precio-container {
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.precio-original {
+  text-decoration: line-through;
+  color: #999;
+  font-size: 0.9rem;
+}
+
+.precio-oferta {
+  color: #e63946;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.precio-normal {
+  color: #333;
+  font-weight: bold;
+}
+
+.vista-previa {
+  margin-top: 5px;
+  margin-bottom: 15px;
+  padding: 8px;
+  background: #f0f0f0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #e63946;
+  font-weight: bold;
+  text-align: center;
+}

@@ -42,7 +42,7 @@ export default function Dashboard() {
       // Cargar Perfil y Rol
       const { data: persona } = await supabase
         .from("personas")
-        .select("cedula, nombres, apellidos")
+        .select("cedula, nombres, apellidos,id_membresia")
         .eq("id_auth", user.id)
         .single();
       const { data: rol } = await supabase

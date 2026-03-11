@@ -113,22 +113,28 @@ export default function LocalView({ activeTab, perfil }) {
   const fetchProductos = async (idLocal) => {
     const { data, error } = await supabase
       .from("productos")
-      .select("*, categorias(nombre_categoria)")
+      .select(
+        `
+      *,
+      categorias(nombre_categoria),
+      promociones(*)
+    `,
+      )
       .eq("local_id", idLocal)
       .order("created_at", { ascending: false });
 
     if (error) console.error("Error productos:", error.message);
     if (data) {
       setProductos(data);
-      // Extraemos los IDs que ya están en oferta en la BD para pintar los botones de naranja
+      // (Opcional) Actualizar ofertasSimuladas si aún se usa en otros lugares
       const ofertasActivas = data
-        .filter((p) => p.en_oferta)
+        .filter(
+          (p) => p.promociones && p.promociones.some((promo) => promo.activa),
+        )
         .map((p) => p.id_producto);
       setOfertasSimuladas(ofertasActivas);
     }
-  }; // Implementada las Ofertas como un campo booleano en productos para pruebas, luego se puede cambiar a una tabla aparte si se desea más complejidad
-  //OJO, Prueba con Gemini, si no funciona, vuelve a la versión anterior que usaba un array de IDs en el estado para simular las ofertas. La idea es que cada producto tenga un campo "en_oferta" que se actualice al activar/desactivar la oferta, así evitamos tener que manejar un estado separado para las ofertas simuladas.
-
+  };
   // --- 2. CARGA INICIAL DE DATOS ---
   useEffect(() => {
     if (!perfil) return;
@@ -458,8 +464,7 @@ export default function LocalView({ activeTab, perfil }) {
     return (
       <Ofertas
         productos={productos}
-        ofertasSimuladas={ofertasSimuladas}
-        toggleOferta={toggleOferta}
+        onRefresh={() => fetchProductos(localPerfil.id_local)}
       />
     );
   }

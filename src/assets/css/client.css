@@ -2887,7 +2887,9 @@ body.dark-mode .moto-card.selected {
   border: 2px solid var(--gray);
   border-radius: 12px;
   font-size: 1rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
   background: var(--white);
 }
 
@@ -3177,7 +3179,7 @@ body.dark-mode .moto-card.selected {
 }
 
 .mensaje.propio .mensaje-autor {
-  color: rgba(255,255,255,0.8);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .mensaje-burbuja p {
@@ -3392,7 +3394,7 @@ body.dark-mode .modal-icon {
   padding: 15px 25px;
   border-radius: 50px;
   background: white;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   gap: 10px;
@@ -3437,14 +3439,20 @@ body.dark-mode .mensaje-flotante.success {
   color: white;
   padding: 12px 24px;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 2000;
   animation: slideIn 0.3s;
 }
 
 @keyframes slideIn {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 .grupos-create-btn.disabled {
@@ -4180,12 +4188,12 @@ body.dark-mode .call-circle:hover {
   align-items: center;
   justify-content: center;
   flex: 1 1 0;
-  min-width: 100px;        /* Más compacto */
-  padding: 14px 6px;       /* Reducido vertical y horizontal */
+  min-width: 100px; /* Más compacto */
+  padding: 14px 6px; /* Reducido vertical y horizontal */
   border: none;
   border-radius: 60px;
   font-weight: 600;
-  font-size: 0.9rem;       /* Texto más pequeño */
+  font-size: 0.9rem; /* Texto más pequeño */
   line-height: 1.2;
   text-align: center;
   cursor: pointer;
@@ -4197,7 +4205,7 @@ body.dark-mode .call-circle:hover {
 }
 
 .circle-btn i {
-  font-size: 1.6rem;       /* Icono más pequeño */
+  font-size: 1.6rem; /* Icono más pequeño */
   margin-bottom: 4px;
 }
 
@@ -4240,4 +4248,36 @@ body.dark-mode .call-circle:hover {
 /* Modo oscuro */
 body.dark-mode .call-circle {
   background: linear-gradient(135deg, #2d2d2d, #3d3d3d);
+}
+.promo-expiration {
+  font-size: 0.8rem;
+  color: #666;
+  margin: 5px 0;
+}
+
+/* Para el carrusel */
+.carousel-prices {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  justify-content: center;
+}
+.carousel-old-price {
+  text-decoration: line-through;
+  color: #999;
+  font-size: 0.8rem;
+}
+.carousel-new-price {
+  color: #e63946;
+  font-weight: bold;
+  font-size: 1rem;
+}
+.carousel-badge {
+  background: #ff9900;
+  color: white;
+  font-size: 0.6rem;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-weight: bold;
+  margin-left: 5px;
 }
