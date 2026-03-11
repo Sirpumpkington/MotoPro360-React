@@ -863,8 +863,9 @@ export default function AdminView({ activeTab, usuarios, perfil }) {
                           });
                     }}
                   >
-                    <option value={1}>Básica (Nivel 1)</option>
-                    <option value={2}>Premium (Nivel 2)</option>
+                    <option value={1}>Gratuito</option>
+                    <option value={2}>Pro</option>
+                    <option value={3}>Premium</option>
                   </select>
                 </div>
               </div>
