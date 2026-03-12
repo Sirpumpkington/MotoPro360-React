@@ -9,7 +9,7 @@ export default function AsistenteIA() {
   const [mensaje, setMensaje] = useState("");
   const [chat, setChat] = useState([
     {
-      role: "bot",
+      role: "Asistente",
       text: "¡Hola! Soy tu asistente de MotoPro 360. ¿En qué puedo ayudarte hoy?",
     },
   ]);
@@ -27,7 +27,9 @@ export default function AsistenteIA() {
       const model = genAI.getGenerativeModel({
         model: "gemini-3-flash-preview",
       });
-      const prompt = `Eres el asistente experto de MotoPro 360. Responde de forma amable y concisa sobre temas de motos, mecánica básica o uso de la app. Pregunta: ${mensaje}`;
+      const prompt = `Eres el asistente experto de MotoPro 360.
+       Responde de forma amable y concisa sobre temas de motos,
+        mecánica básica o uso de la app. Pregunta: ${mensaje}`;
 
       const result = await model.generateContent(prompt);
       const response = await result.response;
@@ -37,7 +39,7 @@ export default function AsistenteIA() {
       setChat((prev) => [
         ...prev,
         {
-          role: "bot",
+          role: "Asistente",
           text: "Lo siento, tuve un pequeño corto circuito. Intenta de nuevo.",
         },
       ]);
