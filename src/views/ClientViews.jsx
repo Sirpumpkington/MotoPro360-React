@@ -744,7 +744,7 @@ export default function ClientView({
   if (activeTab === "Membresias") {
     return (
       <>
-        <VistaMembresias />
+        <VistaMembresias perfil={perfil} />
       </>
     );
   }

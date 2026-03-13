@@ -1,11 +1,54 @@
 import React, { useState } from "react";
+import { supabase } from "../../supabaseClient";
 
-export default function MembresiasView() {
+export default function MembresiasView({ perfil }) {
   const [isPagoModalOpen, setIsPagoModalOpen] = useState(false);
   const [membresiaSeleccionada, setMembresiaSeleccionada] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [paymentData, setPaymentData] = useState({
+    metodo_pago: "Pago Móvil",
+    nro_referencia: "",
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setPaymentData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!perfil?.cedula) {
+      alert("Error: No se encontró la cédula del usuario.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error } = await supabase.from("pagos").insert([
+        {
+          cedula_persona: perfil.cedula,
+          id_membresia: membresiaSeleccionada.id,
+          monto: membresiaSeleccionada.precio,
+          metodo_pago: paymentData.metodo_pago,
+          nro_referencia: paymentData.nro_referencia,
+          estado: "pendiente",
+        },
+      ]);
+
+      if (error) throw error;
+
+      alert("✅ ¡Pago registrado con éxito! Un administrador lo revisará pronto.");
+      setIsPagoModalOpen(false);
+      setPaymentData({ metodo_pago: "Pago Móvil", nro_referencia: "" });
+    } catch (error) {
+      alert("❌ Error al registrar el pago: " + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="content-column">
+    <div className="content-column fade-in">
       <div className="section-header-row">
         <div>
           <h2 style={{ fontWeight: "800", color: "var(--dark-gray)" }}>
@@ -37,7 +80,7 @@ export default function MembresiasView() {
             onClick={() => {
               setMembresiaSeleccionada({
                 id: 1,
-                nombre: "Básica",
+                nombre: "Pro",
                 precio: 25,
               });
               setIsPagoModalOpen(true);
@@ -96,38 +139,43 @@ export default function MembresiasView() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            background: "rgba(0,0,0,0.5)",
+            background: "rgba(0,0,0,0.6)",
+            backdropFilter: "blur(4px)",
             zIndex: 1100,
             padding: "20px",
           }}
         >
           <div
-            className="modal-content"
+            className="modal-content glass-card"
             style={{
               maxWidth: "450px",
               width: "100%",
-              background: "var(--card-bg, #2a2a2a)",
-              borderRadius: "12px",
-              boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
-              padding: "24px",
+              padding: "30px",
+              position: "relative",
             }}
           >
-            <h2 className="login-title" style={{ textAlign: "center", marginBottom: "1rem" }}>NUEVO PAGO</h2>
+            <h2 className="login-title" style={{ textAlign: "center", marginBottom: "1rem" }}>
+              REPORTE DE PAGO
+            </h2>
+            
             <div
               style={{
-                backgroundColor: "var(--card-bg, rgba(0,0,0,0.1))",
-                padding: "15px",
+                backgroundColor: "rgba(229, 9, 20, 0.05)",
+                padding: "20px",
                 borderRadius: "12px",
-                marginBottom: "20px",
+                marginBottom: "25px",
                 textAlign: "center",
-                border: "1px dashed var(--border-color)"
+                border: "1px dashed var(--primary-red)"
               }}
             >
-              <h3 style={{ margin: "5px 0", color: "var(--primary-red)" }}>
-                {membresiaSeleccionada?.nombre}
+              <h3 style={{ margin: "5px 0", color: "var(--primary-red)", fontSize: "1.4rem" }}>
+                Plan {membresiaSeleccionada?.nombre}
               </h3>
-              <p style={{ fontWeight: "800", fontSize: "1.2rem" }}>
-                Monto: ${membresiaSeleccionada?.precio}
+              <p style={{ fontWeight: "800", fontSize: "1.8rem", margin: "10px 0" }}>
+                ${membresiaSeleccionada?.precio}
+              </p>
+              <p style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
+                 Cédula: {perfil?.cedula}
               </p>
             </div>
 
@@ -137,45 +185,59 @@ export default function MembresiasView() {
                 flexDirection: "column",
                 gap: "15px",
               }}
-              onSubmit={(e) => {
-                e.preventDefault();
-                alert("Pago enviado a verificación.");
-                setIsPagoModalOpen(false);
-              }}
+              onSubmit={handleSubmit}
             >
-              <input
-                type="text"
-                placeholder="Ingrese su correo"
-                className="login-input"
-                required
-                style={{ width: "100%", padding: "12px", borderRadius: "8px" }}
-              />
-              <div style={{ display: "flex", gap: "10px" }}>
+              <div className="input-group">
+                <i className="fas fa-wallet icon-field"></i>
                 <select
+                  name="metodo_pago"
                   className="login-input"
-                  style={{ flex: 1, width: "100%", padding: "12px", borderRadius: "8px" }}
+                  value={paymentData.metodo_pago}
+                  onChange={handleInputChange}
+                  required
+                  style={{
+                    background: "none",
+                    border: "none",
+                    width: "100%",
+                    outline: "none",
+                    color: "inherit",
+                    padding: "0 10px"
+                  }}
                 >
-                  <option>Zelle</option>
-                  <option>Efectivo</option>
+                  <option value="Pago Móvil">Pago Móvil</option>
+                  <option value="Transferencia">Transferencia</option>
+                  <option value="Zelle">Zelle</option>
+                  <option value="Efectivo">Efectivo</option>
                 </select>
+              </div>
+
+              <div className="input-group">
+                <i className="fas fa-hashtag icon-field"></i>
                 <input
                   type="text"
-                  placeholder="Referencia"
+                  name="nro_referencia"
+                  placeholder="Número de Referencia"
                   className="login-input"
-                  style={{ flex: 2, width: "100%", padding: "12px", borderRadius: "8px" }}
+                  value={paymentData.nro_referencia}
+                  onChange={handleInputChange}
                   required
                 />
               </div>
+
               <div className="modal-actions" style={{ display: "flex", gap: "10px", marginTop: "1rem" }}>
                 <button
                   type="submit"
-                  style={{ flex: 1, padding: "12px", background: "var(--primary-red)", color: "#fff", border: "none", borderRadius: "50px", fontWeight: "bold", cursor: "pointer" }}
+                  disabled={loading}
+                  className="btn-main-login"
+                  style={{ flex: 1, height: "45px", borderRadius: "50px" }}
                 >
-                  CONFIRMAR
+                  {loading ? <i className="fas fa-spinner fa-spin"></i> : "CONFIRMAR PAGO"}
                 </button>
                 <button
                   type="button"
-                  style={{ flex: 1, padding: "12px", background: "transparent", color: "inherit", border: "1px solid var(--border-color)", borderRadius: "50px", fontWeight: "bold", cursor: "pointer" }}
+                  disabled={loading}
+                  className="btn-cancel"
+                  style={{ flex: 1, height: "45px", borderRadius: "50px" }}
                   onClick={() => setIsPagoModalOpen(false)}
                 >
                   CANCELAR
