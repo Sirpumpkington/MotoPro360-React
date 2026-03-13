@@ -78,7 +78,18 @@ export default function Dashboard() {
   if (loading)
     return (
       <div className="dashboard-overlay dashboard-loading">
-        <h2>Cargando MotoPro...</h2>
+        <div className="loading-content">
+          <div className="loading-logo-container">
+            <img
+              src="/assets/images/logo.png"
+              alt="MotoPro 360"
+              className="loading-logo pulse-animation"
+            />
+            <div className="loading-spinner"></div>
+          </div>
+          <h2 className="loading-text">Cargando MotoPro 360...</h2>
+          <p className="loading-subtext">Preparando tu experiencia</p>
+        </div>
       </div>
     );
 
@@ -248,6 +259,15 @@ export default function Dashboard() {
                 }}
               >
                 <i className="fas fa-users"></i> <span>Grupos</span>
+              </div>
+              <div
+                className={`nav-link ${activeTab === "Pagos" ? "active" : ""}`}
+                onClick={() => {
+                  setActiveTab("Pagos");
+                  setMenuAbierto(false);
+                }}
+              >
+              <i className="fas fa-credit-card"></i> <span>Pagos</span>
               </div>
             </>
           )}

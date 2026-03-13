@@ -1427,6 +1427,91 @@ body.dark-mode .promo-new-price {
   font-size: 1.1rem;
 }
 
+/* ===== NUEVO LOADING SCREEN ANIMADO ===== */
+.dashboard-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-dark);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+}
+
+.loading-logo-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-logo {
+  width: 80px;
+  height: auto;
+  z-index: 2;
+}
+
+.pulse-animation {
+  animation: pulse 2s infinite cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; filter: drop-shadow(0 0 10px rgba(229, 9, 20, 0.4)); }
+  50% { transform: scale(1.1); opacity: 0.8; filter: drop-shadow(0 0 25px rgba(229, 9, 20, 0.8)); }
+  100% { transform: scale(1); opacity: 1; filter: drop-shadow(0 0 10px rgba(229, 9, 20, 0.4)); }
+}
+
+.loading-spinner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 4px solid rgba(229, 9, 20, 0.1);
+  border-top-color: var(--primary-red);
+  border-radius: 50%;
+  animation: spin 1.5s linear infinite;
+  z-index: 1;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.loading-subtext {
+  font-size: 0.9rem;
+  color: #aaa;
+  margin: 0;
+  letter-spacing: 1px;
+  animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
 /* ===== MODO OSCURO PARA CURSOS ===== */
 body.dark-mode .curso-card-moderno {
   background: #1e1e1e;

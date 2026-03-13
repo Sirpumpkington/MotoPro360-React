@@ -15,7 +15,7 @@ export default function Registro() {
     telefono: "",
     cedula: "",
     edad: "",
-    genero_id: "1",
+    genero_id: "",
     password: "",
     confirmPassword: "",
     // Datos Comercio
@@ -37,6 +37,25 @@ export default function Registro() {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
       alert("Las contraseñas no coinciden");
+      return;
+    }
+
+    // Validar edad
+    const edad = parseInt(formData.edad);
+    if (isNaN(edad) || edad < 18 || edad > 100) {
+      alert("Debes ser mayor de 18 años para registrarte.");
+      return;
+    }
+
+    // Validar cédula (solo números)
+    if (!/^\d{6,10}$/.test(formData.cedula)) {
+      alert("La cédula debe contener entre 6 y 10 números.");
+      return;
+    }
+
+    // Validar teléfono (ejemplo básico, ajustar según necesidad)
+    if (!/^\d{10,15}$/.test(formData.telefono.replace(/[^\d]/g, ""))) {
+      alert("Por favor ingresa un número de teléfono válido.");
       return;
     }
 
@@ -151,23 +170,36 @@ export default function Registro() {
               <i className="fas fa-id-card"></i> Datos de Cuenta
             </h3>
 
-            <div className="input-group">
-              <i className="fas fa-user icon-field"></i>
-              <input
-                type="text"
-                name="nombre"
-                placeholder="Nombre Completo"
-                onChange={handleChange}
-                required
-              />
-            </div>
             <div className="responsive-row">
+              <div className="input-group">
+                <i className="fas fa-user icon-field"></i>
+                <input
+                  type="text"
+                  name="nombre"
+                  placeholder="Nombres"
+                  onChange={handleChange}
+                  required
+                />
+              </div>
               <div className="input-group">
                 <i className="fas fa-user icon-field"></i>
                 <input
                   type="text"
                   name="apellido"
                   placeholder="Apellidos"
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="responsive-row">
+              <div className="input-group">
+                <i className="fas fa-id-card icon-field"></i>
+                <input
+                  type="number"
+                  name="cedula"
+                  placeholder="Cédula de Identidad"
                   onChange={handleChange}
                   required
                 />
@@ -180,55 +212,13 @@ export default function Registro() {
                   placeholder="Edad"
                   onChange={handleChange}
                   required
+                  min="18"
+                  max="99"
                 />
               </div>
             </div>
 
             <div className="responsive-row">
-              {/* CÉDULA */}
-              <div className="input-group">
-                <i className="fas fa-id-card icon-field"></i>
-                <input
-                  type="number"
-                  name="cedula"
-                  placeholder="Cédula de Identidad"
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              {/* SEXO: Obligatorio en tu tabla personas */}
-              <div className="input-group">
-                <i className="fas fa-venus-mars icon-field"></i>
-                <select
-                  name="genero_id"
-                  onChange={handleChange}
-                  required
-                  style={{
-                    background: "none",
-                    border: "none",
-                    width: "100%",
-                    outline: "none",
-                    color: "#555",
-                  }}
-                >
-                  <option value="1">Hombre</option>
-                  <option value="2">Mujer</option>
-                  <option value="3">Otro</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="responsive-row">
-              <div className="input-group">
-                <i className="fas fa-envelope icon-field"></i>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Correo Electrónico"
-                  onChange={handleChange}
-                  required
-                />
-              </div>
               <div className="input-group">
                 <i className="fas fa-phone icon-field"></i>
                 <input
@@ -239,6 +229,40 @@ export default function Registro() {
                   required
                 />
               </div>
+              <div className="input-group">
+                <i className="fas fa-venus-mars icon-field"></i>
+                <select
+                  name="genero_id"
+                  onChange={handleChange}
+                  required
+                  defaultValue=""
+                  style={{
+                    background: "none",
+                    border: "none",
+                    width: "100%",
+                    outline: "none",
+                    color: "#555",
+                  }}
+                >
+                  <option value="" disabled>
+                    Selecciona tu Género
+                  </option>
+                  <option value="1">Hombre</option>
+                  <option value="2">Mujer</option>
+                  <option value="3">Otro</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="input-group">
+              <i className="fas fa-envelope icon-field"></i>
+              <input
+                type="email"
+                name="email"
+                placeholder="Correo Electrónico"
+                onChange={handleChange}
+                required
+              />
             </div>
 
             <div className="responsive-row">
@@ -276,6 +300,7 @@ export default function Registro() {
               >
                 <i className="fas fa-store-alt"></i> Datos del Negocio
               </h3>
+
               <div className="input-group">
                 <i className="fas fa-building icon-field"></i>
                 <input
@@ -283,47 +308,55 @@ export default function Registro() {
                   name="nombreComercio"
                   placeholder="Nombre del Comercio / Taller"
                   onChange={handleChange}
+                  required={rol === "local"}
                 />
               </div>
+
               <div className="responsive-row">
-                <div className="input-group">
-                  <i className="fas fa-map-marker-alt icon-field"></i>
-                  <input
-                    type="text"
-                    name="direccion"
-                    placeholder="Dirección Fiscal"
-                    onChange={handleChange}
-                  />
-                </div>
                 <div className="input-group">
                   <i className="fas fa-file-invoice icon-field"></i>
                   <input
                     type="text"
                     name="rfc"
-                    placeholder="RIF"
+                    placeholder="RIF del Comercio"
                     onChange={handleChange}
+                    required={rol === "local"}
                   />
+                </div>
+                <div className="input-group">
+                  <i className="fas fa-tags icon-field"></i>
+                  <select
+                    name="tipoComercio"
+                    onChange={handleChange}
+                    required={rol === "local"}
+                    defaultValue=""
+                    style={{
+                      background: "none",
+                      border: "none",
+                      width: "100%",
+                      outline: "none",
+                      color: "#555",
+                    }}
+                  >
+                    <option value="" disabled>
+                      Tipo de Servicio
+                    </option>
+                    <option value="taller">Taller Mecánico</option>
+                    <option value="repuestos">Venta de Repuestos</option>
+                    <option value="concesionario">Concesionario</option>
+                  </select>
                 </div>
               </div>
 
               <div className="input-group">
-                <i className="fas fa-tags icon-field"></i>
-                <select
-                  name="tipoComercio"
+                <i className="fas fa-map-marker-alt icon-field"></i>
+                <input
+                  type="text"
+                  name="direccion"
+                  placeholder="Dirección Fiscal"
                   onChange={handleChange}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    width: "100%",
-                    outline: "none",
-                    color: "#555",
-                  }}
-                >
-                  <option value="">Tipo de Servicio</option>
-                  <option value="taller">Taller Mecánico</option>
-                  <option value="repuestos">Venta de Repuestos</option>
-                  <option value="concesionario">Concesionario</option>
-                </select>
+                  required={rol === "local"}
+                />
               </div>
             </div>
           )}

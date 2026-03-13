@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import styles from "../assets/css/admin.module.css";
 import VistaAprobaciones from "./admin_modules/gruposadm.jsx";
+import Pagos from "./admin_modules/pagos.jsx";
 
 // Crear iconos personalizados con DivIcon (no requieren archivos de imagen)
 const createIcon = (color, iconClass) => {
@@ -888,6 +889,9 @@ export default function AdminView({ activeTab, usuarios, perfil }) {
 
       {/*SECCION APROBAR GRUPOS */}
       {activeTab === "Grupos" && <VistaAprobaciones />}
+
+      {/*SECCION PAGOS */}
+      {activeTab === "Pagos" && <Pagos />}
     </div>
   );
 }
