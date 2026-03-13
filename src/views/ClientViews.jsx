@@ -264,13 +264,29 @@ export default function ClientView({
       return;
     }
 
-    // 2. Si hay texto, procedemos con el filtro normal
+    // 2. Si hay texto, procedemos con el filtro flexible
     const base = productos || [];
-    const q = busqueda.toLowerCase();
+    // Normalizar la búsqueda eliminando acentos y espacios extra
+    const q = busqueda.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    
+    // Crear una expresión regular flexible para permitir plurales (s, es) opcionales al final de las palabras
+    // ej: 'freno' o 'frenos' coincidirán con 'freno'
+    const words = q.split(/\s+/).filter(w => w.length > 0);
+    const regexPattern = words.map(w => {
+        // Remover 's' o 'es' final de la palabra de búsqueda si lo tiene para la base de la regex
+        let baseWord = w;
+        if (w.endsWith('es') && w.length > 3) baseWord = w.slice(0, -2);
+        else if (w.endsWith('s') && w.length > 2) baseWord = w.slice(0, -1);
+        
+        // Coincidir con la palabra base, seguida opcionalmente de otras letras (para cubrir plurales o terminaciones)
+        return `(?=.*${baseWord})`; 
+    }).join('');
+    
+    const searchRegex = new RegExp(regexPattern, 'i');
 
     const resultados = base.filter((prod) => {
-      const nombre = (prod.nombre_producto || prod.nombre || "").toLowerCase();
-      return nombre.includes(q);
+      const nombre = (prod.nombre_producto || prod.nombre || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      return searchRegex.test(nombre);
     }).sort((a, b) => {
       // Dejamos la prioridad vacía para ahora que no hay membresias en la BD
       return 0;
@@ -279,6 +295,37 @@ export default function ClientView({
     setProductosFiltrados(resultados);
     setBusquedaRealizada(true);
     setProductoSeleccionado(null);
+  };
+
+
+  {/*Busqueda de productos por nombre desde la seccion de promociones*/}
+  const handleSearchProduct = (nombre) => {
+    setBusqueda(nombre);
+    
+    const base = productos || [];
+    const q = nombre.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    {/*Aqui se normaliza el texto para que no haya problemas con las busquedas*/}
+    const words = q.split(/\s+/).filter(w => w.length > 0);
+    const regexPattern = words.map(w => {
+        let baseWord = w;
+        if (w.endsWith('es') && w.length > 3) baseWord = w.slice(0, -2);
+        else if (w.endsWith('s') && w.length > 2) baseWord = w.slice(0, -1);
+        return `(?=.*${baseWord})`; 
+    }).join('');
+    
+    const searchRegex = new RegExp(regexPattern, 'i');
+
+
+    {/*AQUI SE HACE LA BUSQUEDA Y RESPETA LAS PROMOS*/}
+    const resultados = base.filter((prod) => {
+      const pNombre = (prod.nombre_producto || prod.nombre || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      return searchRegex.test(pNombre);
+    });
+
+    setProductosFiltrados(resultados);
+    setBusquedaRealizada(true);
+    setProductoSeleccionado(null);
+    setActiveTab("inicio");
   };
 
   // Cargar CSS
@@ -652,7 +699,7 @@ export default function ClientView({
   if (activeTab === "promos") {
     return (
       <>
-        <VistaPromos />
+        <VistaPromos onVerDetalles={handleSearchProduct} />
         <button
           className="emergency-fab"
           onClick={() => setActiveTab("emergencia")}

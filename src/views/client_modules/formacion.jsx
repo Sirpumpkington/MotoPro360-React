@@ -39,7 +39,7 @@ export default function VistaCursos({ perfil }) {
   return (
     <div className="cursos-container">
       <div className="cursos-header">
-        <h2 className="cursos-title">Centro de Formación</h2>
+        <h2 className="cursos-title"> <i className="fas fa-graduation-cap"></i> Formación</h2>
         <p className="cursos-subtitle">
           Tu nivel de acceso:{" "}
           <span className="cursos-badge">{nivelUsuario}</span>

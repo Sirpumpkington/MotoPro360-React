@@ -1333,6 +1333,10 @@ body.dark-mode .promo-new-price {
   backdrop-filter: blur(4px);
 }
 
+.curso-lock i {
+  font-size: 1.2rem;
+  color: #fd4545;
+}
 .curso-contenido {
   padding: 20px;
   display: flex;

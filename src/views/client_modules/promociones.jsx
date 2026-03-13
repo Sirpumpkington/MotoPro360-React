@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "../../supabaseClient";
 import "../../assets/css/client.css";
 
-export default function VistaPromos() {
+export default function VistaPromos({ onVerDetalles }) {
   const [ofertas, setOfertas] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -49,7 +49,7 @@ export default function VistaPromos() {
 
   return (
     <div className="promos-container">
-      <h2 className="promos-title">Promociones Activas</h2>
+      <h2 className="promos-title"> <i className="fas fa-tags"></i> Promociones</h2>
       <div className="promos-grid">
         {ofertas.map((prod) => {
           // Como usamos !inner, sabemos que promociones[0] existe y es válida
@@ -81,7 +81,12 @@ export default function VistaPromos() {
                   <i className="far fa-calendar-alt"></i> Expira:{" "}
                   {new Date(promo.fecha_expiracion).toLocaleDateString()}
                 </p>
-                <button className="promo-btn">Ver Detalle</button>
+                <button 
+                  className="promo-btn"
+                  onClick={() => onVerDetalles && onVerDetalles(prod.nombre_producto)}
+                >
+                  Ver Detalle
+                </button>
               </div>
             </div>
           );

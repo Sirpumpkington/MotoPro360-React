@@ -238,7 +238,7 @@ export default function MotosView({ perfil }) {
     <div className="motos-container">
       {/* Cabecera */}
       <div className="motos-header">
-        <h2 className="motos-title">Mis Motos</h2>
+        <h2 className="motos-title"><i className="fas fa-motorcycle"></i> Mis Motos</h2>
         {!mostrandoFormulario && motos.length < 3 && (
           <button
             className="motos-add-btn"

@@ -282,7 +282,7 @@ export default function VistaGrupos() {
     <div className="grupos-container">
       <div className="grupos-header">
         <div>
-          <h2 className="grupos-title">Comunidad de Moteros</h2>
+          <h2 className="grupos-title"> <i className="fas fa-users"></i> Comunidad</h2>
           <p className="grupos-subtitle">Únete a grupos, crea el tuyo y comparte rutas</p>
         </div>
         <button
