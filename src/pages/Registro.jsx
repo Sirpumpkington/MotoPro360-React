@@ -199,7 +199,7 @@ export default function Registro() {
                 <input
                   type="number"
                   name="cedula"
-                  placeholder="Cédula de Identidad"
+                  placeholder="Cédula"
                   onChange={handleChange}
                   required
                 />
@@ -245,7 +245,7 @@ export default function Registro() {
                   }}
                 >
                   <option value="" disabled>
-                    Selecciona tu Género
+                    Género
                   </option>
                   <option value="1">Hombre</option>
                   <option value="2">Mujer</option>
