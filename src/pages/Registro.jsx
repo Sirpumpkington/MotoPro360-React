@@ -10,8 +10,12 @@ export default function Registro() {
   // Un solo estado para todos los campos
   const [formData, setFormData] = useState({
     nombre: "",
+    apellido: "",
     email: "",
     telefono: "",
+    cedula: "",
+    edad: "",
+    genero_id: "1",
     password: "",
     confirmPassword: "",
     // Datos Comercio

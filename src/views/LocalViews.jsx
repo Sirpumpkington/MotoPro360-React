@@ -1,161 +1,155 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
-import styles from "../assets/css/local.module.css"; // Asegúrate de tener este archivo para estilos específicos
-import TabInicio from "./local_modules/tabinicio.jsx"; // Importamos la pestaña de inicio para mostrar notificaciones
-import MiLocal from "./local_modules/MiLocal.jsx"; // Importamos el componente de Mi Local para editar perfil
-import Productos from "./local_modules/productos.jsx"; // Importamos el componente de Productos para gestionar inventario
-import Ofertas from "./local_modules/ofertas.jsx"; // Importamos el componente de Ofertas para gestionar promociones
-
-// ============================================================================
-// COMPONENTE PRINCIPAL: LocalView
-// Descripción: Este es el panel de control para los usuarios con rol "local".
-//              Aquí se manejan todas las pestañas: Inicio (notificaciones),
-//              Mi Local (perfil del negocio), Productos (inventario) y Ofertas.
-//              Se comunica con Supabase para guardar y recuperar datos.
-// ============================================================================
+import styles from "../assets/css/local.module.css";
+import TabInicio from "./local_modules/tabinicio.jsx";
+import MiLocal from "./local_modules/milocal.jsx";
+import Productos from "./local_modules/productos.jsx";
+import Ofertas from "./local_modules/ofertas.jsx";
+import MembresiasLocal from "./local_modules/membresias.jsx";
 
 export default function LocalView({ activeTab, perfil }) {
   // ==========================================================================
-  // BLOQUE 1: ESTADOS (Variables que guardan información y cambian con el tiempo)
+  // ESTADOS PRINCIPALES
   // ==========================================================================
-  // -- Datos principales --
-  const [localPerfil, setLocalPerfil] = useState(null); // Información del local (negocio)
-  const [productos, setProductos] = useState([]); // Lista de productos del local
-  const [categorias, setCategorias] = useState([]); // Lista de categorías de productos
-
-  const [modelos, setModelos] = useState([]); //aqui esta para la compatibilidad de los productos.
-
+  const [localPerfil, setLocalPerfil] = useState(null);
+  const [productos, setProductos] = useState([]);
+  const [categorias, setCategorias] = useState([]);
+  const [modelos, setModelos] = useState([]);
+  const [rubros, setRubros] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // --- ESTADOS PARA FORMULARIOS ---
+  // Estados para formularios
   const [editandoPerfil, setEditandoPerfil] = useState(false);
   const [creandoProducto, setCreandoProducto] = useState(false);
+  const [editandoProducto, setEditandoProducto] = useState(null);
   const [busqueda, setBusqueda] = useState("");
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("todas");
 
-  // --- ESTADOS SIMULADOS (Ofertas y Notificaciones) ---
+  // Estados para estadísticas
+  const [statsLocal, setStatsLocal] = useState({
+    totalProductos: 0,
+    ofertasActivas: 0,
+    visitasMes: 1243,
+    contactosMes: 87,
+  });
+
+  // Estados para Ofertas
+  const [historialOfertas, setHistorialOfertas] = useState([]);
+  const [estadisticasOfertas, setEstadisticasOfertas] = useState({
+    clicsSimulados: 0,
+    interesSimulado: 0,
+  });
+  const [statsInventario, setStatsInventario] = useState({
+    total: 0,
+    stockBajo: 0,
+    sinStock: 0,
+  });
+
+  const [logoUrl, setLogoUrl] = useState(null);
+  const [portadaUrl, setPortadaUrl] = useState(null);
+
+  // Notificaciones
   const [notificaciones] = useState([
-    {
-      id: 1,
-      tipo: "pregunta",
-      usuario: "Carlos M.",
-      mensaje: "¿Tienen punto de venta?",
-      producto: "Batería 7Amp",
-      hace: "5 min",
-    },
-    {
-      id: 2,
-      tipo: "interes",
-      usuario: "Maria R.",
-      mensaje: "Guardó tu producto en favoritos",
-      producto: "Casco Integral",
-      hace: "20 min",
-    },
-    {
-      id: 3,
-      tipo: "alerta",
-      usuario: "Sistema",
-      mensaje: "Stock bajo (2 unidades)",
-      producto: "Pastillas Freno Del.",
-      hace: "1 hora",
-    },
+    { id: 1, tipo: "pregunta", usuario: "Carlos M.", mensaje: "¿Tienen punto de venta?", producto: "Batería 7Amp", hace: "5 min" },
+    { id: 2, tipo: "interes", usuario: "Maria R.", mensaje: "Guardó tu producto en favoritos", producto: "Casco Integral", hace: "20 min" },
+    { id: 3, tipo: "alerta", usuario: "Sistema", mensaje: "Stock bajo (2 unidades)", producto: "Pastillas Freno Del.", hace: "1 hora" },
   ]);
 
-  const [ofertasSimuladas, setOfertasSimuladas] = useState([]); // Lista de IDs de productos en oferta
+  const [toast, setToast] = useState(null);
+  const showToast = (mensaje, tipo = "success") => {
+    setToast({ mensaje, tipo });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   // Datos formulario Local
   const [datosLocal, setDatosLocal] = useState({
     nombre_local: "",
     telefono: "",
     direccion_fisica: "",
+    horario_apertura: "",
+    horario_cierre: "",
+    rubro_id: "",
+    rif: "",
+    correo: "",
+    latitud: null,
+    longitud: null,
   });
 
   // Datos formulario Producto
   const [nuevoProducto, setNuevoProducto] = useState({
+    id_producto: null,
     nombre_producto: "",
     precio: "",
     descripcion: "",
     stock_actual: "",
     stock_minimo: 5,
     categoria_id: "",
-    modelosSeleccionados: [], // Lista de ids de modelos seleccionados (coincide con Productos.jsx)
+    modelosSeleccionados: [],
     compat_desde: "",
     compat_hasta: "",
-    compatibilidad_manual: "", // Campo guardable en la BD (puede ser array o string según tu esquema)
+    compatibilidad_manual: "",
+    imagen_url: "",
+    destacado: false,
   });
 
-  //aqui hacemos la consulta para traer los modelos y mostrarlos en el select de compatibilidad al crear/editar un producto.
-  //  Esto es importante para que el local pueda seleccionar a qué modelos de moto es compatible su producto,
-  //  y luego esa información se puede mostrar en la ficha del producto para los clientes.
+  // ==========================================================================
+  // FUNCIONES AUXILIARES
+  // ==========================================================================
+  const resetProductoForm = () => {
+    setNuevoProducto({
+      id_producto: null,
+      nombre_producto: "",
+      precio: "",
+      descripcion: "",
+      stock_actual: "",
+      stock_minimo: 5,
+      categoria_id: "",
+      modelosSeleccionados: [],
+      compat_desde: "",
+      compat_hasta: "",
+      compatibilidad_manual: "",
+      imagen_url: "",
+      destacado: false,
+    });
+    setEditandoProducto(null);
+  };
 
-  useEffect(() => {
-    const fetchModelos = async () => {
-      const { data, error } = await supabase
+  // Nota: Los modelos se cargan dentro de fetchInitialData (useEffect de carga inicial)
 
-        .from("modelos")
-        .select(
-          `id,
-            nombre_modelo,
-            marcas (
-            nombre
-                )
-              `,
-        ) // Si tienes relación con marcas
-        .order("nombre_modelo");
-      if (error) console.error(error);
-      else setModelos(data);
-    };
-    fetchModelos();
-  }, []);
-
-  // --- 1. FUNCIÓN PARA CARGAR PRODUCTOS ---
-  // Moviendo esto aquí arriba para que el useEffect la pueda usar sin problemas
+  // Cargar productos
   const fetchProductos = async (idLocal) => {
     const { data, error } = await supabase
       .from("productos")
-      .select(
-        `
-      *,
-      categorias(nombre_categoria),
-      promociones(*)
-    `,
-      )
+      .select(`*, categorias(nombre_categoria), promociones(*)`)
       .eq("local_id", idLocal)
       .order("created_at", { ascending: false });
-
     if (error) console.error("Error productos:", error.message);
     if (data) {
       setProductos(data);
-      // (Opcional) Actualizar ofertasSimuladas si aún se usa en otros lugares
-      const ofertasActivas = data
-        .filter(
-          (p) => p.promociones && p.promociones.some((promo) => promo.activa),
-        )
-        .map((p) => p.id_producto);
-      setOfertasSimuladas(ofertasActivas);
+      const total = data.length;
+      const stockBajo = data.filter(p => p.stock_actual <= (p.stock_minimo || 5)).length;
+      const sinStock = data.filter(p => p.stock_actual === 0).length;
+      const ofertasActivas = data.filter(p => p.promociones?.some(promo => promo.activa)).length;
+      setStatsInventario({ total, stockBajo, sinStock });
+      setStatsLocal(prev => ({ ...prev, totalProductos: total, ofertasActivas }));
     }
   };
-  // --- 2. CARGA INICIAL DE DATOS ---
+
+  // Carga inicial
   useEffect(() => {
     if (!perfil) return;
-
     const fetchInitialData = async () => {
       setLoading(true);
       try {
-        // Traer Categorías y Modelos en paralelo
-        const [resCat, resMod] = await Promise.all([
+        const [resCat, resMod, resRub] = await Promise.all([
           supabase.from("categorias").select("*"),
-          // Traer modelos incluyendo la relación a marcas (nombre)
-          supabase
-            .from("modelos")
-            .select(`id, nombre_modelo, marcas ( nombre )`)
-            .order("nombre_modelo"),
+          supabase.from("modelos").select(`id, nombre_modelo, marcas (nombre)`).order("nombre_modelo"),
+          supabase.from("rubros").select("*"),
         ]);
-
         if (resCat.data) setCategorias(resCat.data);
         if (resMod.data) setModelos(resMod.data);
+        if (resRub.data) setRubros(resRub.data);
 
-        // Cargar Local
         const { data: localData } = await supabase
           .from("locales")
           .select(`*, ubicaciones!inner (*)`)
@@ -164,13 +158,19 @@ export default function LocalView({ activeTab, perfil }) {
 
         if (localData) {
           setLocalPerfil(localData);
-          // Actualizamos los datos del formulario con lo que viene de la BD
           setDatosLocal({
             nombre_local: localData.nombre_local,
             telefono: localData.telefono,
             direccion_fisica: localData.ubicaciones?.direccion_fisica || "",
+            horario_apertura: localData.horario_json?.apertura || "",
+            horario_cierre: localData.horario_json?.cierre || "",
+            rubro_id: localData.rubro_id || "",
+            rif: localData.rif || "",
+            correo: localData.correo || "",
+            latitud: localData.ubicaciones?.latitud || null,
+            longitud: localData.ubicaciones?.longitud || null,
           });
-          // Llamar productos ahora que sabemos que existe el local
+          if (localData.imagen_url) setLogoUrl(localData.imagen_url);
           fetchProductos(localData.id_local);
         } else {
           setEditandoPerfil(true);
@@ -181,302 +181,313 @@ export default function LocalView({ activeTab, perfil }) {
         setLoading(false);
       }
     };
-
     fetchInitialData();
   }, [perfil]);
-  // --- FUNCIONES (Guardar Perfil, Productos, Ofertas) ---
 
+  // Guardar perfil del local
   const guardarPerfilLocal = async () => {
     if (!datosLocal.nombre_local || !datosLocal.telefono) {
-      alert("Nombre y Teléfono son obligatorios");
+      showToast("Nombre y Teléfono son obligatorios", "error");
       return;
     }
     try {
       setLoading(true);
-
       let ubicacionId = localPerfil?.ubicacion_id;
 
-      // Si el local no tiene ubicación, creamos una primero
       if (!ubicacionId) {
         const { data: ubi, error: ubiError } = await supabase
           .from("ubicaciones")
-          .insert([
-            {
-              direccion_fisica: datosLocal.direccion_fisica,
-              latitud: 10.4917, // Coordenadas por defecto (Caracas)
-              longitud: -66.8785,
-              ciudad: "Caracas",
-            },
-          ])
+          .insert([{ 
+            direccion_fisica: datosLocal.direccion_fisica, 
+            latitud: datosLocal.latitud || 10.4917, 
+            longitud: datosLocal.longitud || -66.8785, 
+            ciudad: "Caracas" 
+          }])
           .select()
           .single();
         if (ubiError) throw ubiError;
         ubicacionId = ubi.id_ubicacion;
+      } else {
+        // Actualizar ubicacion existente si ya la hay
+        const { error: ubiError } = await supabase
+          .from("ubicaciones")
+          .update({
+            direccion_fisica: datosLocal.direccion_fisica,
+            latitud: datosLocal.latitud || 10.4917,
+            longitud: datosLocal.longitud || -66.8785,
+          })
+          .eq("id_ubicacion", ubicacionId);
+        if (ubiError) throw ubiError;
       }
 
       const payload = {
-        ...(localPerfil?.id_local && { id_local: localPerfil.id_local }), // Mantiene el ID si ya existe
+        ...(localPerfil?.id_local && { id_local: localPerfil.id_local }),
         persona_id: perfil.cedula,
         nombre_local: datosLocal.nombre_local,
         telefono: datosLocal.telefono,
         ubicacion_id: ubicacionId,
-        rif: localPerfil?.rif || "J-00000000-0", // El RIF es obligatorio en tu tabla
+        horario_json: { apertura: datosLocal.horario_apertura, cierre: datosLocal.horario_cierre },
+        rubro_id: datosLocal.rubro_id ? parseInt(datosLocal.rubro_id) : null,
+        rif: datosLocal.rif || "J-00000000-0",
+        correo: datosLocal.correo,
+        imagen_url: logoUrl,
       };
 
-      const { data: localGuardado, error } = await supabase
-        .from("locales")
-        .upsert(payload)
-        .select()
-        .single();
-
+      const { data: localGuardado, error } = await supabase.from("locales").upsert(payload).select().single();
       if (error) throw error;
-
       setLocalPerfil(localGuardado);
       setEditandoPerfil(false);
-      alert("Perfil actualizado");
+      showToast("Perfil actualizado", "success");
     } catch (error) {
       console.error("Error completo:", error);
-      alert("Error: " + error.message);
+      showToast("Error: " + error.message, "error");
     } finally {
       setLoading(false);
     }
   };
 
-  const guardarProducto = async () => {
-    if (!localPerfil) return alert("Primero registra tu local en 'Mi Local'");
+  // Manejadores de imagen
+  const handleLogoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) setLogoUrl(URL.createObjectURL(file));
+  };
+  const handlePortadaUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) setPortadaUrl(URL.createObjectURL(file));
+  };
 
+
+  // Guardar producto
+  const guardarProducto = async () => {
+    if (!localPerfil) return showToast("Primero registra tu local en 'Mi Local'", "error");
     try {
       setLoading(true);
-      // 1) Insertar producto y obtener id
-      const { data: inserted, error: insertErr } = await supabase
-        .from("productos")
-        .insert([
-          {
+      let idProducto;
+      
+      if (editandoProducto) {
+        // Actualizar producto
+        const { error: updateErr } = await supabase
+          .from("productos")
+          .update({
+            nombre_producto: nuevoProducto.nombre_producto,
+            descripcion: nuevoProducto.descripcion,
+            precio: parseFloat(nuevoProducto.precio),
+            stock_actual: parseInt(nuevoProducto.stock_actual),
+            stock_minimo: parseInt(nuevoProducto.stock_minimo),
+            categoria_id: parseInt(nuevoProducto.categoria_id),
+            imagen_url: nuevoProducto.imagen_url,
+          })
+          .eq("id_producto", nuevoProducto.id_producto);
+        if (updateErr) throw updateErr;
+        idProducto = nuevoProducto.id_producto;
+      } else {
+        // Insertar nuevo
+        const { data: inserted, error: insertErr } = await supabase
+          .from("productos")
+          .insert([{
             local_id: localPerfil.id_local,
             nombre_producto: nuevoProducto.nombre_producto,
             descripcion: nuevoProducto.descripcion,
             precio: parseFloat(nuevoProducto.precio),
             stock_actual: parseInt(nuevoProducto.stock_actual),
+            stock_minimo: parseInt(nuevoProducto.stock_minimo),
             categoria_id: parseInt(nuevoProducto.categoria_id),
+            imagen_url: nuevoProducto.imagen_url,
             status: true,
-          },
-        ])
-        .select()
-        .single();
+          }])
+          .select()
+          .single();
+        if (insertErr) throw insertErr;
+        idProducto = inserted.id_producto || inserted.id;
+      }
 
-      if (insertErr) throw insertErr;
-
-      const idProducto = inserted.id_producto || inserted.id;
-
-      // 2) Insertar filas en productos_compatibilidad si hay modelos seleccionados
-      if (
-        nuevoProducto.modelosSeleccionados &&
-        nuevoProducto.modelosSeleccionados.length > 0
-      ) {
-        const desde = nuevoProducto.compat_desde
-          ? Number(nuevoProducto.compat_desde)
-          : null;
-        const hasta = nuevoProducto.compat_hasta
-          ? Number(nuevoProducto.compat_hasta)
-          : null;
-        const compatRows = nuevoProducto.modelosSeleccionados.map(
-          (idModelo) => ({
-            id_producto: idProducto,
-            id_modelo: Number(idModelo),
-            anio_desde: desde,
-            anio_hasta: hasta,
-          }),
-        );
-        const { error: compatErr } = await supabase
-          .from("productos_compatibilidad")
-          .insert(compatRows);
+      // Manejar compatibilidades
+      if (editandoProducto) {
+        await supabase.from("productos_compatibilidad").delete().eq("id_producto", idProducto);
+      }
+      if (nuevoProducto.modelosSeleccionados.length > 0) {
+        const desde = nuevoProducto.compat_desde ? Number(nuevoProducto.compat_desde) : null;
+        const hasta = nuevoProducto.compat_hasta ? Number(nuevoProducto.compat_hasta) : null;
+        const compatRows = nuevoProducto.modelosSeleccionados.map((idModelo) => ({
+          id_producto: idProducto,
+          id_modelo: Number(idModelo),
+          anio_desde: desde,
+          anio_hasta: hasta,
+        }));
+        const { error: compatErr } = await supabase.from("productos_compatibilidad").insert(compatRows);
         if (compatErr) throw compatErr;
       }
 
+      resetProductoForm();
       setCreandoProducto(false);
-      // Limpiar form
-      setNuevoProducto({
-        nombre_producto: "",
-        precio: "",
-        descripcion: "",
-        stock_actual: "",
-        stock_minimo: 5,
-        categoria_id: "",
-        modelosSeleccionados: [],
-        compat_desde: "",
-        compat_hasta: "",
-        compatibilidad_manual: "",
-      });
       fetchProductos(localPerfil.id_local);
-      alert("Producto publicado");
+      showToast(editandoProducto ? "Producto actualizado" : "Producto publicado", "success");
     } catch (error) {
       console.error(error);
-      alert("Error: " + error.message);
+      showToast("Error: " + error.message, "error");
     } finally {
       setLoading(false);
     }
   };
 
+  // Eliminar producto
   const eliminarProducto = async (id) => {
-    const confirmar = window.confirm(
-      "¿Estás seguro de que deseas eliminar este producto?",
-    );
-    if (!confirmar) return;
-
+    if (!window.confirm("¿Estás seguro de eliminar este producto?")) return;
     try {
       setLoading(true);
-      const { error } = await supabase
-        .from("productos")
-        .delete()
-        .eq("id_producto", id); // Usamos el ID exacto de la tabla
-
+      const { error } = await supabase.from("productos").delete().eq("id_producto", id);
       if (error) throw error;
-
-      // Actualizamos la lista local para que desaparezca visualmente
       setProductos(productos.filter((p) => p.id_producto !== id));
-      alert("Producto eliminado con éxito");
+      showToast("Producto eliminado", "success");
     } catch (error) {
-      console.error("Error al eliminar:", error.message);
-      alert("No se pudo eliminar el producto");
+      showToast("Error: " + error.message, "error");
     } finally {
       setLoading(false);
     }
   };
 
+  // Editar stock
   const editarStock = async (id, stockActual) => {
-    const nuevoStock = window.prompt(
-      "Actualizar cantidad en inventario:",
-      stockActual,
-    );
-
-    // Validamos que sea un número y que no haya cancelado
+    const nuevoStock = window.prompt("Actualizar cantidad en inventario:", stockActual);
     if (nuevoStock === null || isNaN(nuevoStock)) return;
-
     try {
       setLoading(true);
-      const { error } = await supabase
-        .from("productos")
-        .update({ stock_actual: parseInt(nuevoStock) })
-        .eq("id_producto", id);
-
+      const { error } = await supabase.from("productos").update({ stock_actual: parseInt(nuevoStock) }).eq("id_producto", id);
       if (error) throw error;
-
-      // Actualizamos el estado local para que se vea el cambio de inmediato
-      setProductos(
-        productos.map((p) =>
-          p.id_producto === id
-            ? { ...p, stock_actual: parseInt(nuevoStock) }
-            : p,
-        ),
-      );
+      setProductos(productos.map((p) => (p.id_producto === id ? { ...p, stock_actual: parseInt(nuevoStock) } : p)));
+      showToast("Stock actualizado", "success");
     } catch (error) {
-      console.error("Error al actualizar stock:", error.message);
-      alert("No se pudo actualizar el stock");
+      showToast("Error: " + error.message, "error");
     } finally {
       setLoading(false);
     }
   };
 
-  const toggleOferta = async (idProducto) => {
-    try {
-      const estaEnOferta = ofertasSimuladas.includes(idProducto);
-      const nuevoEstado = !estaEnOferta; // Cambiamos al estado contrario
+  // Cargar producto para edición
+  const cargarProductoParaEditar = (producto) => {
+    setNuevoProducto({
+      id_producto: producto.id_producto,
+      nombre_producto: producto.nombre_producto,
+      precio: producto.precio,
+      descripcion: producto.descripcion || "",
+      stock_actual: producto.stock_actual,
+      stock_minimo: producto.stock_minimo || 5,
+      categoria_id: producto.categoria_id,
+      modelosSeleccionados: [],
+      compat_desde: "",
+      compat_hasta: "",
+      compatibilidad_manual: "",
+      imagen_url: producto.imagen_url || "",
+      destacado: producto.destacado || false,
+    });
+    setEditandoProducto(producto);
+    setCreandoProducto(true);
+  };
 
-      // 1. Guardamos en Supabase
-      const { error } = await supabase
-        .from("productos")
-        .update({ en_oferta: nuevoEstado })
-        .eq("id_producto", idProducto);
-
-      if (error) throw error;
-
-      // 2. Actualizamos la vista local
-      if (estaEnOferta) {
-        setOfertasSimuladas(ofertasSimuladas.filter((id) => id !== idProducto));
-        alert("Oferta desactivada");
-      } else {
-        setOfertasSimuladas([...ofertasSimuladas, idProducto]);
-        alert("¡Oferta Flash activada en la base de datos!");
-      }
-    } catch (error) {
-      alert("Error al actualizar la oferta: " + error.message);
-    }
-  }; //OJO Este también es parte de la implementación real de las ofertas, ahora cada producto tiene un campo "en_oferta" que se actualiza al activar/desactivar la oferta, y el estado local se sincroniza con la base de datos para reflejar los cambios en la UI.
-
-  // --- VISTAS ---
+  // Validación de rol
   if (perfil?.nombre_rol !== "local") return null;
 
-  // 1. PESTAÑA INICIO (Notificaciones)
+  // ==========================================================================
+  // RENDERIZADO
+  // ==========================================================================
+  const renderToast = () => {
+    if (!toast) return null;
+    return (
+      <div style={{
+        position: "fixed", bottom: "20px", right: "20px",
+        background: toast.tipo === "error" ? "var(--primary-red)" : "#10b981",
+        color: "white", padding: "12px 24px", borderRadius: "8px", 
+        boxShadow: "0 4px 6px rgba(0,0,0,0.1)", zIndex: 9999,
+        display: "flex", alignItems: "center", gap: "10px",
+      }}>
+        <i className={`fas ${toast.tipo === "error" ? "fa-exclamation-circle" : "fa-check-circle"}`}></i>
+        {toast.mensaje}
+      </div>
+    );
+  };
+
   if (activeTab === "inicio") {
     return (
-      <TabInicio localPerfil={localPerfil} notificaciones={notificaciones} />
+      <>
+        <TabInicio localPerfil={localPerfil} productos={productos} stats={statsLocal} notificaciones={notificaciones}/>
+        {renderToast()}
+      </>
     );
   }
 
-  // 2. PESTAÑA MI LOCAL (Perfil)
   if (activeTab === "mi-local") {
     return (
-      <MiLocal
-        editandoPerfil={editandoPerfil}
-        setEditandoPerfil={setEditandoPerfil}
-        datosLocal={datosLocal}
-        setDatosLocal={setDatosLocal}
-        localPerfil={localPerfil}
-        guardarPerfilLocal={guardarPerfilLocal}
-        loading={loading}
-      />
+      <>
+        <MiLocal
+          editandoPerfil={editandoPerfil}
+          setEditandoPerfil={setEditandoPerfil}
+          datosLocal={datosLocal}
+          setDatosLocal={setDatosLocal}
+          localPerfil={localPerfil}
+          guardarPerfilLocal={guardarPerfilLocal}
+          loading={loading}
+          stats={statsLocal}
+          rubros={rubros}
+          logoUrl={logoUrl}
+          handleLogoUpload={handleLogoUpload}
+        />
+        {renderToast()}
+      </>
     );
   }
 
-  // 3. PESTAÑA PRODUCTOS (Inventario)
   if (activeTab === "productos") {
     const productosFiltrados = productos.filter((prod) => {
-      const coincideNombre = prod.nombre_producto
-        .toLowerCase()
-        .includes(busqueda.toLowerCase());
-      const coincideCategoria =
-        categoriaSeleccionada === "todas" ||
-        prod.categoria_id === parseInt(categoriaSeleccionada);
+      const coincideNombre = prod.nombre_producto.toLowerCase().includes(busqueda.toLowerCase());
+      const coincideCategoria = categoriaSeleccionada === "todas" || prod.categoria_id === parseInt(categoriaSeleccionada);
       return coincideNombre && coincideCategoria;
     });
     return (
-      <Productos
-        busqueda={busqueda}
-        setBusqueda={setBusqueda}
-        categoriaSeleccionada={categoriaSeleccionada}
-        setCategoriaSeleccionada={setCategoriaSeleccionada}
-        categorias={categorias}
-        creandoProducto={creandoProducto}
-        setCreandoProducto={setCreandoProducto}
-        nuevoProducto={nuevoProducto}
-        setNuevoProducto={setNuevoProducto}
-        guardarProducto={guardarProducto}
-        productosFiltrados={productosFiltrados}
-        editarStock={editarStock}
-        eliminarProducto={eliminarProducto}
-        modelos={modelos}
-      />
+      <>
+        <Productos
+          busqueda={busqueda}
+          setBusqueda={setBusqueda}
+          categoriaSeleccionada={categoriaSeleccionada}
+          setCategoriaSeleccionada={setCategoriaSeleccionada}
+          categorias={categorias}
+          creandoProducto={creandoProducto}
+          setCreandoProducto={setCreandoProducto}
+          nuevoProducto={nuevoProducto}
+          setNuevoProducto={setNuevoProducto}
+          guardarProducto={guardarProducto}
+          productosFiltrados={productosFiltrados}
+          editarStock={editarStock}
+          eliminarProducto={eliminarProducto}
+          modelos={modelos}
+          statsInventario={statsInventario}
+          cargarProductoParaEditar={cargarProductoParaEditar}
+          localPerfil={localPerfil}
+        />
+        {renderToast()}
+      </>
     );
   }
 
-  // 4. PESTAÑA OFERTAS (Simulada)
   if (activeTab === "ofertas") {
     return (
-      <Ofertas
-        productos={productos}
-        onRefresh={() => fetchProductos(localPerfil.id_local)}
-      />
+      <>
+        <Ofertas
+          productos={productos}
+          onRefresh={() => fetchProductos(localPerfil.id_local)}
+          historialOfertas={historialOfertas}
+          setHistorialOfertas={setHistorialOfertas}
+          estadisticasOfertas={estadisticasOfertas}
+          setEstadisticasOfertas={setEstadisticasOfertas}
+        />
+        {renderToast()}
+      </>
     );
   }
 
-  if (activeTab === "membresias") {
-  }
   return (
-    <div className={styles.membresias}>
-      <h2>Gestión de Membresías</h2>
-      <p>Próximamente podrás gestionar tus membresías aquí.</p>
-    </div>
+    <>
+      <MembresiasLocal localPerfil={localPerfil} />
+      {renderToast()}
+    </>
   );
-
-  return null;
 }

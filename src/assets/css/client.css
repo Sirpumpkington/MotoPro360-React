@@ -3644,6 +3644,13 @@ body.dark-mode .grupo-delete-btn:hover {
   overflow: hidden;
 }
 
+@media (max-width: 900px) {
+  .results-split {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+}
+
 .results-list {
   overflow-y: auto;
   flex: 1;
@@ -3958,6 +3965,24 @@ body.dark-mode .map-placeholder {
   background: #2d2d2d;
   color: #666;
 }
+
+/* Fixes finales de Dark Mode para la b\u00fasqueda */
+body.dark-mode .map-product-details {
+  background: #2d2d2d !important;
+  border-color: #444 !important;
+}
+body.dark-mode .map-product-details h4 {
+  color: #fff !important;
+}
+body.dark-mode .map-product-details p {
+  color: #ccc !important;
+}
+body.dark-mode .map-category, 
+body.dark-mode .map-hours { color: #aaa !important; }
+body.dark-mode .search-input-group i { color: #aaa !important; }
+body.dark-mode .search-title { color: #fff !important; }
+body.dark-mode .search-subtitle { color: #ccc !important; }
+body.dark-mode .map-store { color: #fff !important; }
 
 body.dark-mode .btn-call {
   background: #333;

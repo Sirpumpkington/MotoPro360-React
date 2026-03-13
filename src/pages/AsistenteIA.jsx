@@ -4,7 +4,7 @@ import "../assets/css/asistenteia.css";
 
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_KEY);
 
-export default function AsistenteIA() {
+export default function AsistenteIA({ perfil, activeTab }) {
   const [isOpen, setIsOpen] = useState(false);
   const [mensaje, setMensaje] = useState("");
   const [chat, setChat] = useState([
@@ -27,9 +27,7 @@ export default function AsistenteIA() {
       const model = genAI.getGenerativeModel({
         model: "gemini-3-flash-preview",
       });
-      const prompt = `Eres el asistente experto de MotoPro 360.
-       Responde de forma amable y concisa sobre temas de motos,
-        mecánica básica o uso de la app. Pregunta: ${mensaje}`;
+      const prompt = `Eres el asistente experto de MotoPro 360. El usuario con el que conversas se llama ${perfil?.nombres || 'Usuario'} (Rol: ${perfil?.nombre_rol || 'Visitante'}). Actualmente está viendo la pestaña: ${activeTab || 'Inicio'}. Responde de forma amable y concisa sobre temas de motos, mecánica básica o uso de la app, teniendo en cuenta esta información. No repitas el nombre de la persona en cada mensaje a menos que sea natural. Pregunta: ${mensaje}`;
 
       const result = await model.generateContent(prompt);
       const response = await result.response;
@@ -73,7 +71,7 @@ export default function AsistenteIA() {
             <input
               value={mensaje}
               onChange={(e) => setMensaje(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && enviarPregunta()}
+              onKeyDown={(e) => e.key === "Enter" && enviarPregunta()}
               placeholder="Escribe tu duda..."
             />
             <button onClick={enviarPregunta}>

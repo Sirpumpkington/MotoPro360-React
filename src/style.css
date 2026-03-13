@@ -71,7 +71,7 @@ body::before {
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
   border-radius: 25px;
-  padding: 35px 30px;
+  padding: 5px 30px 25px 30px;
   box-shadow: var(--shadow);
   text-align: center;
   position: relative;
@@ -79,15 +79,6 @@ body::before {
   overflow: hidden;
   transition: var(--transition);
   color: var(--dark-gray);
-}
-
-.glass-card:hover {
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
-}
-
-/* === LOGOTIPO DE LA EMPRESA (VERSIÓN FINAL) === */
-.glass-card {
-  padding: 5px 30px 25px 30px; /* Superior: 5px, Inferior: 25px */
 }
 
 .company-logo {
@@ -114,8 +105,8 @@ body::before {
 }
 
 .login-title {
-  margin-top: 0; /* Elimina espacio superior */
-  margin-bottom: 15px; /* Espacio justo después del título */
+  margin-top: 0;
+  margin-bottom: 15px;
 }
 
 /* Ajustes responsivos para pantallas medianas y pequeñas */
@@ -354,22 +345,30 @@ input:focus {
 
 /* === FIN DE NUEVOS BOTONES === */
 
-.divider {
-  margin: 25px 0;
-  border-top: 1px solid #e0e0e0;
-  position: relative;
+/* Divider visual del Login */
+.login-divider {
+  margin: 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.divider span {
-  position: absolute;
-  top: -10px;
-  background: var(--light-gray);
-  padding: 0 15px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 12px;
+.login-divider-line {
+  flex: 1;
+  height: 1px;
+  background: var(--gray);
+}
+
+.login-divider-text {
+  font-size: 0.8rem;
   color: #888;
   font-weight: 600;
+  white-space: nowrap;
+}
+
+.btn-google-icon {
+  width: 20px;
+  height: 20px;
 }
 
 /* Botón invitado */
@@ -1171,8 +1170,11 @@ body.dark-mode .footer-tag {
   color: #fff;
 }
 
-body.dark-mode .divider span {
-  background: #2d2d2d;
+body.dark-mode .login-divider-line {
+  background: #555;
+}
+
+body.dark-mode .login-divider-text {
   color: #aaa;
 }
 

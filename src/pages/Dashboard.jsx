@@ -77,15 +77,8 @@ export default function Dashboard() {
 
   if (loading)
     return (
-      <div
-        className="dashboard-overlay"
-        style={{
-          justifyContent: "center",
-          alignItems: "center",
-          background: "var(--light-gray)",
-        }}
-      >
-        <h2 style={{ color: "var(--primary-red)" }}>Cargando MotoPro...</h2>
+      <div className="dashboard-overlay dashboard-loading">
+        <h2>Cargando MotoPro...</h2>
       </div>
     );
 
@@ -264,13 +257,7 @@ export default function Dashboard() {
       {/* --- ÁREA PRINCIPAL --- */}
       <main className="main-area">
         <header className="top-bar">
-          <div
-            style={{
-              fontWeight: 700,
-              color: "var(--primary-red)",
-              fontSize: "1.1rem",
-            }}
-          >
+          <div className="top-bar-title">
             {activeTab === "inicio"
               ? busquedaRealizada
                 ? "RESULTADOS DE BÚSQUEDA"
@@ -278,38 +265,21 @@ export default function Dashboard() {
               : activeTab.toUpperCase()}
           </div>
           <div className="user-info">
-            <span
-              style={{ display: "none", paddingRight: "10px" }}
-              className="desktop-only"
-            >
+            <span className="desktop-only user-name-label">
               {perfil?.nombres}
             </span>
             <button
               className="avatar-circle"
               onClick={() => setIsProfileOpen(true)}
               aria-label="Abrir perfil"
-              style={{
-                cursor: "pointer",
-                border: "none",
-                padding: 0,
-                width: "40px",
-                height: "40px",
-                borderRadius: "50%",
-                overflow: "hidden",
-                background: "var(--primary-red)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
             >
               {avatarUrl ? (
                 <img
                   src={avatarUrl}
                   alt="Avatar"
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
               ) : (
-                <span style={{ color: "white", fontSize: "1.2rem" }}>
+                <span className="avatar-initial">
                   {perfil?.nombres?.charAt(0)}
                 </span>
               )}
@@ -341,7 +311,7 @@ export default function Dashboard() {
           userRole={perfil?.nombre_rol}
         />
 
-        <AsistenteIA />
+        <AsistenteIA perfil={perfil} activeTab={activeTab} />
       </main>
     </div>
   );

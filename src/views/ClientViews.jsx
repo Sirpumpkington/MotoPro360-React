@@ -11,6 +11,15 @@ import VistaGrupos from "./client_modules/grupos.jsx";
 import MotosView from "./client_modules/motos.jsx";
 // productos de ejemplo
 
+// Función compartida para promociones
+const obtenerPromocionActiva = (producto) => {
+  if (!producto.promociones || producto.promociones.length === 0) return null;
+  const ahora = new Date();
+  return producto.promociones.find(
+    (p) => p.activa && new Date(p.fecha_expiracion) >= ahora,
+  );
+};
+
 // productos de ejemplo
 const productosEjemplo = [
   {
@@ -147,8 +156,25 @@ const ProductCarousel = ({ productos }) => {
               )}
             </div>
             <div className="carousel-content">
-              <p className="carousel-precio">${prod.precio}</p>
-              <p className="carousel-stock">Quedan {prod.stock || "varios"}</p>
+              {(() => {
+                const promo = obtenerPromocionActiva(prod);
+                if (promo) {
+                  const pFinal = (prod.precio * (1 - promo.descuento_porcentaje / 100)).toFixed(2);
+                  return (
+                    <>
+                      <p className="carousel-precio" style={{ color: "var(--primary-red)" }}>
+                        <span style={{ textDecoration: "line-through", color: "#999", fontSize: "0.8rem", marginRight: "6px" }}>${prod.precio}</span>
+                        ${pFinal}
+                      </p>
+                      <span className="offer-badge" style={{ position: "absolute", top: "10px", right: "10px", padding: "4px 8px", background: "var(--primary-red)", color: "white", borderRadius: "12px", fontSize: "0.75rem", fontWeight: "bold" }}>
+                        {promo.descuento_porcentaje}% OFF
+                      </span>
+                    </>
+                  );
+                }
+                return <p className="carousel-precio">${prod.precio}</p>;
+              })()}
+              <p className="carousel-stock">Quedan {prod.stock_actual !== undefined ? prod.stock_actual : (prod.stock || "varios")}</p>
               <p className="carousel-nombre">{prod.nombre_producto}</p>
             </div>
           </div>
@@ -198,8 +224,8 @@ const LocalCarousel = ({ locales }) => {
         {locales.map((loc) => (
           <div key={loc.id_local} className="locales-carousel-item">
             <div className="locales-carousel-image">
-              {loc.logo ? (
-                <img src={loc.logo} alt={loc.nombre_local} />
+              {loc.imagen_url || loc.logo ? (
+                <img src={loc.imagen_url || loc.logo} alt={loc.nombre_local} />
               ) : (
                 <i className="fas fa-store"></i>
               )}
@@ -245,11 +271,14 @@ export default function ClientView({
     const resultados = base.filter((prod) => {
       const nombre = (prod.nombre_producto || prod.nombre || "").toLowerCase();
       return nombre.includes(q);
+    }).sort((a, b) => {
+      // Dejamos la prioridad vacía para ahora que no hay membresias en la BD
+      return 0;
     });
 
     setProductosFiltrados(resultados);
     setBusquedaRealizada(true);
-    setProductoSeleccionado(null); // Limpiamos el mapa al hacer una nueva búsqueda
+    setProductoSeleccionado(null);
   };
 
   // Cargar CSS
@@ -263,16 +292,7 @@ export default function ClientView({
     };
   }, []);
 
-  //Esta es una funcion auxiliar para los descuentos, se puede eliminar si no se va a usar
-  const obtenerPromocionActiva = (producto) => {
-    if (!producto.promociones || producto.promociones.length === 0) return null;
-    const ahora = new Date();
-    // Buscamos una promoción activa y con fecha de expiración >= hoy
-    return producto.promociones.find(
-      (p) => p.activa && new Date(p.fecha_expiracion) >= ahora,
-    );
-  };
-  //Hasta aquí
+
   // Cargar datos según la pestaña
   useEffect(() => {
     if (!perfil) return;
@@ -285,21 +305,30 @@ export default function ClientView({
             `
       *,
       categorias (nombre_categoria),
-      locales (nombre_local, telefono, ubicacion_id, ubicaciones (latitud, longitud, direccion_fisica)),
+      locales (nombre_local, telefono, horario_json, rubros (*), ubicacion_id, ubicaciones (latitud, longitud, direccion_fisica)),
       promociones (*)
     `,
           )
           .eq("status", true);
 
-        if (!error) setProductos(data || []);
-        setProductosDestacados(productosEjemplo);
+        if (!error && data) {
+           setProductos(data);
+           
+           const ordenados = [...data].sort((a, b) => {
+             const pa = obtenerPromocionActiva(a) ? 1 : 0;
+             const pb = obtenerPromocionActiva(b) ? 1 : 0;
+             return pb - pa;
+           });
+
+           setProductosDestacados(ordenados.slice(0, 10));
+        }
 
         {
           /*Hasta Aquí*/
         }
         const { data: localesData } = await supabase
           .from("locales")
-          .select("id_local, nombre_local, logo_url")
+          .select("id_local, nombre_local, imagen_url")
           .limit(10);
         if (localesData && localesData.length > 0) {
           if (localesData.length < 10) {
@@ -509,6 +538,41 @@ export default function ClientView({
                         <i className="fas fa-phone"></i>{" "}
                         {productoSeleccionado?.locales?.telefono}
                       </p>
+                      {productoSeleccionado?.locales?.rubros && (
+                        <p className="map-category" style={{ fontSize: "0.9rem", color: "var(--gray)", display: "flex", gap: "8px", alignItems: "center", margin: "4px 0" }}>
+                          <i className="fas fa-tag"></i>{" "}
+                          {productoSeleccionado.locales.rubros.nombre || productoSeleccionado.locales.rubros.nombre_rubro || productoSeleccionado.locales.rubros.titulo || "Local"}
+                        </p>
+                      )}
+                      {productoSeleccionado?.locales?.horario_json && (
+                        <p className="map-hours" style={{ fontSize: "0.9rem", color: "var(--gray)", display: "flex", gap: "8px", alignItems: "center", margin: "4px 0" }}>
+                          <i className="fas fa-clock"></i>{" "}
+                          {productoSeleccionado.locales.horario_json.apertura 
+                            ? `${productoSeleccionado.locales.horario_json.apertura} - ${productoSeleccionado.locales.horario_json.cierre}` 
+                            : "Horario no disponible"}
+                        </p>
+                      )}
+
+                      {/* Info adicional del Producto */}
+                      {productoSeleccionado && (
+                        <div className="map-product-details" style={{ marginTop: "1rem", padding: "1rem", background: "var(--bg-light)", borderRadius: "8px", border: "1px solid var(--border-color)", marginBottom: "1rem" }}>
+                            <div style={{ display: "flex", gap: "1rem", alignItems: "flex-start" }}>
+                                {productoSeleccionado.imagen_url ? (
+                                    <img src={productoSeleccionado.imagen_url} alt={productoSeleccionado.nombre_producto} style={{ width: "80px", height: "80px", objectFit: "cover", borderRadius: "8px", flexShrink: 0 }} />
+                                ) : (
+                                    <div style={{ width: "80px", height: "80px", background: "#e5e7eb", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                                        <i className="fas fa-box" style={{ fontSize: "2rem", color: "var(--gray)" }}></i>
+                                    </div>
+                                )}
+                                <div>
+                                    <h4 style={{ margin: "0 0 0.5rem 0", color: "var(--dark-gray)" }}>{productoSeleccionado.nombre_producto}</h4>
+                                    <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--text-color)", lineHeight: "1.4" }}>
+                                        {productoSeleccionado.descripcion || "Sin descripción disponible."}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                      )}
 
                       {/* Botones circulares gigantes */}
                       <div className="action-circles">

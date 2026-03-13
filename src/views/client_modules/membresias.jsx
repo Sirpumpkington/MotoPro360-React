@@ -106,26 +106,27 @@ export default function MembresiasView() {
             style={{
               maxWidth: "450px",
               width: "100%",
-              background: "var(--bg-light, #fff)",
+              background: "var(--card-bg, #2a2a2a)",
               borderRadius: "12px",
               boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
-              padding: "18px",
+              padding: "24px",
             }}
           >
-            <h2 className="login-title">NUEVO PAGO</h2>
+            <h2 className="login-title" style={{ textAlign: "center", marginBottom: "1rem" }}>NUEVO PAGO</h2>
             <div
               style={{
-                backgroundColor: "var(--bg-light)",
+                backgroundColor: "var(--card-bg, rgba(0,0,0,0.1))",
                 padding: "15px",
-                borderRadius: "15px",
+                borderRadius: "12px",
                 marginBottom: "20px",
                 textAlign: "center",
+                border: "1px dashed var(--border-color)"
               }}
             >
               <h3 style={{ margin: "5px 0", color: "var(--primary-red)" }}>
                 {membresiaSeleccionada?.nombre}
               </h3>
-              <p style={{ fontWeight: "800" }}>
+              <p style={{ fontWeight: "800", fontSize: "1.2rem" }}>
                 Monto: ${membresiaSeleccionada?.precio}
               </p>
             </div>
@@ -136,18 +137,23 @@ export default function MembresiasView() {
                 flexDirection: "column",
                 gap: "15px",
               }}
+              onSubmit={(e) => {
+                e.preventDefault();
+                alert("Pago enviado a verificación.");
+                setIsPagoModalOpen(false);
+              }}
             >
               <input
                 type="text"
                 placeholder="Ingrese su correo"
                 className="login-input"
                 required
-                style={{ width: "100%" }}
+                style={{ width: "100%", padding: "12px", borderRadius: "8px" }}
               />
               <div style={{ display: "flex", gap: "10px" }}>
                 <select
                   className="login-input"
-                  style={{ flex: 1, width: "100%" }}
+                  style={{ flex: 1, width: "100%", padding: "12px", borderRadius: "8px" }}
                 >
                   <option>Zelle</option>
                   <option>Efectivo</option>
@@ -156,22 +162,20 @@ export default function MembresiasView() {
                   type="text"
                   placeholder="Referencia"
                   className="login-input"
-                  style={{ flex: 2, width: "100%" }}
+                  style={{ flex: 2, width: "100%", padding: "12px", borderRadius: "8px" }}
                   required
                 />
               </div>
-              <div className="modal-actions">
+              <div className="modal-actions" style={{ display: "flex", gap: "10px", marginTop: "1rem" }}>
                 <button
                   type="submit"
-                  className="btn-main-login"
-                  style={{ flex: 1 }}
+                  style={{ flex: 1, padding: "12px", background: "var(--primary-red)", color: "#fff", border: "none", borderRadius: "50px", fontWeight: "bold", cursor: "pointer" }}
                 >
                   CONFIRMAR
                 </button>
                 <button
                   type="button"
-                  className="btn-cancel"
-                  style={{ flex: 1 }}
+                  style={{ flex: 1, padding: "12px", background: "transparent", color: "inherit", border: "1px solid var(--border-color)", borderRadius: "50px", fontWeight: "bold", cursor: "pointer" }}
                   onClick={() => setIsPagoModalOpen(false)}
                 >
                   CANCELAR
