@@ -20,6 +20,9 @@ const Pagos = () => {
       `)
       .order("created_at", { ascending: false });
 
+    console.log("Datos obtenidos de pagos:", data);
+    console.error("Errores de pagos:", error);
+
     if (data) setPagos(data);
     else if (error) console.error("Error al cargar pagos:", error);
     setLoading(false);
@@ -29,7 +32,7 @@ const Pagos = () => {
     cargarPagos();
   }, []);
 
-  const cambiarEstado = async (id, nuevoEstado) => {
+  const cambiarEstado = async (id, nuevoEstado, id_membresia, cedula_persona, montoPagado, planNombre) => {
     let confirmMsg = "";
     if (nuevoEstado === "aprobado") {
       confirmMsg = "¿Aprobar este pago? La membresía del usuario se activará automáticamente.";
@@ -49,15 +52,48 @@ const Pagos = () => {
           .eq("id_pago", id);
         if (error) throw error;
       } else {
-        const { error } = await supabase
+        const updatePagoData = { estado: nuevoEstado };
+        
+        if (nuevoEstado === "aprobado") {
+          updatePagoData.fecha_aprobacion = new Date().toISOString();
+          
+          let precioBase = 1; // Fallback
+          if (planNombre) {
+            const nombreL = planNombre.toLowerCase();
+            if (nombreL.includes("pro")) precioBase = 25;
+            else if (nombreL.includes("premium")) precioBase = 50;
+          }
+
+          // Calcular la cantidad de meses en base al pago (fallback a 1 si algo falla)
+          const mesesPagados = (precioBase && precioBase > 0) ? Math.floor(montoPagado / precioBase) : 1;
+          const mesesReales = mesesPagados > 0 ? mesesPagados : 1;
+
+          const fFin = new Date();
+          fFin.setMonth(fFin.getMonth() + mesesReales);
+          updatePagoData.fecha_fin = fFin.toISOString();
+        } else {
+          updatePagoData.fecha_aprobacion = null;
+          updatePagoData.fecha_fin = null;
+        }
+
+        const { error: errPago } = await supabase
           .from("pagos")
-          .update({ 
-            estado: nuevoEstado,
-            fecha_aprobacion: nuevoEstado === "aprobado" ? new Date().toISOString() : null
-          })
+          .update(updatePagoData)
           .eq("id_pago", id);
         
-        if (error) throw error;
+        if (errPago) throw errPago;
+
+        // Actualizar membresía de la persona
+        if (nuevoEstado === "aprobado" && id_membresia && cedula_persona) {
+          const { error: errPers } = await supabase
+            .from("personas")
+            .update({ id_membresia: id_membresia })
+            .eq("cedula", cedula_persona);
+          if (errPers) throw errPers;
+        } else if (nuevoEstado === "rechazado" && cedula_persona) {
+          // Opcional: Si se rechaza y no tiene otros pagos válidos, se podría volver a básico.
+          // Por simplicidad, aquí solo revertimos si fuera estrictamente necesario.
+        }
       }
       alert(`✅ Pago ${nuevoEstado === "eliminar" ? "eliminado" : "actualizado"} correctamente.`);
       cargarPagos();
@@ -225,7 +261,10 @@ const Pagos = () => {
                     <h4>Detalles del Pago</h4>
                     <ul style={{ listStyle: "none", padding: 0, margin: "5px 0", fontSize: "0.9rem", color: "#555" }}>
                       <li style={{marginBottom: "5px"}}><i className="fas fa-money-check-alt" style={{marginRight: "5px", color: "#aaa"}}></i> <strong>Método:</strong> {p.metodo_pago}</li>
-                      <li><i className="fas fa-hashtag" style={{marginRight: "5px", color: "#aaa"}}></i> <strong>Referencia:</strong> {p.nro_referencia || "No aplicable"}</li>
+                      <li style={{marginBottom: "5px"}}><i className="fas fa-hashtag" style={{marginRight: "5px", color: "#aaa"}}></i> <strong>Referencia:</strong> {p.nro_referencia || "No aplicable"}</li>
+                      {p.url_comprobante && (
+                        <li><i className="fas fa-file-image" style={{marginRight: "5px", color: "#aaa"}}></i> <strong>Comprobante:</strong> {p.url_comprobante}</li>
+                      )}
                     </ul>
                   </div>
                 </div>
@@ -244,14 +283,14 @@ const Pagos = () => {
                     {p.estado === "pendiente" && (
                       <>
                         <button
-                          onClick={() => cambiarEstado(p.id_pago, "aprobado")}
+                          onClick={() => cambiarEstado(p.id_pago, "aprobado", p.id_membresia, p.cedula_persona, p.monto, p.membresias?.nombre)}
                           className={`${styles.actionBtn} ${styles.approveBtn}`}
                           title="Aprobar Pago"
                         >
                           <i className="fas fa-check"></i>
                         </button>
                         <button
-                          onClick={() => cambiarEstado(p.id_pago, "rechazado")}
+                          onClick={() => cambiarEstado(p.id_pago, "rechazado", p.id_membresia, p.cedula_persona, p.monto, p.membresias?.nombre)}
                           className={`${styles.actionBtn} ${styles.rejectBtn}`}
                           title="Rechazar Pago"
                         >
@@ -261,7 +300,7 @@ const Pagos = () => {
                     )}
                     {p.estado !== "pendiente" && (
                       <button
-                        onClick={() => cambiarEstado(p.id_pago, esAprobado ? "rechazado" : "aprobado")}
+                        onClick={() => cambiarEstado(p.id_pago, esAprobado ? "rechazado" : "aprobado", p.id_membresia, p.cedula_persona, p.monto, p.membresias?.nombre)}
                         className={`${styles.actionBtn} ${styles.toggleBtn}`}
                         title="Cambiar estado"
                       >

@@ -581,7 +581,6 @@ input:focus {
 }
 /* (Section title / input-row moved to unused block at end) */
 
-/* Select personalizado */
 select {
   width: 100%;
   padding: 16px 20px 16px 55px;
@@ -596,6 +595,11 @@ select {
   color: var(--dark-gray);
   appearance: none;
   cursor: pointer;
+}
+
+select option {
+  background-color: var(--white);
+  color: var(--dark-gray);
 }
 
 select:focus {
@@ -1135,6 +1139,11 @@ body.dark-mode select,
 body.dark-mode textarea {
   background-color: #2d2d2d;
   border-color: #444;
+  color: #fff;
+}
+
+body.dark-mode select option {
+  background-color: #2d2d2d;
   color: #fff;
 }
 

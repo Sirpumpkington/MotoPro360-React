@@ -8,11 +8,15 @@ export default function MembresiasView({ perfil }) {
   const [paymentData, setPaymentData] = useState({
     metodo_pago: "Pago Móvil",
     nro_referencia: "",
+    url_comprobante: "", // Mock para el futuro bucket
+    meses: 1, // Cantidad de meses a pagar
   });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setPaymentData((prev) => ({ ...prev, [name]: value }));
+    // Asegurar que meses sea un número si viene de ese campo
+    const finalValue = name === "meses" ? parseInt(value) || 1 : value;
+    setPaymentData((prev) => ({ ...prev, [name]: finalValue }));
   };
 
   const handleSubmit = async (e) => {
@@ -28,20 +32,21 @@ export default function MembresiasView({ perfil }) {
         {
           cedula_persona: perfil.cedula,
           id_membresia: membresiaSeleccionada.id,
-          monto: membresiaSeleccionada.precio,
+          monto: membresiaSeleccionada.precio * paymentData.meses,
           metodo_pago: paymentData.metodo_pago,
           nro_referencia: paymentData.nro_referencia,
+          url_comprobante: paymentData.url_comprobante || null,
           estado: "pendiente",
         },
       ]);
 
       if (error) throw error;
 
-      alert("✅ ¡Pago registrado con éxito! Un administrador lo revisará pronto.");
+      alert("¡Pago registrado con éxito! Un administrador lo revisará pronto.");
       setIsPagoModalOpen(false);
-      setPaymentData({ metodo_pago: "Pago Móvil", nro_referencia: "" });
+      setPaymentData({ metodo_pago: "Pago Móvil", nro_referencia: "", url_comprobante: "", meses: 1 });
     } catch (error) {
-      alert("❌ Error al registrar el pago: " + error.message);
+      alert(" Error al registrar el pago: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -172,8 +177,13 @@ export default function MembresiasView({ perfil }) {
                 Plan {membresiaSeleccionada?.nombre}
               </h3>
               <p style={{ fontWeight: "800", fontSize: "1.8rem", margin: "10px 0" }}>
-                ${membresiaSeleccionada?.precio}
+                ${membresiaSeleccionada?.precio * paymentData.meses}
               </p>
+              {paymentData.meses > 1 && (
+                <p style={{ fontSize: "0.9rem", color: "var(--text-muted)", marginBottom: "5px" }}>
+                  (${membresiaSeleccionada?.precio} x {paymentData.meses} meses)
+                </p>
+              )}
               <p style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
                  Cédula: {perfil?.cedula}
               </p>
@@ -195,19 +205,27 @@ export default function MembresiasView({ perfil }) {
                   value={paymentData.metodo_pago}
                   onChange={handleInputChange}
                   required
-                  style={{
-                    background: "none",
-                    border: "none",
-                    width: "100%",
-                    outline: "none",
-                    color: "inherit",
-                    padding: "0 10px"
-                  }}
                 >
                   <option value="Pago Móvil">Pago Móvil</option>
                   <option value="Transferencia">Transferencia</option>
                   <option value="Zelle">Zelle</option>
                   <option value="Efectivo">Efectivo</option>
+                </select>
+              </div>
+
+              <div className="input-group">
+                <i className="fas fa-calendar-alt icon-field"></i>
+                <select
+                  name="meses"
+                  className="login-input"
+                  value={paymentData.meses}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="1">1 Mes</option>
+                  <option value="3">3 Meses</option>
+                  <option value="6">6 Meses</option>
+                  <option value="12">12 Meses</option>
                 </select>
               </div>
 
@@ -224,12 +242,24 @@ export default function MembresiasView({ perfil }) {
                 />
               </div>
 
+              <div className="input-group">
+                <i className="fas fa-file-upload icon-field"></i>
+                <input
+                  type="text"
+                  name="url_comprobante"
+                  placeholder="URL del Comprobante (Simulado)"
+                  className="login-input"
+                  value={paymentData.url_comprobante}
+                  onChange={handleInputChange}
+                />
+              </div>
+
               <div className="modal-actions" style={{ display: "flex", gap: "10px", marginTop: "1rem" }}>
                 <button
                   type="submit"
                   disabled={loading}
                   className="btn-main-login"
-                  style={{ flex: 1, height: "45px", borderRadius: "50px" }}
+                  style={{ flex: 1, minWidth: "160px", height: "45px", borderRadius: "50px", padding: "0 15px", display: "flex", justifyContent: "center", alignItems: "center" }}
                 >
                   {loading ? <i className="fas fa-spinner fa-spin"></i> : "CONFIRMAR PAGO"}
                 </button>

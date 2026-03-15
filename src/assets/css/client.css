@@ -1683,6 +1683,9 @@ body.dark-mode .comunidad-avatar {
   overflow-x: hidden;
   scroll-behavior: smooth;
   padding: 10px 0;
+  width: max-content;
+  max-width: 100%;
+  margin: 0 auto;
 }
 
 .carousel-item {
@@ -2829,7 +2832,7 @@ body.dark-mode .moto-card.selected {
   font-size: 1.2rem;
   margin-top: 5px;
   font-weight: 700;
-  color: var(--text-muted);
+  color: #ccc;
 }
 
 .mem-features {
@@ -2842,8 +2845,8 @@ body.dark-mode .moto-card.selected {
 
 .mem-features li {
   padding: 10px 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  color: var(--text-muted);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: #e0e0e0;
   font-size: 0.95rem;
   display: flex;
   align-items: center;

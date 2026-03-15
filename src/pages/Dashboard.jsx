@@ -60,6 +60,42 @@ export default function Dashboard() {
           .select("cedula, nombres, apellidos, roles(nombre_rol)");
         setUsuarios(lista || []);
       }
+
+      // Check Automatic Expiration for Non-Basic Memberships
+      if (persona?.id_membresia && persona.id_membresia > 1) {
+        const { data: ultimosPagos } = await supabase
+          .from("pagos")
+          .select("fecha_fin")
+          .eq("cedula_persona", persona.cedula)
+          .eq("estado", "aprobado")
+          .order("fecha_fin", { ascending: false })
+          .limit(1);
+
+        if (ultimosPagos && ultimosPagos.length > 0) {
+          const expirationDate = new Date(ultimosPagos[0].fecha_fin);
+          const now = new Date();
+          
+          if (expirationDate < now) {
+            // Expiró la membresía, regresando a básico (1)
+            const { error: errUpdate } = await supabase
+              .from("personas")
+              .update({ id_membresia: 1 })
+              .eq("cedula", persona.cedula);
+
+            if (!errUpdate) {
+              setPerfil(prev => ({ ...prev, id_membresia: 1 }));
+            }
+          }
+        } else {
+           // Fallback si por alguna razón no tiene pagos aprobados registrados
+           const { error: errUpdate } = await supabase
+              .from("personas")
+              .update({ id_membresia: 1 })
+              .eq("cedula", persona.cedula);
+           if (!errUpdate) setPerfil(prev => ({ ...prev, id_membresia: 1 }));
+        }
+      }
+
       setLoading(false);
     };
     cargarDatos();

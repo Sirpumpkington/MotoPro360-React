@@ -96,18 +96,11 @@ const productosEjemplo = [
   },
 ];
 
-// Datos de ejemplo para locales
-const localesEjemplo = [
-  { id_local: 1, nombre_local: "MotoRepuestos CA", logo: null },
-  { id_local: 2, nombre_local: "Taller El Tigre", logo: null },
-  { id_local: 3, nombre_local: "Mundo Moto", logo: null },
-  { id_local: 4, nombre_local: "Repuestos Rápidos", logo: null },
-  { id_local: 5, nombre_local: "Accesorios Yamir", logo: null },
-  { id_local: 6, nombre_local: "Neumáticos Express", logo: null },
-  { id_local: 7, nombre_local: "Motos Venezuela", logo: null },
-  { id_local: 8, nombre_local: "Taller Mecánico Pérez", logo: null },
-  { id_local: 9, nombre_local: "Repuestos El Tigre", logo: null },
-  { id_local: 10, nombre_local: "MotoPartes C.A.", logo: null },
+// Datos de ejemplo para Ads Públicas (A reemplazar con Supabase en el futuro)
+const adsPublicas = [
+  { id_ad: 1, titulo: "Promoción Especial", imagen_url: "https://via.placeholder.com/800x150?text=Espacio+Publicitario+1", enlace: "#" },
+  { id_ad: 2, titulo: "Gran Apertura", imagen_url: "https://via.placeholder.com/800x150?text=Espacio+Publicitario+2", enlace: "#" },
+  { id_ad: 3, titulo: "Mantenimiento Preventivo", imagen_url: "https://via.placeholder.com/800x150?text=Espacio+Publicitario+3", enlace: "#" },
 ];
 
 // Componente Carrusel de Productos
@@ -193,44 +186,43 @@ const ProductCarousel = ({ productos }) => {
   );
 };
 
-// Componente Carrusel de Locales
-const LocalCarousel = ({ locales }) => {
+// Componente Carrusel de Ads Públicas
+const AdsCarousel = ({ ads }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const carouselRef = React.useRef(null);
 
   useEffect(() => {
-    if (!locales || locales.length === 0) return;
+    if (!ads || ads.length === 0) return;
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % locales.length);
-    }, 3000);
+      setCurrentIndex((prev) => (prev + 1) % ads.length);
+    }, 5000);
     return () => clearInterval(interval);
-  }, [locales]);
+  }, [ads]);
 
   useEffect(() => {
-    if (carouselRef.current && locales?.length > 0) {
-      const itemWidth = carouselRef.current.children[0]?.offsetWidth + 16;
+    if (carouselRef.current && ads?.length > 0) {
+      const itemWidth = carouselRef.current.children[0]?.offsetWidth + 16; /* 16px is approx the gap */
       carouselRef.current.scrollTo({
         left: currentIndex * itemWidth,
         behavior: "smooth",
       });
     }
-  }, [currentIndex, locales]);
+  }, [currentIndex, ads]);
 
-  if (!locales || locales.length === 0) return null;
+  if (!ads || ads.length === 0) return null;
 
   return (
-    <div className="locales-carousel-container">
+    <div className="locales-carousel-container" style={{ margin: "20px auto", maxWidth: "100%", overflow: "hidden" }}>
       <div className="locales-carousel-track" ref={carouselRef}>
-        {locales.map((loc) => (
-          <div key={loc.id_local} className="locales-carousel-item">
-            <div className="locales-carousel-image">
-              {loc.imagen_url || loc.logo ? (
-                <img src={loc.imagen_url || loc.logo} alt={loc.nombre_local} />
-              ) : (
-                <i className="fas fa-store"></i>
-              )}
-            </div>
-            <p className="locales-carousel-nombre">{loc.nombre_local}</p>
+        {ads.map((ad) => (
+          <div key={ad.id_ad} className="locales-carousel-item" style={{ flex: "0 0 100%", padding: 0, overflow: "hidden", position: "relative", cursor: "pointer", borderRadius: "12px", background: "none", border: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }} onClick={() => window.open(ad.enlace, "_blank")}>
+            {ad.imagen_url ? (
+              <img src={ad.imagen_url} alt={ad.titulo} style={{ width: "100%", height: "auto", minHeight:"150px", display: "block", objectFit: "cover", borderRadius: "12px" }} />
+            ) : (
+              <div style={{ padding: "40px", textAlign: "center", background: "#f3f3f3", width: "100%", borderRadius: "12px" }}>
+                <h3 style={{margin: 0}}>{ad.titulo}</h3>
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -250,7 +242,7 @@ export default function ClientView({
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   const [productosFiltrados, setProductosFiltrados] = useState([]);
   const [productosDestacados, setProductosDestacados] = useState([]);
-  const [localesDestacados, setLocalesDestacados] = useState([]);
+  const [adsData, setAdsData] = useState([]);
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [sugerencias, setSugerencias] = useState([]);
@@ -371,25 +363,10 @@ export default function ClientView({
         }
 
         {
-          /*Hasta Aquí*/
+          /*Lógica de Ads Públicas (Simulada para luego conectar con Supabase)*/
         }
-        const { data: localesData } = await supabase
-          .from("locales")
-          .select("id_local, nombre_local, imagen_url")
-          .limit(10);
-        if (localesData && localesData.length > 0) {
-          if (localesData.length < 10) {
-            const complemento = localesEjemplo.slice(
-              0,
-              10 - localesData.length,
-            );
-            setLocalesDestacados([...localesData, ...complemento]);
-          } else {
-            setLocalesDestacados(localesData);
-          }
-        } else {
-          setLocalesDestacados(localesEjemplo);
-        }
+        // const { data: adsDataBD } = await supabase.from("publicidad").select("*").eq("activa", true);
+        setAdsData(adsPublicas);
       }
       setLoading(false);
     };
@@ -466,7 +443,7 @@ export default function ClientView({
                 BUSCAR DISPONIBILIDAD
               </button>
             </div>
-            <LocalCarousel locales={localesDestacados} />
+            <AdsCarousel ads={adsData} />
           </div>
         ) : (
           <>
